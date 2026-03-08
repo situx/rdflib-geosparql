@@ -383,8 +383,9 @@ class LiteralUtils:
         return geoms
 
 ## Calculates the area of a 2D geometry provided as a geometry literal .
+#  Implements <a href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>
 #  @param a The geometry literal.
-#  @returns The area as an xsd:double <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+#  @returns The area as an <a href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
@@ -411,7 +412,8 @@ def asDGGS(a, dggsType) -> Literal:
 
 
 ## Converts a geometry literal to a GeoJSON literal .
-#  @param a The geometry literal.
+#  Implements <a href="http://www.opengis.net/def/function/geosparql/asGeoJSON">geof:asGeoJSON</a>
+#  @param a The geometry literal
 #  @returns The geometry as a <a href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
@@ -431,11 +433,19 @@ def asGeocode(a, geocodeURI) -> Literal:
                    datatype="http://www.opengis.net/ont/geosparql#geocodeLiteral")
 
 
+## Converts a geometry literal to a GML literal preserving its coordinate reference system.
+#  Implements <a href="http://www.opengis.net/def/function/geosparql/asGML">geof:asGML</a>
+#  @param a The geometry literal
+#  @returns The geometry as a <a href="http://www.opengis.net/ont/geosparql#gmlLiteral">geo:gmlLiteral</a>
 def asGML(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
 
+## Converts a geometry literal to a KML literal.
+#  Implements <a href="http://www.opengis.net/def/function/geosparql/asKML">geof:asKML</a>
+#  @param a The geometry literal
+#  @returns The geometry as a <a href="http://www.opengis.net/ont/geosparql#kmlLiteral">geo:kmlLiteral</a>
 def asKML(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#kmlLiteral", thegeomsrs)
@@ -460,7 +470,10 @@ def asWKB(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wkbLiteral", thegeomsrs)
 
-
+## Converts a geometry literal to a WKT literal.
+#  Implements <a href="http://www.opengis.net/def/function/geosparql/asWKT">geof:asWKT</a>
+#  @param a The geometry literal
+#  @returns The geometry as a <a href="http://www.opengis.net/ont/geosparql#wktLiteral">geo:wktLiteral</a>
 def asWKT(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
