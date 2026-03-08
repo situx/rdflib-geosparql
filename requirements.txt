@@ -1,0 +1,16 @@
+rdflib
+rhealpix-sf
+shapely
+fastkml
+pygml
+pint
+pyproj
+lxml
+trimesh
+manifold3d
+triangle
+mapbox-earcut
+Geometry3D
+openlocationcode
+pygeohash
+h3
