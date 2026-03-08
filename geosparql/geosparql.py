@@ -384,7 +384,7 @@ class LiteralUtils:
 
 ## Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
-#  @returns The area as an xsd:double Literal
+#  @returns The area as an xsd:double <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
@@ -410,6 +410,9 @@ def asDGGS(a, dggsType) -> Literal:
     return Literal(Transformers.transformToDGGS(thegeom, dggsType),datatype="http://www.opengis.net/ont/geosparql#dggsLiteral")
 
 
+## Converts a geometry literal to a GeoJSON literal .
+#  @param a The geometry literal.
+#  @returns The geometry as a <a href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#geoJSONLiteral", thegeomsrs)
