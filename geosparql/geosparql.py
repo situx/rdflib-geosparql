@@ -382,7 +382,9 @@ class LiteralUtils:
         # print(geoms)
         return geoms
 
-
+## Calculates the area of a 2D geometry provided as a geometry literal .
+#  @param a The geometry literal.
+#  @returns The area as an xsd:double Literal
 def area(a) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
