@@ -1140,7 +1140,10 @@ def patchN(a: Literal, n: Literal)) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/pointN">geof:pointN</a>: Returns the nth point of a geometry
+#  @param a The geometry literal
+#  @param n The index of the point to retrieve
+#  @returns The point at the nth position of the given geometry as a geometry literal of the same type and CRS as the input geometry
 def pointN(a: Literal, n) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in str(thegeom.geom_type):
@@ -1148,6 +1151,9 @@ def pointN(a: Literal, n) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.get_point(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
 
+## Returns a point on the surface of the given geometry
+#  @param a The geometry literal
+#  @returns The surface point as a geometry literal of the same type and CRS as the input geometry
 def pointOnSurface(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.point_on_surface(thegeom))
