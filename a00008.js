@@ -66,7 +66,7 @@ var a00008 =
     [ "maxZ", "a00008.html#a0262909f8121abdbd85dc169ef003cd0", null ],
     [ "merge_dicts", "a00008.html#a9196ad348c499f2b18d7f7e72322910b", null ],
     [ "metricArea", "a00008.html#a0de508dfdebac3bc3e16fe6a52618cf1", null ],
-    [ "metricBuffer", "a00008.html#adc22b0d3ac793250f114d5755378d432", null ],
+    [ "metricBuffer", "a00008.html#a1907f129ed4943975032f58c18ac800a", null ],
     [ "metricDistance", "a00008.html#a7c036584d03f55016e4ebc86987d65fb", null ],
     [ "metricLength", "a00008.html#a7cf640fa7a9f010bf517e8eb4e988c21", null ],
     [ "metricPerimeter", "a00008.html#a59f5094d5cbf33dd4663b8ed04a08653", null ],
