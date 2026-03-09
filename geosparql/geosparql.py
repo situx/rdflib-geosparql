@@ -17,7 +17,7 @@ from pint import UnitRegistry
 from pygml.v32 import encode_v32
 from pyproj import CRS
 from pyproj import Transformer
-from rdflib import Literal, XSD, Graph, URIRef
+from rdflib import Literal, XSD, Graph, URIRef, term
 from rdflib.plugins.sparql.operators import register_custom_function
 from shapely.io import to_geojson
 
@@ -185,15 +185,59 @@ class LiteralUtils:
         return ress
 
     @staticmethod
-    def processLiteralTypeToGeom(literal, create3D=False, normsrs=None):
-        if not isinstance(literal, Literal):
+    def processWKTLiteral(text):
+        print(text)
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wktLiteral")
+
+    @staticmethod
+    def processGMLLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gmlLiteral")
+
+    @staticmethod
+    def processKMLLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"kmlLiteral")
+
+    @staticmethod
+    def processDGGSLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"dggsLiteral")
+
+    @staticmethod
+    def processGeoJSONLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"geoJSONLiteral")
+
+    @staticmethod
+    def processGLTFLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral")
+
+    @staticmethod
+    def processPLYLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral")
+
+    @staticmethod
+    def processOBJLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral")
+
+    @staticmethod
+    def processWKBLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wkbLiteral")
+
+    @staticmethod
+    def processLiteralTypeToGeom(literal, datatype=None,create3D=False, normsrs=None):
+        if not isinstance(literal, Literal) and datatype is None:
             raise ValueError("The " + str(literal) + " is not a literal!")
-        dtype = str(literal.datatype)
+        if datatype is None:
+            dtype = str(literal.datatype)
+        else:
+            dtype = str(datatype)
         lstring = str(literal).strip()
+        #print(literal)
+        #print(dtype)
+        print("LString: "+str(lstring))
         if str(dtype) == "http://www.opengis.net/ont/geosparql#wktLiteral":
             if lstring.startswith("<"):
                 srsuri = lstring[0:lstring.find(">")].replace("<", "").replace(">", "")
                 gstring = lstring[lstring.find(">") + 1:].strip()
+                print("GString: "+str(gstring))
                 geo = shapely.from_wkt(gstring)
                 srid = srsuri[srsuri.rfind("/") + 1:]
                 if srid.isnumeric():
@@ -207,7 +251,7 @@ class LiteralUtils:
                     return (LiteralUtils.createGeometry3D(geo), srsuri)
                 return (geo, srsuri)
             else:
-                geo = shapely.from_wkt(str(literal))
+                geo = shapely.from_wkt(str(lstring))
                 shapely.set_srid(geo, 4326)
                 srsuri = CRS84URI
                 if normsrs is not None:
@@ -319,6 +363,38 @@ class LiteralUtils:
             )
 
     @staticmethod
+    def processGeomToGeoJSONLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "geoJSONLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToGLTFLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gltfLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToGMLLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToKMLLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "kmlLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToOBJLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "objLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToPLYLiteral(geomtup):
+        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToWKBLiteral(geomtup):
+        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToWKTLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0],GEO+"gmlLiteral",geomtup[1])
+
+    @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
         ltype = str(literaltype)
         if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
@@ -371,7 +447,7 @@ class LiteralUtils:
         for lit in literals:
             if isinstance(lit, Literal):
                 # print("NormSRS: "+str(normsrs))
-                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D, normsrs)
+                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D=create3D, normsrs=normsrs)
                 # print(g)
 
                 if normalize and first and normsrs is None:
@@ -383,12 +459,15 @@ class LiteralUtils:
         return geoms
 
 
-def area(a) -> Literal:
+## Calculates the area of a 2D geometry provided as a geometry literal .
+#  @param a The geometry literal.
+#  @returns The area as an xsd:double Literal
+def area(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
 
 
-def azimuth(a) -> Literal:
+def azimuth(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     minrect = thegeom.minimum_rotated_rectangle
     minrectb = minrect.boundary
@@ -400,7 +479,7 @@ def azimuth(a) -> Literal:
     return Literal(azimuthangle, datatype=XSD.double)
 
 
-def asDGGS(a, dggsType) -> Literal:
+def asDGGS(a: Literal, dggsType: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     #print(a)
     #print(dggsType)
@@ -408,17 +487,17 @@ def asDGGS(a, dggsType) -> Literal:
     return Literal(Transformers.transformToDGGS(thegeom, dggsType),datatype="http://www.opengis.net/ont/geosparql#dggsLiteral")
 
 
-def asGeoJSON(a) -> Literal:
+def asGeoJSON(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#geoJSONLiteral", thegeomsrs)
 
 
-def asGLTF(a) -> Literal:
+def asGLTF(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gltfLiteral", thegeomsrs)
 
 
-def asGeocode(a, geocodeURI) -> Literal:
+def asGeocode(a: Literal, geocodeURI) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom)
     print(geocodeURI)
@@ -426,12 +505,12 @@ def asGeocode(a, geocodeURI) -> Literal:
                    datatype="http://www.opengis.net/ont/geosparql#geocodeLiteral")
 
 
-def asGML(a) -> Literal:
+def asGML(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
 
-def asKML(a) -> Literal:
+def asKML(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#kmlLiteral", thegeomsrs)
 
@@ -653,7 +732,8 @@ def intersects3D(a, b) -> Literal:
 
 
 def is3D(a) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    thegeom, thegeomsrs = a.value
+    print(str(a.value))
     return Literal(thegeom.has_z, datatype=XSD.boolean)
 
 
@@ -1173,24 +1253,25 @@ def getfuncs():
         except AttributeError:
             pass
 
+    #term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processToWKT)
+
 
 getfuncs()
 
 g = Graph()
 dir_path = os.path.dirname(os.path.realpath(__file__))
-g.parse(dir_path + "/../tests/testdata.ttl")
+#g.parse(dir_path + "/../tests/testdata.ttl")
 
 result = g.query(
     """
 PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX geof: <"""+str(GEOFEXT)+""">
-SELECT ?sline
+PREFIX geof: <"""+str(GEOF)+""">
+SELECT ?sline ?literal
 WHERE {
-  my:AExactGeom geo:asGeoJSON ?literal .
-  my:OExactGeom geo:asGeoJSON ?literal2 .
-  BIND(geof:shortestLine(?literal,?literal2) AS ?sline)
+  BIND("<http://www.opengis.net/def/crs/OGC/1.3/CRS84> Polygon((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"^^geo:wktLiteral as ?literal)
+  BIND(geof:is3D(?literal) AS ?sline)
 }
 """
 )
