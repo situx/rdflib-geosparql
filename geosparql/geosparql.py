@@ -872,7 +872,7 @@ def length(a: Literal) -> Literal:
 #  @param a The geometry literal.
 #  @returns The M coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def m(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    thegeom, thegeomsrs = a.value #LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
@@ -898,7 +898,6 @@ def maxM(a: Literal) -> Literal:
     if maxM == flinf:
         maxM = "NaN"
     return Literal(str(maxM), datatype=XSD.double)
-
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxX">geof:maxX</a>: Retrieves the maximum x coordinate of a geometry.
 #  @param a The geometry literal.
@@ -1371,7 +1370,7 @@ def getfuncs():
         except AttributeError:
             pass
 
-    #term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processToWKT)
+    term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processGeomToWKTLiteral)
 
 
 getfuncs()
