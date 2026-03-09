@@ -473,7 +473,10 @@ def azimuth(a: Literal) -> Literal:
     azimuthangle = degrees(atan2(p2[1] - p1[1], p2[0] - p1[0]))
     return Literal(azimuthangle, datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asDGGS">geof:asDGGS</a>: Converts a geometry literal to a DGGS literal .
+#  @param a The geometry literal
+#  @param dggsType The DGGS type described by a URI
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#dggsLiteral">geo:dggsLiteral</a>
 def asDGGS(a: Literal, dggsType) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     #print(a: Literal)
@@ -486,15 +489,24 @@ def asDGGS(a: Literal, dggsType) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#geoJSONLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#geoJSONLiteral", thegeomsrs)
 
-
+## Converts a geometry literal to a GLTF literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gltfLiteral">geo:gltfLiteral</a>
 def asGLTF(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#gltfLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gltfLiteral", thegeomsrs)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeocode">geof:asGeocode</a>: Converts a geometry literal to a Geocode literal .
+#  @param a The geometry literal
+#  @param geocodeURI The Geocode type described by a URI
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geocodeLiteral">geo:geocodeLiteral</a>
 def asGeocode(a: Literal, geocodeURI) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom)
@@ -507,6 +519,8 @@ def asGeocode(a: Literal, geocodeURI) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gmlLiteral">geo:gmlLiteral</a>
 def asGML(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#gmlLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
@@ -515,20 +529,34 @@ def asGML(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#kmlLiteral">geo:kmlLiteral</a>
 def asKML(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#kmlLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#kmlLiteral", thegeomsrs)
 
 
+## Converts a geometry literal to a OBJ literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#objLiteral">geo:objLiteral</a>
 def asOBJ(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#objLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#objLiteral", thegeomsrs)
 
 
+## Converts a geometry literal to a PLY literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#objLiteral">geo:plyLiteral</a>
 def asPLY(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#plyLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#plyLiteral", thegeomsrs)
 
-
+## Converts a geometry literal to a XYZ literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#xyzLiteral">geo:xyzLiteral</a>
 def asXYZ(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#xyzLiteral", thegeomsrs)
