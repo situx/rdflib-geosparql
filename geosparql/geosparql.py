@@ -454,8 +454,7 @@ class LiteralUtils:
         # print(geoms)
         return geoms
 
-## Calculates the area of a 2D geometry provided as a geometry literal .
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a: Literal) -> Literal:
@@ -483,8 +482,7 @@ def asDGGS(a: Literal, dggsType) -> Literal:
     return Literal(Transformers.transformToDGGS(thegeom, dggsType),datatype="http://www.opengis.net/ont/geosparql#dggsLiteral")
 
 
-## Converts a geometry literal to a GeoJSON literal .
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeoJSON">geof:asGeoJSON</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeoJSON">geof:asGeoJSON</a>: Converts a geometry literal to a GeoJSON literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a: Literal) -> Literal:
@@ -505,8 +503,7 @@ def asGeocode(a: Literal, geocodeURI) -> Literal:
                    datatype="http://www.opengis.net/ont/geosparql#geocodeLiteral")
 
 
-## Converts a geometry literal to a GML literal preserving its coordinate reference system.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGML">geof:asGML</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGML">geof:asGML</a>: Converts a geometry literal to a GML literal preserving its coordinate reference system. 
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gmlLiteral">geo:gmlLiteral</a>
 def asGML(a: Literal) -> Literal:
@@ -514,8 +511,7 @@ def asGML(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
 
-## Converts a geometry literal to a KML literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asKML">geof:asKML</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asKML">geof:asKML</a>: Converts a geometry literal to a KML literal.
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#kmlLiteral">geo:kmlLiteral</a>
 def asKML(a: Literal) -> Literal:
@@ -545,8 +541,7 @@ def asWKB(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wkbLiteral", thegeomsrs)
 
-## Converts a geometry literal to a WKT literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asWKT">geof:asWKT</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asWKT">geof:asWKT</a>: Converts a geometry literal to a WKT literal.
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wktLiteral">geo:wktLiteral</a>
 def asWKT(a: Literal) -> Literal:
@@ -554,8 +549,7 @@ def asWKT(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
 
 
-## Calculates the boundary of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>: Calculates the boundary of a geometry literal.
 #  @param a The geometry literal
 #  @returns The geometry as a geometry literal in the CRS of the input geometry
 def boundary(a: Literal) -> Literal:
@@ -563,8 +557,7 @@ def boundary(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
 
 
-## Calculates the minimum bounding circle of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
 #  @param a The geometry literal
 #  @returns The bounding circle as a geometry literal in the CRS of the input geometry
 def boundingCircle(a: Literal) -> Literal:
@@ -578,8 +571,7 @@ def buffer(a: Literal, radius, unit) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
 
 
-## Calculates the centroid of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>: Calculates the centroid of a geometry literal.
 #  @param a The geometry literal
 #  @returns The centroid as a geometry literal in the CRS of the input geometry
 def centroid(a: Literal) -> Literal:
@@ -593,8 +585,7 @@ def contains(a: Literal, b: Literal) -> Literal:
         return Literal(shapely.contains(geoms[0], geoms[1]), datatype=XSD.boolean)
 
 
-## Calculates the concave hull of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>: Calculates the concave hull of a geometry literal.
 #  @param a The geometry literal
 #  @returns The concave hull as a geometry literal in the CRS of the input geometry
 def concaveHull(a: Literal) -> Literal:
@@ -602,8 +593,7 @@ def concaveHull(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
 
 
-## Calculates the convex hull of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>: Calculates the convex hull of a geometry literal.
 #  @param a The geometry literal
 #  @returns The convex hull as a geometry literal in the CRS of the input geometry
 def convexHull(a: Literal) -> Literal:
@@ -611,8 +601,7 @@ def convexHull(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
 
 
-## Calculates the coordinate dimension of a geometry literal.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/cooordinateDimension">geof:coordinateDimension</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/cooordinateDimension">geof:coordinateDimension</a>: Calculates the coordinate dimension of a geometry literal.
 #  @param a The geometry literal
 #  @returns The coordinate dimension as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def coordinateDimension(a: Literal) -> Literal:
@@ -719,7 +708,9 @@ def geometryN(a: Literal, n) -> Literal:
         print(shapely.get_geometry(thegeom, int(str(n))))
         return LiteralUtils.processGeomToLiteral(shapely.get_geometry(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryType">geof:geometryType</a>: Retrieves the geometry type of a geometry literal.
+#  @param a The geometry literal
+#  @returns The geometry type as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#string">xsd:string</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def geometryType(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.geom_type, datatype=XSD.string)
@@ -818,13 +809,18 @@ def isRing(a: Literal) -> Literal:
     return Literal(thegeom.is_ring, datatype=XSD.boolean)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/isSimple">geof:isSimple</a>: Calculates whether a geometry literal represents a simple geometry.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is simple
 def isSimple(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom.is_simple)
     print("The Lit: " + str(Literal(thegeom.is_simple, datatype=XSD.boolean)))
     return Literal(thegeom.is_simple, datatype=XSD.boolean)
 
-
+## Calculates whether a geometry literal represents a valid geometry.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is valid
 def isValid(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.is_valid, datatype=XSD.boolean)
@@ -850,6 +846,9 @@ def matrixTransform(a: Literal, matrix) -> Literal:
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
 
+## Retrieves the maximum measurement coordinate of a geometry.
+#  @param a The geometry literal.
+#  @returns The maximum measurement coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxM(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_m=True).tolist()
@@ -863,21 +862,21 @@ def maxM(a: Literal) -> Literal:
     return Literal(str(maxM), datatype=XSD.double)
 
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxX">geof:maxX</a>: Retrieves the maximum x coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxX">geof:maxX</a>: Retrieves the maximum x coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The maximum X coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxX(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[2], datatype=XSD.double)
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxY">geof:maxY</a>: Retrieves the maximum y coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxY">geof:maxY</a>: Retrieves the maximum y coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The maximum Y coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxY(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[3], datatype=XSD.double)
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxZ">geof:maxZ</a>: Retrieves the maximum z coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/maxZ">geof:maxZ</a>: Retrieves the maximum z coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The maximum Z coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxZ(a: Literal) -> Literal:
@@ -946,7 +945,9 @@ def minimumClearanceLine(a: Literal) -> Literal:
     # print(shapely.minimum_clearance_line(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.minimum_clearance_line(thegeom), a.datatype)
 
-
+## Retrieves the minimum measurement coordinate of a geometry.
+#  @param a The geometry literal.
+#  @returns The minimum measurement coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minM(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_m=True).tolist()
