@@ -52,7 +52,7 @@ class TestGeoSPARQL11(TestGeoSPARQL10):
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
               ?aGeom %%literalrel1%% ?aLiteral .
-              BIND (geof:area(?aLiteral) as ?area)
+              BIND (geof:area(?aLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?area)
             }
             """,combinations,config, g)
         for res in resultlist:
@@ -353,7 +353,7 @@ class TestGeoSPARQL11(TestGeoSPARQL10):
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
               ?aGeom %%literalrel1%% ?aLiteral .
-              BIND (geof:length(?aLiteral) as ?length)
+              BIND (geof:length(?aLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?length)
             }
             """,combinations,config, g)
         for res in resultlist:
@@ -603,7 +603,7 @@ class TestGeoSPARQL11(TestGeoSPARQL10):
             SELECT ?perimeter
             WHERE {
               my:AExactGeom %%literalrel1%% ?literal .
-              BIND(geof:perimeter(?literal) AS ?perimeter)
+              BIND(geof:perimeter(?literal,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) AS ?perimeter)
             }
             """,combinations,config, g)
         for res in resultlist:

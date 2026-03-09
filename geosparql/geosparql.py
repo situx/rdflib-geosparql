@@ -190,6 +190,7 @@ class LiteralUtils:
 
     @staticmethod
     def processGMLLiteral(text):
+        print("PROCESSGMLLITERAL")
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gmlLiteral")
 
     @staticmethod
@@ -206,15 +207,15 @@ class LiteralUtils:
 
     @staticmethod
     def processGLTFLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral",create3D=True)
 
     @staticmethod
     def processPLYLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral",create3D=True)
 
     @staticmethod
     def processOBJLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral",create3D=True)
 
     @staticmethod
     def processWKBLiteral(text):
@@ -371,6 +372,7 @@ class LiteralUtils:
 
     @staticmethod
     def processGeomToGMLLiteral(geomtup):
+        print("GEOMTUP: "+str(geomtup))
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
 
     @staticmethod
@@ -391,10 +393,11 @@ class LiteralUtils:
 
     @staticmethod
     def processGeomToWKTLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0],GEO+"gmlLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wktLiteral",geomtup[1])
 
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
+        print("GEOMTOLIT: "+str(geom))
         ltype = str(literaltype)
         if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
             if thegeomsrs != "":
@@ -404,10 +407,9 @@ class LiteralUtils:
         elif ltype == "http://www.opengis.net/ont/geosparql#geoJSONLiteral":
             return Literal(str(to_geojson(geom)), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#gmlLiteral":
-            return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID")), datatype=literaltype)
+            return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID"), encoding='unicode'), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#kmlLiteral":
-            return Literal("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(
-                fastkml.geometry.create_kml_geometry(geom)) + "</Placemark></kml>", datatype=literaltype)
+            return Literal("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(fastkml.geometry.create_kml_geometry(geom)) + "</Placemark></kml>", datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#wkbLiteral":
             return Literal(str(geom.wkb_hex), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#plyLiteral":
@@ -459,8 +461,9 @@ class LiteralUtils:
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
+#  @param a The unit of the area measurement.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def area(a: Literal) -> Literal:
+def area(a: Literal, units: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
 
@@ -523,7 +526,8 @@ def asGeocode(a: Literal, geocodeURI) -> Literal:
 def asGML(a: Literal) -> Literal:
     if a.datatype=="http://www.opengis.net/ont/geosparql#gmlLiteral":
         return a
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    thegeom, thegeomsrs = a.value #LiteralUtils.processLiteralTypeToGeom(a)
+    print("THE GEOM GML: "+str(thegeom))
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
 
@@ -597,7 +601,7 @@ def boundary(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The bounding circle as a geometry literal in the CRS of the input geometry
 def boundingCircle(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    thegeom, thegeomsrs = a.value#LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
 
@@ -906,7 +910,7 @@ def length(a: Literal,units: Literal) -> Literal:
 #  @param a The geometry literal.
 #  @returns The M coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def m(a: Literal) -> Literal:
-    thegeom, thegeomsrs = a.value #LiteralUtils.processLiteralTypeToGeom(a)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
@@ -1122,7 +1126,7 @@ def pointOnSurface(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
 
-def perimeter(a: Literal) -> Literal:
+def perimeter(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
@@ -1148,7 +1152,7 @@ def reverse(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
 
 
-def scale(a: Literal, scaleX, scaleY, scaleZ) -> Literal:
+def scale(a: Literal, scaleX: Literal, scaleY: Literal, scaleZ: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.affinity.scale(thegeom, xfact=float(scaleX.value), yfact=float(scaleY.value),
                                  zfact=float(scaleZ.value)))
@@ -1168,7 +1172,7 @@ def shortestLine(a: Literal, b: Literal) -> Literal:
                                                  geomtps[0][1])
 
 
-def simplify(a: Literal, tolerance) -> Literal:
+def simplify(a: Literal, tolerance: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.simplify(thegeom, float(tolerance)), a.datatype, thegeomsrs)
 
@@ -1436,13 +1440,15 @@ def getfuncs():
             pass
 
     term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processGeomToWKTLiteral)
-
+    term.bind(URIRef(str(GEO) + "gmlLiteral"), shapely.Geometry, LiteralUtils.processGMLLiteral,LiteralUtils.processGeomToGMLLiteral)
+    term.bind(URIRef(str(GEO) + "kmlLiteral"), shapely.Geometry, LiteralUtils.processKMLLiteral,LiteralUtils.processGeomToKMLLiteral)
+    term.bind(URIRef(str(GEO) + "geoJSONLiteral"), shapely.Geometry, LiteralUtils.processGeoJSONLiteral,LiteralUtils.processGeomToGeoJSONLiteral)
 
 getfuncs()
 
 g = Graph()
 dir_path = os.path.dirname(os.path.realpath(__file__))
-#g.parse(dir_path + "/../tests/testdata.ttl")
+g.parse(dir_path + "/../tests/testdata.ttl")
 
 result = g.query(
     """
@@ -1450,16 +1456,16 @@ PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 PREFIX geof: <"""+str(GEOF)+""">
-SELECT ?sline ?literal
+SELECT ?literal
 WHERE {
-  BIND("<http://www.opengis.net/def/crs/OGC/1.3/CRS84> Polygon((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"^^geo:wktLiteral as ?literal)
-  BIND(geof:is3D(?literal) AS ?sline)
+  my:AExactGeom geo:asWKT ?literal .
+  BIND(geof:asGML(?literal) AS ?sline)
 }
 """
 )
 print("THE RESULT")
 print(result)
-#print(len(result.bindings))
+print(len(result.bindings))
 #print([{str(k): v for k, v in i.items()} for i in result.bindings])
 for res in result:
     print(res)
