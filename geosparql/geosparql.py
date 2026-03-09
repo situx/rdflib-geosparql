@@ -1026,7 +1026,7 @@ def metricWithinDistance(a: Literal, b, d) -> Literal:
         distance = float(str(d))
         return Literal(shapely.dwithin(geoms[0], geoms[1], distance), datatype=XSD.boolean)
 
-## Calculates the radius of the mininmum bounding circle around the input geometry.
+## Calculates the radius of the minimum bounding circle around the input geometry.
 #  @param a The geometry literal.
 #  @returns The minimum bounding radius as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minimumBoundingRadius(a: Literal) -> Literal:
@@ -1163,7 +1163,9 @@ def relate(a: Literal, b, matrix) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.relate_pattern(geoms[0], geoms[1], str(matrix)), datatype=XSD.boolean)
 
-
+## Returns a version of the input geometry with reversed point order.
+#  @param a The geometry literal
+#  @returns The reversed geometry in the same literal format and CRS as the input geometry
 def reverse(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
@@ -1189,7 +1191,7 @@ def shortestLine(a: Literal, b: Literal) -> Literal:
                                                  geomtps[0][1])
 
 
-def simplify(a: Literal, tolerance) -> Literal:
+def simplify(a: Literal, tolerance: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.simplify(thegeom, float(tolerance)), a.datatype, thegeomsrs)
 
@@ -1225,8 +1227,11 @@ def symDifference(a: Literal, b: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.symmetric_difference(geomtps[0][0], geomtps[1][0]), a.datatype,
                                                  geomtps[0][1])
 
-
-def transform(a: Literal, srsIRI) -> Literal:
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/transform">geof:transform</a>: Transforms a given geometry literal to a given CRS.
+#  @param a The geometry literal
+#  @param srsIRI The IRI identifying the target CRS
+#  @returns The transformed geometry as a geometry literal in the same literal format as the input geometry
+def transform(a: Literal, srsIRI: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print("TRANSFORM FUNCTION")
     geom=Transformers.transformToSRS(thegeom, thegeomsrs, srsIRI)
@@ -1236,7 +1241,9 @@ def transform(a: Literal, srsIRI) -> Literal:
         return LiteralUtils.processGeomToLiteral(Transformers.transformToSRS(thegeom, thegeomsrs, srsIRI), a.datatype,srsIRI)
     raise ValueError("An invalid geometry literal was provided or an illegal transformation requested for function geof:transform")
 
-
+## Transforms a given geometry literal to the CRS84 CRS.
+#  @param a The geometry literal
+#  @returns The transformed geometry as a geometry literal in the same literal format as the input geometry
 def transformCRS84(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom is not None and thegeomsrs is not None:
