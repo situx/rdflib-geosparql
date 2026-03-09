@@ -185,10 +185,50 @@ class LiteralUtils:
         return ress
 
     @staticmethod
-    def processLiteralTypeToGeom(literal, create3D=False, normsrs=None):
-        if not isinstance(literal, Literal):
+    def processWKTLiteral(text):
+        print(text)
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wktLiteral")
+
+    @staticmethod
+    def processGMLLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gmlLiteral")
+
+    @staticmethod
+    def processKMLLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"kmlLiteral")
+
+    @staticmethod
+    def processDGGSLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"dggsLiteral")
+
+    @staticmethod
+    def processGeoJSONLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"geoJSONLiteral")
+
+    @staticmethod
+    def processGLTFLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral")
+
+    @staticmethod
+    def processPLYLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral")
+
+    @staticmethod
+    def processOBJLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral")
+
+    @staticmethod
+    def processWKBLiteral(text):
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wkbLiteral")
+
+    @staticmethod
+    def processLiteralTypeToGeom(literal, datatype=None,create3D=False, normsrs=None):
+        if not isinstance(literal, Literal) and datatype is None:
             raise ValueError("The " + str(literal) + " is not a literal!")
-        dtype = str(literal.datatype)
+        if datatype is None:
+            dtype = str(literal.datatype)
+        else:
+            dtype = str(datatype)
         lstring = str(literal).strip()
         if str(dtype) == "http://www.opengis.net/ont/geosparql#wktLiteral":
             if lstring.startswith("<"):
@@ -207,7 +247,7 @@ class LiteralUtils:
                     return (LiteralUtils.createGeometry3D(geo), srsuri)
                 return (geo, srsuri)
             else:
-                geo = shapely.from_wkt(str(literal))
+                geo = shapely.from_wkt(str(lstring))
                 shapely.set_srid(geo, 4326)
                 srsuri = CRS84URI
                 if normsrs is not None:
@@ -319,6 +359,38 @@ class LiteralUtils:
             )
 
     @staticmethod
+    def processGeomToGeoJSONLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "geoJSONLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToGLTFLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gltfLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToGMLLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToKMLLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "kmlLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToOBJLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "objLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToPLYLiteral(geomtup):
+        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToWKBLiteral(geomtup):
+        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
+
+    @staticmethod
+    def processGeomToWKTLiteral(geomtup):
+        return LiteralUtils.processGeomToLiteral(geomtup[0],GEO+"gmlLiteral",geomtup[1])
+
+    @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
         ltype = str(literaltype)
         if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
@@ -387,12 +459,12 @@ class LiteralUtils:
 #  @param a The geometry literal.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
 
 
 def azimuth(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     minrect = thegeom.minimum_rotated_rectangle
     minrectb = minrect.boundary
     coords = [c for c in minrectb.coords]  # List the line coordinates
@@ -404,7 +476,7 @@ def azimuth(a: Literal) -> Literal:
 
 
 def asDGGS(a: Literal, dggsType) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     #print(a: Literal)
     #print(dggsType)
     #print(Transformers.transformToDGGS(thegeom, dggsType))
@@ -416,7 +488,7 @@ def asDGGS(a: Literal, dggsType) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#geoJSONLiteral", thegeomsrs)
 
 
@@ -426,7 +498,7 @@ def asGLTF(a: Literal) -> Literal:
 
 
 def asGeocode(a: Literal, geocodeURI) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom)
     print(geocodeURI)
     return Literal(Transformers.transformToGeocode(thegeom, str(geocodeURI)),
@@ -438,7 +510,7 @@ def asGeocode(a: Literal, geocodeURI) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gmlLiteral">geo:gmlLiteral</a>
 def asGML(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
 
 
@@ -447,7 +519,7 @@ def asGML(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#kmlLiteral">geo:kmlLiteral</a>
 def asKML(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#kmlLiteral", thegeomsrs)
 
 
@@ -470,7 +542,7 @@ def asXYZ(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wkbLiteral">geo:wkbLiteral</a>
 def asWKB(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wkbLiteral", thegeomsrs)
 
 ## Converts a geometry literal to a WKT literal.
@@ -478,7 +550,7 @@ def asWKB(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wktLiteral">geo:wktLiteral</a>
 def asWKT(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
 
 
@@ -487,7 +559,7 @@ def asWKT(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a geometry literal in the CRS of the input geometry
 def boundary(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
 
 
@@ -496,12 +568,12 @@ def boundary(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The bounding circle as a geometry literal in the CRS of the input geometry
 def boundingCircle(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
 
 def buffer(a: Literal, radius, unit) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
 
@@ -511,7 +583,7 @@ def buffer(a: Literal, radius, unit) -> Literal:
 #  @param a The geometry literal
 #  @returns The centroid as a geometry literal in the CRS of the input geometry
 def centroid(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
 
 
@@ -526,7 +598,7 @@ def contains(a: Literal, b) -> Literal:
 #  @param a The geometry literal
 #  @returns The concave hull as a geometry literal in the CRS of the input geometry
 def concaveHull(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
 
 
@@ -535,17 +607,17 @@ def concaveHull(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The convex hull as a geometry literal in the CRS of the input geometry
 def convexHull(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
 
 
 def coordinateDimension(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_coordinate_dimension(thegeom), datatype=XSD.integer)
 
 
 def compactnessRatio(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     p = thegeom.length
     a = thegeom.area
     return Literal(str(1 / (p / (2 * pi * sqrt(a / pi)))), datatype=XSD.double)
@@ -593,7 +665,7 @@ def distance(a: Literal, b) -> Literal:
 
 
 def endPoint(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[-1]), a.datatype,
                                              thegeomsrs)
 
@@ -605,28 +677,28 @@ def equals(a: Literal, b) -> Literal:
 
 
 def envelope(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom.envelope, a.datatype, thegeomsrs)
 
 
 def extrude(a: Literal, extrudeval) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_3d(shapely.force_2d(thegeom), extrudeval), a.datatype,
                                              thegeomsrs)
 
 
 def exteriorRing(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_exterior_ring(thegeom), a.datatype, thegeomsrs)
 
 
 def flipXY(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.ops.transform(lambda x, y: (y, x),thegeom), a.datatype, thegeomsrs)
 
 
 def force2D(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_2d(thegeom), a.datatype, thegeomsrs)
 
 
@@ -638,19 +710,19 @@ def frechetDistance(a: Literal, b) -> Literal:
 
 def geometryN(a: Literal, n) -> Literal:
     if isinstance(a: Literal, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
-        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         print(thegeom)
         print(shapely.get_geometry(thegeom, int(str(n))))
         return LiteralUtils.processGeomToLiteral(shapely.get_geometry(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
 
 def geometryType(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.geom_type, datatype=XSD.string)
 
 
 def getSRID(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeomsrs, datatype=XSD.anyURI)
 
 
@@ -694,74 +766,74 @@ def intersects3D(a: Literal, b) -> Literal:
 
 
 def is3D(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_z, datatype=XSD.boolean)
 
 
 def isCollection(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(str(thegeom.geom_type) == "GeometryCollection" or str(thegeom.geom_type).startswith("Multi"),
                    datatype=XSD.boolean)
 
 
 def isClosed(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in thegeom.geom_type:
         return Literal(True, datatype=XSD.boolean)
     return Literal(thegeom.is_closed, datatype=XSD.boolean)
 
 
 def isEmpty(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom)
     print(shapely.is_empty(thegeom))
     return Literal(shapely.is_empty(thegeom), datatype=XSD.boolean)
 
 
 def isMeasured(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_m, datatype=XSD.boolean)
 
 
 def isRing(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in str(thegeom.geom_type):
         return Literal(True, datatype=XSD.boolean)
     return Literal(thegeom.is_ring, datatype=XSD.boolean)
 
 
 def isSimple(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(thegeom.is_simple)
     print("The Lit: " + str(Literal(thegeom.is_simple, datatype=XSD.boolean)))
     return Literal(thegeom.is_simple, datatype=XSD.boolean)
 
 
 def isValid(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.is_valid, datatype=XSD.boolean)
 
 
 def length(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
 
 def m(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
 
 def matrixTransform(a: Literal, matrix) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     shapely.affinity.affine_transform(thegeom, [])
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
 
 def maxM(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_m=True).tolist()
     flinf = -float("inf")
     maxM = flinf
@@ -774,17 +846,17 @@ def maxM(a: Literal) -> Literal:
 
 
 def maxX(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[2], datatype=XSD.double)
 
 
 def maxY(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[3], datatype=XSD.double)
 
 
 def maxZ(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
     flinf = -float("inf")
     maxZ = flinf
@@ -797,13 +869,13 @@ def maxZ(a: Literal) -> Literal:
 
 
 def metricArea(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(shapely.area(normgeom), datatype=XSD.double)
 
 
 def metricBuffer(a: Literal, radius) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(normgeom, float(radius)), a.datatype, thegeomsrs)
@@ -816,13 +888,13 @@ def metricDistance(a: Literal, b) -> Literal:
 
 
 def metricLength(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(shapely.length(normgeom), datatype=XSD.double)
 
 
 def metricPerimeter(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(normgeom.length, datatype=XSD.double)
 
@@ -835,23 +907,23 @@ def metricWithinDistance(a: Literal, b, d) -> Literal:
 
 
 def minimumBoundingRadius(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.minimum_bounding_radius(thegeom), datatype=XSD.double)
 
 
 def minimumClearance(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.minimum_clearance(thegeom), datatype=XSD.double)
 
 
 def minimumClearanceLine(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     # print(shapely.minimum_clearance_line(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.minimum_clearance_line(thegeom), a.datatype)
 
 
 def minM(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_m=True).tolist()
     flinf = float("inf")
     minM = flinf
@@ -864,17 +936,17 @@ def minM(a: Literal) -> Literal:
 
 
 def minX(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[0], datatype=XSD.double)
 
 
 def minY(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[1], datatype=XSD.double)
 
 
 def minZ(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
     flinf = float("inf")
     minZ = flinf
@@ -888,45 +960,45 @@ def minZ(a: Literal) -> Literal:
 
 
 def numGeometries(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_num_geometries(thegeom), datatype=XSD.integer)
 
 
 def numInteriorRing(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_num_interior_rings(thegeom), datatype=XSD.integer)
 
 
 def numPatches(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(len(shapely.get_parts(thegeom)), datatype=XSD.integer)
 
 
 def numPoints(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
 
 def patchN(a: Literal, n) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
 
 
 def pointN(a: Literal, n) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in str(thegeom.geom_type):
         return LiteralUtils.processGeomToLiteral(shapely.get_point(shapely.get_exterior_ring(thegeom), int(str(n))), a.datatype, thegeomsrs)
     return LiteralUtils.processGeomToLiteral(shapely.get_point(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
 
 def pointOnSurface(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.point_on_surface(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
 
 def perimeter(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
 
@@ -943,12 +1015,12 @@ def relate(a: Literal, b, matrix) -> Literal:
 
 
 def reverse(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
 
 
 def scale(a: Literal, scaleX, scaleY, scaleZ) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.affinity.scale(thegeom, xfact=float(scaleX.value), yfact=float(scaleY.value),
                                  zfact=float(scaleZ.value)))
     return LiteralUtils.processGeomToLiteral(
@@ -968,22 +1040,22 @@ def shortestLine(a: Literal, b) -> Literal:
 
 
 def simplify(a: Literal, tolerance) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.simplify(thegeom, float(tolerance)), a.datatype, thegeomsrs)
 
 
 def skew(a: Literal, xs, ys) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.affinity.skew(thegeom, xs, ys), a.datatype, thegeomsrs)
 
 
 def spatialDimension(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_dimensions(thegeom), datatype=XSD.integer)
 
 
 def startPoint(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[0]), a.datatype, thegeomsrs)
 
 
@@ -995,7 +1067,7 @@ def symDifference(a: Literal, b) -> Literal:
 
 
 def transform(a: Literal, srsIRI) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print("TRANSFORM FUNCTION")
     geom=Transformers.transformToSRS(thegeom, thegeomsrs, srsIRI)
     print("GEOM: "+str(geom))
@@ -1006,7 +1078,7 @@ def transform(a: Literal, srsIRI) -> Literal:
 
 
 def transformCRS84(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom is not None and thegeomsrs is not None:
         return LiteralUtils.processGeomToLiteral(Transformers.transformToSRS(thegeom, thegeomsrs, CRS84URI), a.datatype,
                                                  CRS84URI)
@@ -1015,7 +1087,7 @@ def transformCRS84(a: Literal) -> Literal:
 
 
 def translate(a: Literal, deltaX, deltaY, deltaZ) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if (isinstance(deltaX, Literal) and deltaX.datatype == XSD.double and isinstance(deltaY,
                                                                                      Literal) and deltaY.datatype == XSD.double and isinstance(
             deltaZ, Literal) and deltaZ.datatype == XSD.double):
@@ -1054,21 +1126,21 @@ def withinDistance(a: Literal, b, d) -> Literal:
 
 
 def x(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_x(thegeom), datatype=XSD.double)
     raise ValueError("Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x")
 
 
 def y(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_y(thegeom), datatype=XSD.double)
     raise ValueError("Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y")
 
 
 def z(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point" and thegeom.has_z:
         return Literal(str(shapely.get_z(thegeom)), datatype=XSD.double)
     raise ValueError(
