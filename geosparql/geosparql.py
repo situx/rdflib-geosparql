@@ -1134,6 +1134,9 @@ def withinDistance(a: Literal, b, d) -> Literal:
         return Literal(str(shapely.dwithin(geoms[0], geoms[1], distance)), datatype=XSD.boolean)
 
 
+## Retrieves the X coordinate of a Point geometry.
+#  @param a The geometry literal.
+#  @returns The X coordinates as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def x(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
@@ -1141,6 +1144,9 @@ def x(a: Literal) -> Literal:
     raise ValueError("Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x")
 
 
+## Retrieves the Y coordinate of a Point geometry.
+#  @param a The geometry literal.
+#  @returns The Y coordinates as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def y(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point":
@@ -1148,6 +1154,9 @@ def y(a: Literal) -> Literal:
     raise ValueError("Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y")
 
 
+## Retrieves the Z coordinate of a Point geometry.
+#  @param a The geometry literal.
+#  @returns The Z coordinates as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def z(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if thegeom.geom_type == "Point" and thegeom.has_z:
