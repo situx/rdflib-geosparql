@@ -380,11 +380,11 @@ class LiteralUtils:
 
     @staticmethod
     def processGeomToPLYLiteral(geomtup):
-        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
 
     @staticmethod
     def processGeomToWKBLiteral(geomtup):
-        LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
 
     @staticmethod
     def processGeomToWKTLiteral(geomtup):
@@ -493,7 +493,7 @@ def asGeoJSON(a: Literal) -> Literal:
 
 
 def asGLTF(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal, create3D=True)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gltfLiteral", thegeomsrs)
 
 
@@ -524,17 +524,17 @@ def asKML(a: Literal) -> Literal:
 
 
 def asOBJ(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal, create3D=True)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#objLiteral", thegeomsrs)
 
 
 def asPLY(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal, create3D=True)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#plyLiteral", thegeomsrs)
 
 
 def asXYZ(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal, create3D=True)
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#xyzLiteral", thegeomsrs)
 
 ## Converts a geometry literal to a WKB literal.
