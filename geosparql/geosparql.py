@@ -1044,7 +1044,7 @@ def shortestLine(a: Literal, b: Literal) -> Literal:
     print(geomtps[1][0])
     print(shapely.shortest_line(geomtps[0][0], geomtps[1][0]))
     if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.shortest_line(geoms[0], geoms[1]), a.datatype,
+        return LiteralUtils.processGeomToLiteral(shapely.shortest_line(geomtps[0][0], geomtps[1][0]), a.datatype,
                                                  geomtps[0][1])
 
 
