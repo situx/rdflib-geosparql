@@ -30,7 +30,7 @@ var a00012 =
     [ "crosses", "a00012.html#a6bb9801d3fe4a778609a44b777bf5ad8", null ],
     [ "difference", "a00012.html#a115039361150b2763a43335474474552", null ],
     [ "disjoint", "a00012.html#a6219809a401daaba2e08713551a2bc44", null ],
-    [ "distance", "a00012.html#a7f773df78a7f45386bfdeef152bc7b64", null ],
+    [ "distance", "a00012.html#adb8ae555a444c6bf168d1690da5e4945", null ],
     [ "endPoint", "a00012.html#a551b4610486dae193fe9172292c97c8e", null ],
     [ "envelope", "a00012.html#af73676c50fd196f6516d7a896d71e2f6", null ],
     [ "equals", "a00012.html#ab3157fded666746fc277c5556d9cff69", null ],
