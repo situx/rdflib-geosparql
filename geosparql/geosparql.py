@@ -482,11 +482,19 @@ def asWKT(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
 
 
+## Calculates the boundary of a geometry literal.
+#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>
+#  @param a The geometry literal
+#  @returns The geometry as a geometry literal in the CRS of the input geometry
 def boundary(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
     return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
 
 
+## Calculates the minimum bounding circle of a geometry literal.
+#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>
+#  @param a The geometry literal
+#  @returns The bounding circle as a geometry literal in the CRS of the input geometry
 def boundingCircle(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
@@ -498,6 +506,10 @@ def buffer(a: Literal, radius, unit) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
 
 
+## Calculates the centroid of a geometry literal.
+#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>
+#  @param a The geometry literal
+#  @returns The centroid as a geometry literal in the CRS of the input geometry
 def centroid(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
     return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
@@ -509,11 +521,19 @@ def contains(a: Literal, b) -> Literal:
         return Literal(shapely.contains(geoms[0], geoms[1]), datatype=XSD.boolean)
 
 
+## Calculates the concave hull of a geometry literal.
+#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>
+#  @param a The geometry literal
+#  @returns The concave hull as a geometry literal in the CRS of the input geometry
 def concaveHull(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
     return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
 
 
+## Calculates the convex hull of a geometry literal.
+#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>
+#  @param a The geometry literal
+#  @returns The convex hull as a geometry literal in the CRS of the input geometry
 def convexHull(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a: Literal)
     return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
