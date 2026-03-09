@@ -455,6 +455,7 @@ class LiteralUtils:
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
+#  @param unit The unit in which to represent the area.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
@@ -598,7 +599,7 @@ def boundingCircle(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
 
-def buffer(a: Literal, radius, unit) -> Literal:
+def buffer(a: Literal, radius: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
@@ -612,6 +613,10 @@ def centroid(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfContains">geof:sfContains</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehContains">geof:ehContains</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8ntppi">geof:rcc8ntppi</a>: Calculates whether the first geometry contains the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry contains the second geometry
 def contains(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -687,7 +692,10 @@ def disjoint(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.disjoint(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/difference">geof:difference</a>: Calculates the difference of two geometry literals.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The difference as a geometry literal in the CRS and literal format of the first input geometry
 def difference(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     print(geomtps)
@@ -706,7 +714,9 @@ def distance(a: Literal, b: Literal, units: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
 
-
+## Extracts the last point of an input geometry.
+#  @param a The geometry literal
+#  @returns The end point as a geometry literal in the CRS and literal format of the input geometry
 def endPoint(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[-1]), a.datatype,
@@ -1185,11 +1195,18 @@ def spatialDimension(a: Literal) -> Literal:
     return Literal(shapely.get_dimensions(thegeom), datatype=XSD.integer)
 
 
+## Extracts the first point of an input geometry.
+#  @param a The geometry literal
+#  @returns The first point as a geometry literal in the CRS and literal format of the input geometry
 def startPoint(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[0]), a.datatype, thegeomsrs)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/symDifference">geof:symDifference</a>: Calculates the symmetric difference of two geometry literals.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The symmetric difference as a geometry literal in the CRS and literal format of the first input geometry
 def symDifference(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     if len(geomtps) > 1:
@@ -1239,6 +1256,10 @@ def touches(a: Literal, b: Literal) -> Literal:
     raise ValueError("Invalid parameters were provided for function geof:touches")
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
 def union(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     if len(geomtps) > 1:
