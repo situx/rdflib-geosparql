@@ -805,7 +805,10 @@ def inside(a: Literal, b: Literal) -> Literal:
         print(shapely.contains_properly(geoms[1], geoms[0]))
         return Literal(shapely.contains_properly(geoms[1], geoms[0]), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/intersection">geof:intersection</a>: Calculates the intersection of two geometry literals.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The intersection as a geometry literal in the CRS and literal format of the first input geometry
 def intersection(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     if len(geomtps) > 1:
@@ -1008,7 +1011,9 @@ def metricLength(a: Literal) -> Literal:
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(shapely.length(normgeom), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricPerimeter">geof:metricPerimeter</a>: Retrieves the perimeter length of a geometry in meters.
+#  @param a The geometry literal
+#  @returns The perimeter length in meters as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def metricPerimeter(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
@@ -1021,12 +1026,16 @@ def metricWithinDistance(a: Literal, b, d) -> Literal:
         distance = float(str(d))
         return Literal(shapely.dwithin(geoms[0], geoms[1], distance), datatype=XSD.boolean)
 
-
+## Calculates the radius of the mininmum bounding circle around the input geometry.
+#  @param a The geometry literal.
+#  @returns The minimum bounding radius as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minimumBoundingRadius(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.minimum_bounding_radius(thegeom), datatype=XSD.double)
 
-
+## Calculates the minimum clearance of the input geometry.
+#  @param a The geometry literal.
+#  @returns The minimum clearance as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minimumClearance(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.minimum_clearance(thegeom), datatype=XSD.double)
@@ -1130,7 +1139,10 @@ def pointOnSurface(a: Literal) -> Literal:
     print(shapely.point_on_surface(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/perimeter">geof:perimeter</a>: Retrieves the perimeter length of a geometry.
+#  @param a The geometry literal
+#  @param units The unit of measurement of the length as a URI
+#  @returns The perimeter length as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def perimeter(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
@@ -1182,7 +1194,7 @@ def simplify(a: Literal, tolerance) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.simplify(thegeom, float(tolerance)), a.datatype, thegeomsrs)
 
 
-def skew(a: Literal, xs, ys) -> Literal:
+def skew(a: Literal, xs: Literal, ys: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.affinity.skew(thegeom, xs, ys), a.datatype, thegeomsrs)
 
@@ -1277,8 +1289,12 @@ def within(a: Literal, b: Literal) -> Literal:
         return Literal(shapely.within(geoms[0], geoms[1]), datatype=XSD.boolean)
     raise ValueError("Invalid parameters were provided for function geof:within")
 
-
-def withinDistance(a: Literal, b, d) -> Literal:
+## Calculates whether the first geometry is within a given distance to the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @param d The distance
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is within distance of the second geometry
+def withinDistance(a: Literal, b: Literal, d: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if isinstance(d, Literal) and d.datatype == XSD.double:
         distance = float(str(d))
