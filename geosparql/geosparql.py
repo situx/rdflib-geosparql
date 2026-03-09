@@ -1226,7 +1226,7 @@ def union(a: Literal, b: Literal) -> Literal:
     raise ValueError("Invalid parameters were provided for function geof:union")
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfWithin>geof:sfWithin</a>: Calculates whether the first geometry is within the second geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfWithin">geof:sfWithin</a>: Calculates whether the first geometry is within the second geometry.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is within the second geometry
