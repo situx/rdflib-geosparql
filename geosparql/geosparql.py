@@ -891,7 +891,9 @@ def maxZ(a: Literal) -> Literal:
         maxZ = "NaN"
     return Literal(str(maxZ), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricArea">geof:metricArea</a>: Calculates the area of a 2D geometry provided as a geometry literal in squaremeters.
+#  @param a The geometry literal.
+#  @returns The area in squaremeters as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def metricArea(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
@@ -961,21 +963,21 @@ def minM(a: Literal) -> Literal:
     return Literal(str(minM), datatype=XSD.double)
 
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minX">geof:minX</a>: Retrieves the minimum X coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minX">geof:minX</a>: Retrieves the minimum X coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The minimum X coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minX(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[0], datatype=XSD.double)
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minY">geof:minY</a>: Retrieves the minimum Y coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minY">geof:minY</a>: Retrieves the minimum Y coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The minimum Y coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minY(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.total_bounds(thegeom)[1], datatype=XSD.double)
 
-## Implements Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minZ">geof:minZ</a>: Retrieves the minimum z coordinate of a geometry.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/minZ">geof:minZ</a>: Retrieves the minimum z coordinate of a geometry.
 #  @param a The geometry literal.
 #  @returns The minimum z coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minZ(a: Literal) -> Literal:
@@ -1082,6 +1084,9 @@ def skew(a: Literal, xs, ys) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.affinity.skew(thegeom, xs, ys), a.datatype, thegeomsrs)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/spatialDimension">geof:spatialDimension</a>: Calculates the spatial dimension of a geometry literal.
+#  @param a The geometry literal
+#  @returns The spatial dimension as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def spatialDimension(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_dimensions(thegeom), datatype=XSD.integer)
