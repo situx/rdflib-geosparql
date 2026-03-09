@@ -676,7 +676,7 @@ def crosses(a: Literal, b: Literal) -> Literal | None | Any:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.crosses(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfDisjoint">geof:sfDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehDisjoint">geof:ehDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8dc">geof:rcc8dc</a>: Calculates whtether the two input geometries are disjoint.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfDisjoint">geof:sfDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehDisjoint">geof:ehDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8dc">geof:rcc8dc</a>: Calculates whether the two input geometries are disjoint.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries are disjoint
@@ -712,7 +712,7 @@ def endPoint(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[-1]), a.datatype,
                                              thegeomsrs)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfEquals">geof:sfEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehEquals">geof:ehEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8eq">geof:rcc8eq</a>: Calculates whtether the two input geometries are equal.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfEquals">geof:sfEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehEquals">geof:ehEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8eq">geof:rcc8eq</a>: Calculates whether the two input geometries are equal.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries are equal
@@ -808,7 +808,7 @@ def intersection3D(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(trimesh.boolean.intersection(geoms), datatype=XSD.boolean)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfIntersects">geof:sfIntersects</a>: Calculates whtether the two input geometries intersect.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfIntersects">geof:sfIntersects</a>: Calculates whether the two input geometries intersect.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries intersect
@@ -967,8 +967,11 @@ def metricArea(a: Literal) -> Literal:
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(shapely.area(normgeom), datatype=XSD.double)
 
-
-def metricBuffer(a: Literal, radius) -> Literal:
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricBuffer">geof:metricBuffer</a>: Calculates a buffer of a 2D geometry from a given radius.
+#  @param a The geometry literal.
+#  @param radius The radius of the buffer to create.
+#  @returns The buffer as a geometry <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+def metricBuffer(a: Literal, radius: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
@@ -1069,21 +1072,30 @@ def minZ(a: Literal) -> Literal:
     return Literal(str(minZ), datatype=XSD.double)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numGeometries">geof:numGeometries</a>: Calculates the number of geometries included in the geometry literal.
+#  @param a The first geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating the number of geometries included
 def numGeometries(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_num_geometries(thegeom), datatype=XSD.integer)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numInteriorRing">geof:numInteriorRing</a>: Calculates the number of interior rings included in the geometry literal.
+#  @param a The first geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating the number of interior rings
 def numInteriorRing(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.get_num_interior_rings(thegeom), datatype=XSD.integer)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numPatches">geof:numPatches</a>: Calculates the number of patches included in the geometry literal.
+#  @param a The first geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating the number of patches
 def numPatches(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(len(shapely.get_parts(thegeom)), datatype=XSD.integer)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numPoints">geof:numPoints</a>: Calculates the number of points included in the geometry literal.
+#  @param a The first geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating the number of points
 def numPoints(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
