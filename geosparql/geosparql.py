@@ -1208,6 +1208,10 @@ def translate(a: Literal, deltaX, deltaY, deltaZ) -> Literal:
     raise ValueError("Invalid parameters were provided for function geof:translate")
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfTouches">geof:sfTouches</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehMeet">geof:ehMeet</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8ec">geof:rcc8ec</a>: Calculates whether the two input geometries touch.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries touch
 def touches(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -1222,6 +1226,10 @@ def union(a: Literal, b: Literal) -> Literal:
     raise ValueError("Invalid parameters were provided for function geof:union")
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfWithin>geof:sfWithin</a>: Calculates whether the first geometry is within the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is within the second geometry
 def within(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
