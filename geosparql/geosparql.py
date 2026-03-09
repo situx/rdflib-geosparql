@@ -769,11 +769,9 @@ def intersects3D(a: Literal, b: Literal) -> Literal:
         return Literal(trimesh.boolean.boolean_manifold(geoms, "intersection"), datatype=XSD.boolean)
 
 
-## Calculates whether a geometry literal represents a 3D geometry.
-#  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/is3D">geof:is3D</a>
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/is3D">geof:is3D</a>: Calculates whether a geometry literal represents a 3D geometry.
 #  @param a The geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is threedimensional
-
 def is3D(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_z, datatype=XSD.boolean)
