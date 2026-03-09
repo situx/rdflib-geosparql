@@ -443,7 +443,7 @@ class LiteralUtils:
         for lit in literals:
             if isinstance(lit, Literal):
                 # print("NormSRS: "+str(normsrs))
-                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D, normsrs)
+                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D=create3D, normsrs=normsrs)
                 # print(g)
 
                 if normalize and first and normsrs is None:
