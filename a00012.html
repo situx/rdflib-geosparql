@@ -318,10 +318,12 @@ Functions</h2></td></tr>
 <tr class="memitem:ac4827086638c7ac7208ec1360155d3a9" id="r_ac4827086638c7ac7208ec1360155d3a9"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#ac4827086638c7ac7208ec1360155d3a9">translate</a> (Literal a, deltaX, deltaY, deltaZ)</td></tr>
 <tr class="separator:ac4827086638c7ac7208ec1360155d3a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5682b739ba2e68b573fd65839f4d5b7a" id="r_a5682b739ba2e68b573fd65839f4d5b7a"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a5682b739ba2e68b573fd65839f4d5b7a">touches</a> (Literal a, Literal b)</td></tr>
+<tr class="memdesc:a5682b739ba2e68b573fd65839f4d5b7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements <a href="http://www.opengis.net/def/function/geosparql/sfTouches" target="_blank">geof:sfTouches</a> <a href="http://www.opengis.net/def/function/geosparql/ehMeet" target="_blank">geof:ehMeet</a> <a href="http://www.opengis.net/def/function/geosparql/rcc8ec" target="_blank">geof:rcc8ec</a>: Calculates whether the two input geometries touch.  <br /></td></tr>
 <tr class="separator:a5682b739ba2e68b573fd65839f4d5b7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a804c085c452727eb838f7e0713221472" id="r_a804c085c452727eb838f7e0713221472"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a804c085c452727eb838f7e0713221472">union</a> (Literal a, Literal b)</td></tr>
 <tr class="separator:a804c085c452727eb838f7e0713221472"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d0151f88839ffd9643b4b346b1fad0e" id="r_a0d0151f88839ffd9643b4b346b1fad0e"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a0d0151f88839ffd9643b4b346b1fad0e">within</a> (Literal a, Literal b)</td></tr>
+<tr class="memdesc:a0d0151f88839ffd9643b4b346b1fad0e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements &lt;a target="_blank" href="<a href="http://www.opengis.net/def/function/geosparql/sfWithin">http://www.opengis.net/def/function/geosparql/sfWithin</a>&gt;geof:sfWithin: Calculates whether the first geometry is within the second geometry.  <br /></td></tr>
 <tr class="separator:a0d0151f88839ffd9643b4b346b1fad0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1caf45869343f2659eeb9b6cca7d5713" id="r_a1caf45869343f2659eeb9b6cca7d5713"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a1caf45869343f2659eeb9b6cca7d5713">withinDistance</a> (Literal a, b, d)</td></tr>
 <tr class="separator:a1caf45869343f2659eeb9b6cca7d5713"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1689,19 +1691,19 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1397</span><span class="keyword">def </span>getfuncs():</div>
-<div class="line"><span class="lineno"> 1398</span>    thefuncs = merge_dicts(geosparql10, geosparql11, geosparql13)</div>
-<div class="line"><span class="lineno"> 1399</span>    <span class="keywordflow">for</span> uri <span class="keywordflow">in</span> thefuncs:</div>
-<div class="line"><span class="lineno"> 1400</span>        <span class="keywordflow">try</span>:</div>
-<div class="line"><span class="lineno"> 1401</span>            register_custom_function(uri, thefuncs[uri])</div>
-<div class="line"><span class="lineno"> 1402</span>            print(<span class="stringliteral">&quot;Registered custom function&quot;</span>, uri)</div>
-<div class="line"><span class="lineno"> 1403</span>            <span class="comment"># print(thefuncs[uri])</span></div>
-<div class="line"><span class="lineno"> 1404</span>        <span class="keywordflow">except</span> ValueError:</div>
-<div class="line"><span class="lineno"> 1405</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno"> 1406</span>        <span class="keywordflow">except</span> AttributeError:</div>
-<div class="line"><span class="lineno"> 1407</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno"> 1408</span> </div>
-<div class="line"><span class="lineno"> 1409</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1405</span><span class="keyword">def </span>getfuncs():</div>
+<div class="line"><span class="lineno"> 1406</span>    thefuncs = merge_dicts(geosparql10, geosparql11, geosparql13)</div>
+<div class="line"><span class="lineno"> 1407</span>    <span class="keywordflow">for</span> uri <span class="keywordflow">in</span> thefuncs:</div>
+<div class="line"><span class="lineno"> 1408</span>        <span class="keywordflow">try</span>:</div>
+<div class="line"><span class="lineno"> 1409</span>            register_custom_function(uri, thefuncs[uri])</div>
+<div class="line"><span class="lineno"> 1410</span>            print(<span class="stringliteral">&quot;Registered custom function&quot;</span>, uri)</div>
+<div class="line"><span class="lineno"> 1411</span>            <span class="comment"># print(thefuncs[uri])</span></div>
+<div class="line"><span class="lineno"> 1412</span>        <span class="keywordflow">except</span> ValueError:</div>
+<div class="line"><span class="lineno"> 1413</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno"> 1414</span>        <span class="keywordflow">except</span> AttributeError:</div>
+<div class="line"><span class="lineno"> 1415</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno"> 1416</span> </div>
+<div class="line"><span class="lineno"> 1417</span> </div>
 </div><!-- fragment -->
 <p class="reference">References <a class="el" href="a00012.html#a701d40182cc15db7bde1653e820a1b21">geosparql.geosparql.getfuncs()</a>, and <a class="el" href="a00012.html#a9196ad348c499f2b18d7f7e72322910b">geosparql.geosparql.merge_dicts()</a>.</p>
 
@@ -3484,13 +3486,23 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1211</span><span class="keyword">def </span>touches(a: Literal, b: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1212</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
-<div class="line"><span class="lineno"> 1213</span>    <span class="keywordflow">if</span> geoms[0] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> geoms[1] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno"> 1214</span>        <span class="keywordflow">return</span> Literal(shapely.touches(geoms[0], geoms[1]), datatype=XSD.boolean)</div>
-<div class="line"><span class="lineno"> 1215</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:touches&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1216</span> </div>
-<div class="line"><span class="lineno"> 1217</span> </div>
+
+<p>Implements <a href="http://www.opengis.net/def/function/geosparql/sfTouches" target="_blank">geof:sfTouches</a> <a href="http://www.opengis.net/def/function/geosparql/ehMeet" target="_blank">geof:ehMeet</a> <a href="http://www.opengis.net/def/function/geosparql/rcc8ec" target="_blank">geof:rcc8ec</a>: Calculates whether the two input geometries touch. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>The first geometry literal </td></tr>
+    <tr><td class="paramname">b</td><td>The second geometry literal </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <a href="http://www.w3.org/2001/XMLSchema#boolean" target="_blank">xsd:boolean</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> indicating whether the two geometries touch </dd></dl>
+<div class="fragment"><div class="line"><span class="lineno"> 1215</span><span class="keyword">def </span>touches(a: Literal, b: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1216</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
+<div class="line"><span class="lineno"> 1217</span>    <span class="keywordflow">if</span> geoms[0] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> geoms[1] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno"> 1218</span>        <span class="keywordflow">return</span> Literal(shapely.touches(geoms[0], geoms[1]), datatype=XSD.boolean)</div>
+<div class="line"><span class="lineno"> 1219</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:touches&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1220</span> </div>
+<div class="line"><span class="lineno"> 1221</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3636,13 +3648,13 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1218</span><span class="keyword">def </span>union(a: Literal, b: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1219</span>    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)</div>
-<div class="line"><span class="lineno"> 1220</span>    <span class="keywordflow">if</span> len(geomtps) &gt; 1:</div>
-<div class="line"><span class="lineno"> 1221</span>        <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(shapely.union(geomtps[0][0], geomtps[1][0]), a.datatype, geomtps[0][1])</div>
-<div class="line"><span class="lineno"> 1222</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:union&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1223</span> </div>
-<div class="line"><span class="lineno"> 1224</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1222</span><span class="keyword">def </span>union(a: Literal, b: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1223</span>    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)</div>
+<div class="line"><span class="lineno"> 1224</span>    <span class="keywordflow">if</span> len(geomtps) &gt; 1:</div>
+<div class="line"><span class="lineno"> 1225</span>        <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(shapely.union(geomtps[0][0], geomtps[1][0]), a.datatype, geomtps[0][1])</div>
+<div class="line"><span class="lineno"> 1226</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:union&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1227</span> </div>
+<div class="line"><span class="lineno"> 1228</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3671,13 +3683,23 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1225</span><span class="keyword">def </span>within(a: Literal, b: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1226</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
-<div class="line"><span class="lineno"> 1227</span>    <span class="keywordflow">if</span> geoms[0] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> geoms[1] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno"> 1228</span>        <span class="keywordflow">return</span> Literal(shapely.within(geoms[0], geoms[1]), datatype=XSD.boolean)</div>
-<div class="line"><span class="lineno"> 1229</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:within&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1230</span> </div>
-<div class="line"><span class="lineno"> 1231</span> </div>
+
+<p>Implements &lt;a target="_blank" href="<a href="http://www.opengis.net/def/function/geosparql/sfWithin">http://www.opengis.net/def/function/geosparql/sfWithin</a>&gt;geof:sfWithin: Calculates whether the first geometry is within the second geometry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>The first geometry literal </td></tr>
+    <tr><td class="paramname">b</td><td>The second geometry literal </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A <a href="http://www.w3.org/2001/XMLSchema#boolean" target="_blank">xsd:boolean</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> indicating whether the first geometry is within the second geometry </dd></dl>
+<div class="fragment"><div class="line"><span class="lineno"> 1233</span><span class="keyword">def </span>within(a: Literal, b: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1234</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
+<div class="line"><span class="lineno"> 1235</span>    <span class="keywordflow">if</span> geoms[0] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span> <span class="keywordflow">and</span> geoms[1] <span class="keywordflow">is</span> <span class="keywordflow">not</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno"> 1236</span>        <span class="keywordflow">return</span> Literal(shapely.within(geoms[0], geoms[1]), datatype=XSD.boolean)</div>
+<div class="line"><span class="lineno"> 1237</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters were provided for function geof:within&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1238</span> </div>
+<div class="line"><span class="lineno"> 1239</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3712,13 +3734,13 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1232</span><span class="keyword">def </span>withinDistance(a: Literal, b, d) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1233</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
-<div class="line"><span class="lineno"> 1234</span>    <span class="keywordflow">if</span> isinstance(d, Literal) <span class="keywordflow">and</span> d.datatype == XSD.double:</div>
-<div class="line"><span class="lineno"> 1235</span>        distance = float(str(d))</div>
-<div class="line"><span class="lineno"> 1236</span>        <span class="keywordflow">return</span> Literal(str(shapely.dwithin(geoms[0], geoms[1], distance)), datatype=XSD.boolean)</div>
-<div class="line"><span class="lineno"> 1237</span> </div>
-<div class="line"><span class="lineno"> 1238</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1240</span><span class="keyword">def </span>withinDistance(a: Literal, b, d) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1241</span>    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=<span class="keyword">True</span>)))[0]</div>
+<div class="line"><span class="lineno"> 1242</span>    <span class="keywordflow">if</span> isinstance(d, Literal) <span class="keywordflow">and</span> d.datatype == XSD.double:</div>
+<div class="line"><span class="lineno"> 1243</span>        distance = float(str(d))</div>
+<div class="line"><span class="lineno"> 1244</span>        <span class="keywordflow">return</span> Literal(str(shapely.dwithin(geoms[0], geoms[1], distance)), datatype=XSD.boolean)</div>
+<div class="line"><span class="lineno"> 1245</span> </div>
+<div class="line"><span class="lineno"> 1246</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3746,13 +3768,13 @@ precedence goes to key-value pairs in latter dictionaries.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The X coordinate as a <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno"> 1242</span><span class="keyword">def </span>x(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1243</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1244</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
-<div class="line"><span class="lineno"> 1245</span>        <span class="keywordflow">return</span> Literal(shapely.get_x(thegeom), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1246</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1247</span> </div>
-<div class="line"><span class="lineno"> 1248</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1250</span><span class="keyword">def </span>x(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1251</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1252</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
+<div class="line"><span class="lineno"> 1253</span>        <span class="keywordflow">return</span> Literal(shapely.get_x(thegeom), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1254</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1255</span> </div>
+<div class="line"><span class="lineno"> 1256</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3780,13 +3802,13 @@ precedence goes to key-value pairs in latter dictionaries.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The Y coordinate as a <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno"> 1252</span><span class="keyword">def </span>y(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1253</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1254</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
-<div class="line"><span class="lineno"> 1255</span>        <span class="keywordflow">return</span> Literal(shapely.get_y(thegeom), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1256</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1257</span> </div>
-<div class="line"><span class="lineno"> 1258</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1260</span><span class="keyword">def </span>y(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1261</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1262</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
+<div class="line"><span class="lineno"> 1263</span>        <span class="keywordflow">return</span> Literal(shapely.get_y(thegeom), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1264</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1265</span> </div>
+<div class="line"><span class="lineno"> 1266</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3814,14 +3836,14 @@ precedence goes to key-value pairs in latter dictionaries.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The Z coordinate as a <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno"> 1262</span><span class="keyword">def </span>z(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1263</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1264</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span> <span class="keywordflow">and</span> thegeom.has_z:</div>
-<div class="line"><span class="lineno"> 1265</span>        <span class="keywordflow">return</span> Literal(str(shapely.get_z(thegeom)), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1266</span>    <span class="keywordflow">raise</span> ValueError(</div>
-<div class="line"><span class="lineno"> 1267</span>        <span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal or a non-3D geometry was provided for function geof:z&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1268</span> </div>
-<div class="line"><span class="lineno"> 1269</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1270</span><span class="keyword">def </span>z(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1271</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1272</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span> <span class="keywordflow">and</span> thegeom.has_z:</div>
+<div class="line"><span class="lineno"> 1273</span>        <span class="keywordflow">return</span> Literal(str(shapely.get_z(thegeom)), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1274</span>    <span class="keywordflow">raise</span> ValueError(</div>
+<div class="line"><span class="lineno"> 1275</span>        <span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal or a non-3D geometry was provided for function geof:z&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1276</span> </div>
+<div class="line"><span class="lineno"> 1277</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
