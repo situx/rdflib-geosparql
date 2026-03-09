@@ -370,7 +370,7 @@ Static Public Member Functions</h2></td></tr>
 <div class="line"><span class="lineno">  400</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#geoJSONLiteral&quot;</span>:</div>
 <div class="line"><span class="lineno">  401</span>            <span class="keywordflow">return</span> Literal(str(to_geojson(geom)), datatype=literaltype)</div>
 <div class="line"><span class="lineno">  402</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#gmlLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  403</span>            <span class="keywordflow">return</span> Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), <span class="stringliteral">&quot;ID&quot;</span>)), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  403</span>            <span class="keywordflow">return</span> Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), <span class="stringliteral">&quot;ID&quot;</span>),encoding=<span class="stringliteral">&quot;unicode&quot;</span>), datatype=literaltype)</div>
 <div class="line"><span class="lineno">  404</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#kmlLiteral&quot;</span>:</div>
 <div class="line"><span class="lineno">  405</span>            <span class="keywordflow">return</span> Literal(<span class="stringliteral">&quot;&lt;kml xmlns=\&quot;http://www.opengis.net/kml/2.2\&quot;&gt;&lt;Placemark&gt;&quot;</span> + str(</div>
 <div class="line"><span class="lineno">  406</span>                fastkml.geometry.create_kml_geometry(geom)) + <span class="stringliteral">&quot;&lt;/Placemark&gt;&lt;/kml&gt;&quot;</span>, datatype=literaltype)</div>
@@ -519,7 +519,7 @@ Static Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 <div class="fragment"><div class="line"><span class="lineno">  389</span>    <span class="keyword">def </span>processGeomToWKTLiteral(geomtup):</div>
-<div class="line"><span class="lineno">  390</span>        <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(geomtup[0],GEO+<span class="stringliteral">&quot;gmlLiteral&quot;</span>,geomtup[1])</div>
+<div class="line"><span class="lineno">  390</span>        <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(geomtup[0], GEO + <span class="stringliteral">&quot;wktLiteral&quot;</span>,geomtup[1])</div>
 <div class="line"><span class="lineno">  391</span> </div>
 </div><!-- fragment -->
 </div>
