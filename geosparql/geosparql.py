@@ -676,7 +676,7 @@ def crosses(a: Literal, b: Literal) -> Literal | None | Any:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.crosses(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfDisjoint">geof:sfDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehDisjoint">geof:ehDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8dc">geof:rcc8dc</a>: Calculates the concave hull of a geometry literal.
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfDisjoint">geof:sfDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehDisjoint">geof:ehDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8dc">geof:rcc8dc</a>: Calculates whtether the two input geometries are disjoint.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries are disjoint
@@ -712,7 +712,10 @@ def endPoint(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[-1]), a.datatype,
                                              thegeomsrs)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfEquals">geof:sfEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehEquals">geof:ehEquals</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8eq">geof:rcc8eq</a>: Calculates whtether the two input geometries are equal.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries are equal
 def equals(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -745,6 +748,10 @@ def force2D(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.force_2d(thegeom), a.datatype, thegeomsrs)
 
 
+## Calculates the FrechetDistance between two input geometries.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The frechet distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def frechetDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -765,12 +772,17 @@ def geometryType(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.geom_type, datatype=XSD.string)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/getSRID">geof:getSRID</a>: Retrieves the SRID URI of a geometry.
+#  @param a The geometry literal
+#  @returns The srid URI as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#anyURI">xsd:anyURI</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def getSRID(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeomsrs, datatype=XSD.anyURI)
 
-
+## Calculates the HausdorffDistance between two input geometries.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The hausdorff distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def hausDorffDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -796,7 +808,10 @@ def intersection3D(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(trimesh.boolean.intersection(geoms), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfIntersects">geof:sfIntersects</a>: Calculates whtether the two input geometries intersect.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries intersect
 def intersects(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -1091,6 +1106,10 @@ def perimeter(a: Literal) -> Literal:
     return Literal(thegeom.length, datatype=XSD.double)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfOverlaps">geof:sfOverlaps</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehOverlap">geof:ehOverlap</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8po">geof:rcc8po</a>: Calculates whether the two input geometries overlap.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries overlap
 def overlaps(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
