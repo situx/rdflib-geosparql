@@ -20,6 +20,12 @@ jobs:
          cd docs
          doxygen Doxyfile
          cd ..
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@releases/v4
+      with:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         BRANCH: gh-pages
+         FOLDER: docs/html/
     - name: Run pytest
       uses: pavelzw/pytest-action@v2
       with:
@@ -29,9 +35,4 @@ jobs:
         custom-arguments: '-q'
         click-to-expand: true
         report-title: 'Test Report'
-    - name: Deploy 🚀
-      uses: JamesIves/github-pages-deploy-action@releases/v4
-      with:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         BRANCH: gh-pages
-         FOLDER: docs/html/
+
