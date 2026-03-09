@@ -11,11 +11,11 @@ jobs:
     - uses: actions/checkout@v1
     - name: Create Doxygen Documentation 🔧
       run: |
-        sudo apt-get install python3 python3-setuptools python3-pip python3-dev  -y
+         sudo apt-get install python3 python3-setuptools python3-pip python3-dev  -y
          sudo apt-get install gcc libpq-dev -y
          sudo apt-get install doxygen graphviz -y
          sudo apt-get install python3-venv python3-wheel -y
-         sudo pip3 install wheel pylode==2.13.2
+         sudo pip3 install wheel pytest
          cd docs
          doxygen Doxyfile
     - name: Run pytest
