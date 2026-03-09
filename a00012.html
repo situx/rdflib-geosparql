@@ -290,10 +290,13 @@ Functions</h2></td></tr>
 <tr class="memitem:a1caf45869343f2659eeb9b6cca7d5713" id="r_a1caf45869343f2659eeb9b6cca7d5713"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a1caf45869343f2659eeb9b6cca7d5713">withinDistance</a> (Literal a, b, d)</td></tr>
 <tr class="separator:a1caf45869343f2659eeb9b6cca7d5713"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9665010805c7f1f81c76ed055a756ccc" id="r_a9665010805c7f1f81c76ed055a756ccc"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a9665010805c7f1f81c76ed055a756ccc">x</a> (Literal a)</td></tr>
+<tr class="memdesc:a9665010805c7f1f81c76ed055a756ccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the X coordinate of a Point geometry.  <br /></td></tr>
 <tr class="separator:a9665010805c7f1f81c76ed055a756ccc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6be3788c99f2444aaf2037ef41bbe897" id="r_a6be3788c99f2444aaf2037ef41bbe897"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a6be3788c99f2444aaf2037ef41bbe897">y</a> (Literal a)</td></tr>
+<tr class="memdesc:a6be3788c99f2444aaf2037ef41bbe897"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the Y coordinate of a Point geometry.  <br /></td></tr>
 <tr class="separator:a6be3788c99f2444aaf2037ef41bbe897"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a184969583c54cc6a3f3ab4545802caf2" id="r_a184969583c54cc6a3f3ab4545802caf2"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a184969583c54cc6a3f3ab4545802caf2">z</a> (Literal a)</td></tr>
+<tr class="memdesc:a184969583c54cc6a3f3ab4545802caf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the Z coordinate of a Point geometry.  <br /></td></tr>
 <tr class="separator:a184969583c54cc6a3f3ab4545802caf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a701d40182cc15db7bde1653e820a1b21" id="r_a701d40182cc15db7bde1653e820a1b21"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00012.html#a701d40182cc15db7bde1653e820a1b21">getfuncs</a> ()</td></tr>
 <tr class="separator:a701d40182cc15db7bde1653e820a1b21"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1501,19 +1504,19 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1286</span><span class="keyword">def </span>getfuncs():</div>
-<div class="line"><span class="lineno"> 1287</span>    thefuncs = merge_dicts(geosparql10, geosparql11, geosparql13)</div>
-<div class="line"><span class="lineno"> 1288</span>    <span class="keywordflow">for</span> uri <span class="keywordflow">in</span> thefuncs:</div>
-<div class="line"><span class="lineno"> 1289</span>        <span class="keywordflow">try</span>:</div>
-<div class="line"><span class="lineno"> 1290</span>            register_custom_function(uri, thefuncs[uri])</div>
-<div class="line"><span class="lineno"> 1291</span>            print(<span class="stringliteral">&quot;Registered custom function&quot;</span>, uri)</div>
-<div class="line"><span class="lineno"> 1292</span>            <span class="comment"># print(thefuncs[uri])</span></div>
-<div class="line"><span class="lineno"> 1293</span>        <span class="keywordflow">except</span> ValueError:</div>
-<div class="line"><span class="lineno"> 1294</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno"> 1295</span>        <span class="keywordflow">except</span> AttributeError:</div>
-<div class="line"><span class="lineno"> 1296</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno"> 1297</span> </div>
-<div class="line"><span class="lineno"> 1298</span> </div>
+<div class="fragment"><div class="line"><span class="lineno"> 1295</span><span class="keyword">def </span>getfuncs():</div>
+<div class="line"><span class="lineno"> 1296</span>    thefuncs = merge_dicts(geosparql10, geosparql11, geosparql13)</div>
+<div class="line"><span class="lineno"> 1297</span>    <span class="keywordflow">for</span> uri <span class="keywordflow">in</span> thefuncs:</div>
+<div class="line"><span class="lineno"> 1298</span>        <span class="keywordflow">try</span>:</div>
+<div class="line"><span class="lineno"> 1299</span>            register_custom_function(uri, thefuncs[uri])</div>
+<div class="line"><span class="lineno"> 1300</span>            print(<span class="stringliteral">&quot;Registered custom function&quot;</span>, uri)</div>
+<div class="line"><span class="lineno"> 1301</span>            <span class="comment"># print(thefuncs[uri])</span></div>
+<div class="line"><span class="lineno"> 1302</span>        <span class="keywordflow">except</span> ValueError:</div>
+<div class="line"><span class="lineno"> 1303</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno"> 1304</span>        <span class="keywordflow">except</span> AttributeError:</div>
+<div class="line"><span class="lineno"> 1305</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno"> 1306</span> </div>
+<div class="line"><span class="lineno"> 1307</span> </div>
 </div><!-- fragment -->
 <p class="reference">References <a class="el" href="a00012.html#a701d40182cc15db7bde1653e820a1b21">geosparql.geosparql.getfuncs()</a>, and <a class="el" href="a00012.html#a9196ad348c499f2b18d7f7e72322910b">geosparql.geosparql.merge_dicts()</a>.</p>
 
@@ -3360,13 +3363,22 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1137</span><span class="keyword">def </span>x(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1138</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1139</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
-<div class="line"><span class="lineno"> 1140</span>        <span class="keywordflow">return</span> Literal(shapely.get_x(thegeom), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1141</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1142</span> </div>
-<div class="line"><span class="lineno"> 1143</span> </div>
+
+<p>Retrieves the X coordinate of a Point geometry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>The geometry literal. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The X coordinates as an <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
+<div class="fragment"><div class="line"><span class="lineno"> 1140</span><span class="keyword">def </span>x(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1141</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1142</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
+<div class="line"><span class="lineno"> 1143</span>        <span class="keywordflow">return</span> Literal(shapely.get_x(thegeom), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1144</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:x&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1145</span> </div>
+<div class="line"><span class="lineno"> 1146</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3385,13 +3397,22 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1144</span><span class="keyword">def </span>y(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1145</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1146</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
-<div class="line"><span class="lineno"> 1147</span>        <span class="keywordflow">return</span> Literal(shapely.get_y(thegeom), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1148</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1149</span> </div>
-<div class="line"><span class="lineno"> 1150</span> </div>
+
+<p>Retrieves the Y coordinate of a Point geometry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>The geometry literal. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The Y coordinates as an <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
+<div class="fragment"><div class="line"><span class="lineno"> 1150</span><span class="keyword">def </span>y(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1151</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1152</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span>:</div>
+<div class="line"><span class="lineno"> 1153</span>        <span class="keywordflow">return</span> Literal(shapely.get_y(thegeom), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1154</span>    <span class="keywordflow">raise</span> ValueError(<span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal was provided for function geof:y&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1155</span> </div>
+<div class="line"><span class="lineno"> 1156</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -3410,14 +3431,23 @@ precedence goes to key-value pairs in latter dictionaries.
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno"> 1151</span><span class="keyword">def </span>z(a: Literal) -&gt; Literal:</div>
-<div class="line"><span class="lineno"> 1152</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
-<div class="line"><span class="lineno"> 1153</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span> <span class="keywordflow">and</span> thegeom.has_z:</div>
-<div class="line"><span class="lineno"> 1154</span>        <span class="keywordflow">return</span> Literal(str(shapely.get_z(thegeom)), datatype=XSD.double)</div>
-<div class="line"><span class="lineno"> 1155</span>    <span class="keywordflow">raise</span> ValueError(</div>
-<div class="line"><span class="lineno"> 1156</span>        <span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal or a non-3D geometry was provided for function geof:z&quot;</span>)</div>
-<div class="line"><span class="lineno"> 1157</span> </div>
-<div class="line"><span class="lineno"> 1158</span> </div>
+
+<p>Retrieves the Z coordinate of a Point geometry. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">a</td><td>The geometry literal. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The Z coordinates as an <a href="http://www.w3.org/2001/XMLSchema#double" target="_blank">xsd:double</a> <a href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal" target="_blank">Literal</a> </dd></dl>
+<div class="fragment"><div class="line"><span class="lineno"> 1160</span><span class="keyword">def </span>z(a: Literal) -&gt; Literal:</div>
+<div class="line"><span class="lineno"> 1161</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
+<div class="line"><span class="lineno"> 1162</span>    <span class="keywordflow">if</span> thegeom.geom_type == <span class="stringliteral">&quot;Point&quot;</span> <span class="keywordflow">and</span> thegeom.has_z:</div>
+<div class="line"><span class="lineno"> 1163</span>        <span class="keywordflow">return</span> Literal(str(shapely.get_z(thegeom)), datatype=XSD.double)</div>
+<div class="line"><span class="lineno"> 1164</span>    <span class="keywordflow">raise</span> ValueError(</div>
+<div class="line"><span class="lineno"> 1165</span>        <span class="stringliteral">&quot;Invalid parameters, e.g. a non-Point geometry literal or a non-3D geometry was provided for function geof:z&quot;</span>)</div>
+<div class="line"><span class="lineno"> 1166</span> </div>
+<div class="line"><span class="lineno"> 1167</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
