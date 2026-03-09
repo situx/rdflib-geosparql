@@ -812,7 +812,10 @@ def hausDorffDistance(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.hausdorff_distance(geoms[0], geoms[1]), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehInside">geof:ehInside</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8ntpp">geof:rcc8ntpp</a>: Calculates whether the first geometry is inside the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is inside the second geometry
 def inside(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -1135,7 +1138,10 @@ def numPoints(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/patchN">geof:patchN</a>: Returns the nth patch of a geometry
+#  @param a The geometry literal
+#  @param n The index of the patch to retrieve
+#  @returns The point at the nth patch of the given geometry as a geometry literal of the same type and CRS as the input geometry
 def patchN(a: Literal, n: Literal)) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
