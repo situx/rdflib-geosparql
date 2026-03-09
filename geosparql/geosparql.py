@@ -890,8 +890,11 @@ def isValid(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.is_valid, datatype=XSD.boolean)
 
-
-def length(a: Literal) -> Literal:
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/length">geof:length</a>: Retrieves the length of a geometry.
+#  @param a The geometry literal
+#  @param units The unit of measurement of the length as a URI
+#  @returns The length as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+def length(a: Literal,units: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
@@ -981,7 +984,10 @@ def metricDistance(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricLength">geof:metricLength</a>: Retrieves the length of a geometry in meters.
+#  @param a The geometry literal
+#  @param units The unit of measurement of the length as a URI
+#  @returns The length in meters as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def metricLength(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
