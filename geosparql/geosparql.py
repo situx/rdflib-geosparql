@@ -558,6 +558,8 @@ def asPLY(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#xyzLiteral">geo:xyzLiteral</a>
 def asXYZ(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#xyzLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#xyzLiteral", thegeomsrs)
 
@@ -566,6 +568,8 @@ def asXYZ(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wkbLiteral">geo:wkbLiteral</a>
 def asWKB(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#wkbLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wkbLiteral", thegeomsrs)
 
@@ -573,6 +577,8 @@ def asWKB(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wktLiteral">geo:wktLiteral</a>
 def asWKT(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#wktLiteral":
+        return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
 
