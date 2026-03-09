@@ -18,7 +18,7 @@ setup(
     long_description_content_type="text/markdown",
     maintainer="Timo Homburg",
     maintainer_email="timo.homburg@gmx.de",
-    url="https://github.com/rdflib/geosparql",
+    url="https://github.com/rdflib/rdflib-geosparql",
     license="BSD",
     packages=["geosparql"],
     platforms=["any"],

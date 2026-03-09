@@ -3,7 +3,7 @@ from rdflib import Graph, Namespace
 import os
 import itertools
 from shapely.testing import assert_geometries_equal
-from geosparql import LiteralUtils
+from geosparql.geosparql import LiteralUtils
 from test_geosparql10 import TestGeoSPARQL10
 from testutils import TestUtils
 

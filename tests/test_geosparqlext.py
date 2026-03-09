@@ -4,7 +4,7 @@ import os
 import trimesh
 import itertools
 from shapely.testing import assert_geometries_equal
-from geosparql import LiteralUtils
+from geosparql.geosparql import LiteralUtils
 from geosparql.geosparql_aggregates import processLiteralTypeToGeom
 from test_geosparql11 import TestGeoSPARQL11
 from testutils import TestUtils

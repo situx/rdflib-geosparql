@@ -1,0 +1,38 @@
+name: Python CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Create Doxygen Documentation 🔧
+      run: |
+         sudo apt-get install python3 python3-setuptools python3-pip python3-dev  -y
+         sudo apt-get install gcc libpq-dev -y
+         sudo apt-get install doxygen graphviz -y
+         sudo apt-get install python3-venv python3-wheel -y
+         sudo pip3 install wheel pytest pytest-md pytest-emoji
+         sudo pip3 install -r requirements.txt
+         cd docs
+         doxygen Doxyfile
+         cd ..
+    - name: Deploy 🚀
+      uses: JamesIves/github-pages-deploy-action@releases/v4
+      with:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         BRANCH: gh-pages
+         FOLDER: docs/html/
+    - name: Run pytest
+      uses: pavelzw/pytest-action@v2
+      with:
+        verbose: true
+        emoji: true
+        job-summary: true
+        custom-arguments: '-q'
+        click-to-expand: true
+        report-title: 'Test Report'
+
