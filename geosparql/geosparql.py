@@ -649,18 +649,28 @@ def compactnessRatio(a: Literal) -> Literal:
     return Literal(str(1 / (p / (2 * pi * sqrt(a / pi)))), datatype=XSD.double)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehCovers">geof:ehCovers</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8tppi">geof:rcc8tppi</a>: Calculates whether the first geometry covers the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry covers the second geometry
 def covers(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.covers(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehCoveredBy">geof:ehCoveredBy</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8tppi">geof:rcc8tppi</a>: Calculates whether the first geometry is covered by the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is covered by the second geometry
 def coveredBy(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.covered_by(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfCrosses">geof:sfCrosses</a>: Calculates whether the first geometry crosses the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry crosses the second geometry
 def crosses(a: Literal, b: Literal) -> Literal | None | Any:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -686,8 +696,12 @@ def difference(a: Literal, b: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.difference(geomtps[0][0], geomtps[1][0]), a.datatype,
                                                  geomtps[0][1])
 
-
-def distance(a: Literal, b: Literal) -> Literal:
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/distance">geof:distance</a>: Retrieves the distance between two geometries.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @param units The unit in which to return the distance as a URI
+#  @returns The distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+def distance(a: Literal, b: Literal, units: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
@@ -943,6 +957,10 @@ def metricBuffer(a: Literal, radius) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(normgeom, float(radius)), a.datatype, thegeomsrs)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricDistance">geof:metricDistance</a>: Retrieves the distance between two geometries in meters.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The distance in meters as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def metricDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, normsrs=3857)))[0]
     if geoms[0] is not None and geoms[1] is not None:
