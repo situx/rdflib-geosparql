@@ -709,7 +709,7 @@ def frechetDistance(a: Literal, b) -> Literal:
 
 
 def geometryN(a: Literal, n) -> Literal:
-    if isinstance(a: Literal, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
+    if isinstance(a, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         print(thegeom)
         print(shapely.get_geometry(thegeom, int(str(n))))
