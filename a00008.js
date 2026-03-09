@@ -18,7 +18,7 @@ var a00008 =
     [ "azimuth", "a00008.html#a7ad3337a49e6416a9e49996d0e64699d", null ],
     [ "boundary", "a00008.html#a44d255c72c4ca2a654b6fc57666972e8", null ],
     [ "boundingCircle", "a00008.html#af9d7a95a140824d7e8742f0f5a6007e9", null ],
-    [ "buffer", "a00008.html#ab5cd1ec50e3067fcbd04e106144a8d77", null ],
+    [ "buffer", "a00008.html#a1cf415f8b556c6dfd72e084ef37b9881", null ],
     [ "centroid", "a00008.html#aebaa983f26b0adfae9952284dbc631d6", null ],
     [ "compactnessRatio", "a00008.html#a3ad08ed01ed046627cfe37c4bd6761f5", null ],
     [ "concaveHull", "a00008.html#aaac9ea6fee221c9df1e61b1851a95a88", null ],
