@@ -387,7 +387,7 @@ class LiteralUtils:
 
     @staticmethod
     def processGeomToWKTLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0],GEO+"gmlLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wktLiteral",geomtup[1])
 
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
@@ -400,7 +400,7 @@ class LiteralUtils:
         elif ltype == "http://www.opengis.net/ont/geosparql#geoJSONLiteral":
             return Literal(str(to_geojson(geom)), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#gmlLiteral":
-            return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID")), datatype=literaltype)
+            return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID"),encoding="unicode"), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#kmlLiteral":
             return Literal("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(
                 fastkml.geometry.create_kml_geometry(geom)) + "</Placemark></kml>", datatype=literaltype)
@@ -456,7 +456,7 @@ class LiteralUtils:
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def area(a: Literal) -> Literal:
+def area(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
 
@@ -727,7 +727,7 @@ def envelope(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom.envelope, a.datatype, thegeomsrs)
 
 
-def extrude(a: Literal, extrudeval) -> Literal:
+def extrude(a: Literal, extrudeval: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_3d(shapely.force_2d(thegeom), extrudeval), a.datatype,
                                              thegeomsrs)
@@ -758,7 +758,7 @@ def frechetDistance(a: Literal, b: Literal) -> Literal:
         return Literal(shapely.frechet_distance(geoms[0], geoms[1]), datatype=XSD.double)
 
 
-def geometryN(a: Literal, n) -> Literal:
+def geometryN(a: Literal, n: Literal) -> Literal:
     if isinstance(a, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         print(thegeom)
@@ -866,7 +866,9 @@ def isMeasured(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_m, datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/isRing">geof:isRing</a>: Calculates whether a geometry literal is a ring.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is a ring
 def isRing(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in str(thegeom.geom_type):
@@ -1101,7 +1103,7 @@ def numPoints(a: Literal) -> Literal:
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
 
-def patchN(a: Literal, n) -> Literal:
+def patchN(a: Literal, n: Literal)) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
 
@@ -1119,7 +1121,7 @@ def pointOnSurface(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
 
-def perimeter(a: Literal) -> Literal:
+def perimeter(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
