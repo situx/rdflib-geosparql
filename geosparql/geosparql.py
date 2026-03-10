@@ -6,6 +6,7 @@ from typing import Any
 
 import fastkml.geometry
 import h3
+import pint
 import pygeohash
 import pygml
 import shapely
@@ -20,6 +21,7 @@ from pyproj import Transformer
 from rdflib import Literal, XSD, Graph, URIRef, term
 from rdflib.plugins.sparql.operators import register_custom_function
 from shapely.io import to_geojson
+
 
 GEOF = "http://www.opengis.net/def/function/geosparql/"
 GEOFEXT = "http://www.opengis.net/def/function/geosparql/ext/"
@@ -145,21 +147,29 @@ class Transformers:
 class SRSUtils:
 
     ureg = UnitRegistry()
-    units = {}
-    units["m"] = "om:meter"
-    units["metre"] = "om:metre"
-    units["grad"] = "om:degree"
-    units["degree"] = "om:degree"
-    units["ft"] = "om:foot"
-    units["us-ft"] = "om:usfoot"
+    unitsshort = {
+        "m": "om:meter",
+        "metre" : "om:metre",
+        "grad":"om:degree",
+        "degree" : "om:degree",
+        "ft": "om:foot",
+        "us-ft": "om:usfoot"
+    }
+
+    uniturisToUnit={
+        "http://qudt.org/vocab/unit/AC":"acre",
+        "http://qudt.org/vocab/unit/MI":"mile",
+    }
+
+
 
     @staticmethod
     def getUnitsFromSRS(srsuri):
         curcrs = CRS.from_epsg(srsuri)
         unitres = []
         for ax in curcrs.coordinate_system.axis_list:
-            if ax.unit_name in SRSUtils.units:
-                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.units[ax.unit_name].replace("om:", "")))
+            if ax.unit_name in SRSUtils.unitsshort:
+                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace("om:", "")))
         return unitres
 
     @staticmethod
@@ -167,19 +177,29 @@ class SRSUtils:
         curcrs = CRS.from_epsg(srsuri)
         unitres = []
         for ax in curcrs.coordinate_system.axis_list:
-            if ax.unit_name in SRSUtils.units:
-                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.units[ax.unit_name].replace("om:", "")))
+            if ax.unit_name in SRSUtils.unitsshort:
+                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace("om:", "")))
         return unitres
+
+    @staticmethod
+    def convertMetricToUnit(thevalue,metricunit,targetunit):
+        if metricunit in SRSUtils.uniturisToUnit and targetunit in SRSUtils.uniturisToUnit:
+            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit])
+            thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit]))
+            return thevalue_withunit.magnitude
+
 
 
 class LiteralUtils:
+
+    literals3d={GEO+"plyLiteral",GEO+"objLiteral",GEO+"gltfLiteral"}
 
     @staticmethod
     def createGeometry3D(shapelygeom):
         # print("CREATE3D")
         # print(shapelygeom.geom_type)
         # ress=trimesh.creation.triangulate_polygon(shapelygeom)
-        ress = trimesh.creation.extrude_polygon(shapelygeom, 3)
+        ress = trimesh.creation.extrude_polygon(shapelygeom, 1)
         # print(shapelygeom)
         # print(ress)
         return ress
@@ -398,6 +418,7 @@ class LiteralUtils:
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
         print("GEOMTOLIT: "+str(geom))
+        print(str(type(geom)))
         ltype = str(literaltype)
         if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
             if thegeomsrs != "":
@@ -605,7 +626,7 @@ def boundingCircle(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
 
-def buffer(a: Literal, radius: Literal, unit: Literal) -> Literal:
+def buffer(a: Literal, radius: Literal, unit: Literal="") -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
@@ -710,6 +731,26 @@ def difference(a: Literal, b: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.difference(geomtps[0][0], geomtps[1][0]), a.datatype,
                                                  geomtps[0][1])
 
+def difference3D(a: Literal, b: Literal) -> Literal:
+    print("DIFF 3D")
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+    """
+    print("GEOMS: "+str(geoms))
+    diff=geoms[0].difference(geoms[1])
+    print("DIFF: "+str(diff))
+    bio = BytesIO()
+    diff.export(bio, file_type="ply", encoding='ascii')
+    res=bio.getvalue().decode("utf-8")
+    print("DIFF AS PLY: "+str(res))
+    print(geoms[0].difference(geoms[1]).volume)
+    """
+    if geoms[0] is not None and geoms[1] is not None:
+        diff=geoms[0].difference(geoms[1])
+        bio = BytesIO()
+        diff.export(bio, file_type="ply", encoding='ascii')
+        res = bio.getvalue().decode("utf-8")
+        return LiteralUtils.processGeomToLiteral(diff,a.datatype)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/distance">geof:distance</a>: Retrieves the distance between two geometries.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -763,6 +804,19 @@ def force2D(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_2d(thegeom), a.datatype, thegeomsrs)
 
+## Sets a clockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a counterclockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=False), datatype=XSD.boolean)
+
+## Sets a counterclockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a clockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=True), datatype=XSD.boolean)
 
 ## Calculates the FrechetDistance between two input geometries.
 #  @param a The first geometry literal
@@ -824,8 +878,11 @@ def intersection(a: Literal, b: Literal) -> Literal:
 
 def intersection3D(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+    print(geoms)
+    print(geoms[0].intersection(geoms[1]))
+    print(geoms[0].intersection(geoms[1]).volume)
     if geoms[0] is not None and geoms[1] is not None:
-        return Literal(trimesh.boolean.intersection(geoms), datatype=XSD.boolean)
+        return Literal(str(geoms[0].intersection(geoms[1])), datatype=XSD.string)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfIntersects">geof:sfIntersects</a>: Calculates whether the two input geometries intersect.
 #  @param a The first geometry literal
@@ -841,7 +898,7 @@ def intersects3D(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         print(trimesh.boolean.boolean_manifold(geoms, "intersection"))
-        return Literal(trimesh.boolean.boolean_manifold(geoms, "intersection"), datatype=XSD.boolean)
+        return Literal(trimesh.boolean.boolean_manifold(geoms, "intersection").volume>0, datatype=XSD.boolean)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/is3D">geof:is3D</a>: Calculates whether a geometry literal represents a 3D geometry.
@@ -850,6 +907,14 @@ def intersects3D(a: Literal, b: Literal) -> Literal:
 def is3D(a: Literal) -> Literal:
     thegeom, thegeomsrs = a.value
     return Literal(thegeom.has_z, datatype=XSD.boolean)
+
+
+## Checks whether the coordinates of a LineString or LinearRing are counterclockwise.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the LineString or LinearRing is counterclockwise
+def isCCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.is_ccw(thegeom), datatype=XSD.boolean)
 
 
 ## Indicates whether a geometry literal contains a GeometryCollection.
@@ -920,6 +985,33 @@ def length(a: Literal,units: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
 
+## Retrieves the longest line between two geometries defined by the two points with maximum distance
+#  @param a The first geometry literal.
+#  @param b The first geometry literal.
+#  @returns The longest line as a geometry literal in the CRS and literal format of the first input geometry
+def longestLine(a: Literal, b: Literal) -> Literal:
+    print("LONGESTLINE")
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0].has_z and geoms[1].has_z:
+        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+    else:
+        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    maxdistance=float("-inf")
+    fpoint1=None
+    fpoint2=None
+    for p1 in g1list:
+        for p2 in g2list:
+            dist = shapely.distance(shapely.geometry.Point(p1), shapely.geometry.Point(p2))
+            print(dist)
+            if dist>maxdistance:
+                maxdistance=dist
+                fpoint1=p1
+                fpoint2=p2
+    if fpoint1 is not None and fpoint2 is not None:
+        return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([fpoint1,fpoint2]),a.datatype)
+
 ## Retrieves the M coordinate of a Point geometry.
 #  @param a The geometry literal.
 #  @returns The M coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
@@ -935,6 +1027,25 @@ def matrixTransform(a: Literal, matrix) -> Literal:
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
+## Retrieves the maximum distance between two geometries
+#  @param a The first geometry literal.
+#  @param b The first geometry literal.
+#  @returns The maximum distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+def maxDistance(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0].has_z and geoms[1].has_z:
+        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+    else:
+        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    maxdistance=float("-inf")
+    for p1 in g1list:
+        for p2 in g2list:
+            dist=shapely.distance(shapely.geometry.Point(p1),shapely.geometry.Point(p2))
+            if dist>maxdistance:
+                maxdistance=dist
+    return Literal(str(maxdistance), datatype=XSD.double)
 
 ## Retrieves the maximum measurement coordinate of a geometry.
 #  @param a The geometry literal.
@@ -1431,18 +1542,25 @@ geosparql13 = {
     URIRef(GEOFEXT + "asXYZ"): asXYZ,
     URIRef(GEOFEXT + "azimuth"): azimuth,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
+    URIRef(GEOFEXT + "difference3D"): difference3D,
     URIRef(GEOFEXT + "endPoint"): endPoint,
     URIRef(GEOFEXT + "exteriorRing"): exteriorRing,
     URIRef(GEOFEXT + "force2D"): force2D,
     URIRef(GEOFEXT + "force3D"): extrude,
+    URIRef(GEOFEXT + "forceCW"): forceCW,
+    URIRef(GEOFEXT + "forceCCW"): forceCCW,
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
     URIRef(GEOFEXT + "hausdorffDistance"): hausDorffDistance,
+    URIRef(GEOFEXT + "intersection3D"): intersection3D,
     URIRef(GEOFEXT + "intersects3D"): intersects3D,
+    URIRef(GEOFEXT + "isCCW"): isCCW,
     URIRef(GEOFEXT + "isCollection"): isCollection,
     URIRef(GEOFEXT + "isClosed"): isClosed,
     URIRef(GEOFEXT + "isRing"): isRing,
     URIRef(GEOFEXT + "isValid"): isValid,
+    URIRef(GEOFEXT + "longestLine"): longestLine,
+    URIRef(GEOFEXT + "maxDistance"): maxDistance,
     URIRef(GEOFEXT + "maxM"): maxM,
     URIRef(GEOFEXT + "M"): m,
     URIRef(GEOFEXT + "metricWithinDistance"): metricWithinDistance,
@@ -1484,10 +1602,10 @@ def getfuncs():
         except AttributeError:
             pass
 
-    term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processGeomToWKTLiteral)
-    term.bind(URIRef(str(GEO) + "gmlLiteral"), shapely.Geometry, LiteralUtils.processGMLLiteral,LiteralUtils.processGeomToGMLLiteral)
-    term.bind(URIRef(str(GEO) + "kmlLiteral"), shapely.Geometry, LiteralUtils.processKMLLiteral,LiteralUtils.processGeomToKMLLiteral)
-    term.bind(URIRef(str(GEO) + "geoJSONLiteral"), shapely.Geometry, LiteralUtils.processGeoJSONLiteral,LiteralUtils.processGeomToGeoJSONLiteral)
+    #term.bind(URIRef(str(GEO)+"wktLiteral"),shapely.Geometry,LiteralUtils.processWKTLiteral,LiteralUtils.processGeomToWKTLiteral)
+    #term.bind(URIRef(str(GEO) + "gmlLiteral"), shapely.Geometry, LiteralUtils.processGMLLiteral,LiteralUtils.processGeomToGMLLiteral)
+    #term.bind(URIRef(str(GEO) + "kmlLiteral"), shapely.Geometry, LiteralUtils.processKMLLiteral,LiteralUtils.processGeomToKMLLiteral)
+    #term.bind(URIRef(str(GEO) + "geoJSONLiteral"), shapely.Geometry, LiteralUtils.processGeoJSONLiteral,LiteralUtils.processGeomToGeoJSONLiteral)
 
 getfuncs()
 
@@ -1499,12 +1617,15 @@ result = g.query(
     """
 PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
+PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX geof: <"""+str(GEOF)+""">
-SELECT ?literal
+SELECT ?sfIntersects
 WHERE {
-  my:AExactGeom geo:asWKT ?literal .
-  BIND(geof:asGML(?literal) AS ?sline)
+  my:A geo:hasDefaultGeometry ?aGeom .
+  ?aGeom geo:asWKT ?aLiteral .
+  my:D geo:hasDefaultGeometry ?dGeom .
+  ?dGeom geo:asWKT ?dLiteral .
+  BIND (geof:longestLine(?aLiteral, ?dLiteral) as ?sfIntersects)
 }
 """
 )

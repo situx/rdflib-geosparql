@@ -114,7 +114,7 @@ class TestGeoSPARQL10:
           ?cGeom %%literalrel1%% ?cLiteral .
           my:F geo:hasDefaultGeometry ?fGeom .
           ?fGeom %%literalrel2%% ?fLiteral .
-          BIND (geof:distance(?cLiteral, ?fLiteral) as ?distance)
+          BIND (geof:distance(?cLiteral, ?fLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?distance)
         }
         """,combinations,config, g)
         for res in resultlist:
