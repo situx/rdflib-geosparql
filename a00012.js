@@ -50,6 +50,7 @@ var a00012 =
     [ "intersects", "a00012.html#aba92185bbc5e05ff829aa486512a24f4", null ],
     [ "intersects3D", "a00012.html#a558aaedd4e84fb9c4b3f81f6aac530fb", null ],
     [ "is3D", "a00012.html#ae43b83177e2c3bd68bf0664ad4e2a2a9", null ],
+    [ "isCCW", "a00012.html#aaa9ce5b19cfa5b1fa2cc56d209747b73", null ],
     [ "isClosed", "a00012.html#aefd8982d76eea7a3fae40a2fad987bec", null ],
     [ "isCollection", "a00012.html#a1da5e7a956d14974f8af4e3e9373c86b", null ],
     [ "isEmpty", "a00012.html#a99909418f0abc22cedcce0d07a96bfc2", null ],
