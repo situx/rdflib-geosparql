@@ -612,7 +612,7 @@ def asWKT(a: Literal) -> Literal:
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>: Calculates the boundary of a geometry literal.
 #  @param a The geometry literal
-#  @returns The geometry as a geometry literal in the CRS of the input geometry
+#  @returns The geometry as a geometry literal in the CRS and literal format of the input geometry
 def boundary(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
@@ -620,12 +620,16 @@ def boundary(a: Literal) -> Literal:
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
 #  @param a The geometry literal
-#  @returns The bounding circle as a geometry literal in the CRS of the input geometry
+#  @returns The bounding circle as a geometry literal in the CRS and literal format of the input geometry
 def boundingCircle(a: Literal) -> Literal:
     thegeom, thegeomsrs = a.value#LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/buffer">geof:buffer</a>: Calculates the buffer of a geometry literal with a given radius and a given unit.
+#  @param a The geometry literal
+#  @param radius The buffer radius
+#  @param unit the radius unit
+#  @returns The buffer as a geometry literal in the CRS and literal format of the input geometry
 def buffer(a: Literal, radius: Literal, unit: Literal="") -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if isinstance(radius, Literal) and radius.datatype == XSD.double:
@@ -1191,7 +1195,11 @@ def metricPerimeter(a: Literal) -> Literal:
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
     return Literal(normgeom.length, datatype=XSD.double)
 
-
+## Calculates whether the first geometry is within a given distance to the second geometry. The distance is interpreted as meters.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @param d The distance in meters
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is within distance of the second geometry
 def metricWithinDistance(a: Literal, b, d) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, normsrs=3857)))[0]
     if isinstance(d, Literal) and d.datatype == XSD.double:
@@ -1212,7 +1220,9 @@ def minimumClearance(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.minimum_clearance(thegeom), datatype=XSD.double)
 
-
+## Retrieves the minimum clearance line of a geometry
+#  @param a The first geometry literal.
+#  @returns The minimum clearance line as a geometry literal in the CRS and literal format of the first input geometry
 def minimumClearanceLine(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     # print(shapely.minimum_clearance_line(thegeom))
@@ -1339,8 +1349,12 @@ def overlaps(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.overlaps(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
-def relate(a: Literal, b, matrix) -> Literal:
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @param matrix The DE-9IM pattern
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries conform with the DE-9IM pattern
+def relate(a: Literal, b: Literal, matrix: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.relate_pattern(geoms[0], geoms[1], str(matrix)), datatype=XSD.boolean)
@@ -1352,7 +1366,12 @@ def reverse(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
 
-
+## Returns a scaled version of the input geometry.
+#  @param a The geometry literal
+#  @param scaleX The scale factor in X direction
+#  @param scaleY The scale factor in Y direction
+#  @param scaleZ The scale factor in Z direction
+#  @returns The scaled geometry in the same literal format and CRS as the input geometry
 def scale(a: Literal, scaleX: Literal, scaleY: Literal, scaleZ: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.affinity.scale(thegeom, xfact=float(scaleX.value), yfact=float(scaleY.value),
@@ -1362,6 +1381,10 @@ def scale(a: Literal, scaleX: Literal, scaleY: Literal, scaleZ: Literal) -> Lite
                                zfact=float(scaleZ.value)), a.datatype, thegeomsrs)
 
 
+## Retrieves the shortest line between two geometries defined by the two points with minimum distance
+#  @param a The first geometry literal.
+#  @param b The first geometry literal.
+#  @returns The shortest line as a geometry literal in the CRS and literal format of the first input geometry
 def shortestLine(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     print(geomtps)
@@ -1372,12 +1395,19 @@ def shortestLine(a: Literal, b: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.shortest_line(geomtps[0][0], geomtps[1][0]), a.datatype,
                                                  geomtps[0][1])
 
-
+## Returns a simplfied version of the input geometry calculated with the Douglas Peucker simplification algoritm.
+#  @param a The geometry literal
+#  @param tolerance a tolerance value
+#  @returns The simplified geometry in the same literal format and CRS as the input geometry
 def simplify(a: Literal, tolerance: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.simplify(thegeom, float(tolerance)), a.datatype, thegeomsrs)
 
-
+## Returns a skewed version of the input geometry.
+#  @param a The geometry literal
+#  @param xs The skew value in X direction
+#  @param xy The skew value in Y direction
+#  @returns The skewed geometry in the same literal format and CRS as the input geometry
 def skew(a: Literal, xs: Literal, ys: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.affinity.skew(thegeom, xs, ys), a.datatype, thegeomsrs)
@@ -1434,8 +1464,13 @@ def transformCRS84(a: Literal) -> Literal:
     raise ValueError(
         "An invalid geometry literal was provided or an illegal transformation requested for function geof:transformCRS84")
 
-
-def translate(a: Literal, deltaX, deltaY, deltaZ) -> Literal:
+## Returns a translated version of the input geometry.
+#  @param a The geometry literal
+#  @param deltaX The translation value in X direction
+#  @param deltaY The translation value in Y direction
+#  @param deltaZ The translation value in Z direction
+#  @returns The translated geometry in the same literal format and CRS as the input geometry
+def translate(a: Literal, deltaX: Literal, deltaY: Literal, deltaZ: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if (isinstance(deltaX, Literal) and deltaX.datatype == XSD.double and isinstance(deltaY,
                                                                                      Literal) and deltaY.datatype == XSD.double and isinstance(
@@ -1483,7 +1518,7 @@ def within(a: Literal, b: Literal) -> Literal:
 #  @param b The second geometry literal
 #  @param d The distance
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is within distance of the second geometry
-def withinDistance(a: Literal, b: Literal, d: Literal) -> Literal:
+def withinDistance(a: Literal, b: Literal, d: Literal, unit: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if isinstance(d, Literal) and d.datatype == XSD.double:
         distance = float(str(d))
