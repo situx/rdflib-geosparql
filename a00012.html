@@ -3342,7 +3342,7 @@ precedence goes to key-value pairs in latter dictionaries.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The point at the nth patch of the given geometry as a geometry literal of the same type and CRS as the input geometry </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno"> 1152</span><span class="keyword">def </span>patchN(a: Literal, n: Literal)) -&gt; Literal:</div>
+<div class="fragment"><div class="line"><span class="lineno"> 1152</span><span class="keyword">def </span>patchN(a: Literal, n: Literal) -&gt; Literal:</div>
 <div class="line"><span class="lineno"> 1153</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
 <div class="line"><span class="lineno"> 1154</span>    <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)</div>
 <div class="line"><span class="lineno"> 1155</span> </div>
