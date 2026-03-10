@@ -44,23 +44,20 @@ def merge_dicts(*dict_args):
 
 class Transformers:
 
+    #The geocodes supported in this implementation identified by URI
     supported_geocodes = {"http://opengis.net/ont/geocode/GeoURI",
                           "http://opengis.net/ont/geocode/OpenLocationCode",
                           "http://opengis.net/ont/geocode/GeoHash-36"}
 
+    #The DGGS supported in this implementation identified by URI
     supported_dggs = {"https://h3geo.org/res/{RESOLUTION}"}
 
+    ## Normalizes a list of geometry tuples to a common SRS.
+    #  @param geoms the list of geometry tuples
+    #  @param tosrs the target SRS if defined. If none, the SRS of the first geometry is used as the target
+    #  @returns A list of transformed geometry tuples
     @staticmethod
     def normalizeGeoms(geoms, tosrs=None):
-        """
-        Normalizes a list of geometry tuples to a common SRS
-        Args:
-            geoms: the list of geometry tuples
-            tosrs: the target SRS if defined. If none, the SRS of the first geometry is used as the target
-
-        Returns: A list of geometry tuples normalized to the target SRS
-
-        """
         geomsnew = []
         if tosrs is None:
             tosrs = geoms[0][1]
@@ -68,6 +65,11 @@ class Transformers:
             geomsnew.append((Transformers.transformToSRS(geom[0], geom[1], str(tosrs)), tosrs))
         return geomsnew
 
+    ## Transforms a given geometry to a supported SRS representation.
+    #  @param geom The geometry literal
+    #  @param fromsrs An identifier of the SRS to transform from (EPSG Code, SRSIRI, Integer)
+    #  @param tosrs An identifier of the SRS to transform to (EPSG Code, SRSIRI, Integer)
+    #  @returns The transformed geometry in the target SRS
     @staticmethod
     def transformToSRS(geom, fromsrs, tosrs):
         if fromsrs == tosrs:
@@ -80,6 +82,10 @@ class Transformers:
             pass
         return res
 
+    ## Transforms a given geometry to a supported GeoCode representation.
+    #  @param geom The geometry literal
+    #  @param geocodeuri The URI identifying the geocode
+    #  @returns A string representation which can form the value of a geo:geocodeLiteral
     @staticmethod
     def transformToGeocode(geom, geocodeuri):
         geocodeuri = str(geocodeuri)
@@ -97,6 +103,11 @@ class Transformers:
             thecode = pygeohash.encode(latitude=geom.x, longitude=geom.y)
         return "<" + str(geocodeuri) + "> " + str(thecode)
 
+    ## Transforms a given geometry to a supported DGGS representation.
+    #  @param geom The geometry literal
+    #  @param dggsuri The URI identifying the DGGS
+    #  @param resolution The resolution of the DGGS to target
+    #  @returns A string representation which can form the value of a geo:dggsLiteral
     @staticmethod
     def transformToDGGS(geom, dggsuri,resolution=7):
         thevalue=""
@@ -109,6 +120,10 @@ class Transformers:
             "The DGGS with the given URI " + str(dggsuri) + " is not supported! Supported DGGS: " + str(
                 Transformers.supported_dggs))
 
+    ## Transforms a given geocode representation to a geometry.
+    #  @param geocodestr The geocode to transform
+    #  @param geocodeuri The URI identifying the geocode. May also be extracted from the geocode string itself if present
+    #  @returns The converted geometry
     @staticmethod
     def geocodeToGeom(geocodestr,geocodeuri=""):
         if "<" in geocodestr and ">" in geocodestr:
@@ -129,6 +144,10 @@ class Transformers:
                 thevalue=shapely.Point(decoded.latitude, decoded.longitude)
         return thevalue
 
+    ## Transforms a given DGGS representation to a vector geometry.
+    #  @param dggsstr The DGGS representation to transform
+    #  @param dggsuri The URI identifying the DGGS. May also be extracted from the geocode string itself if present
+    #  @returns The converted geometry
     @staticmethod
     def dggsToGeom(dggsstr,dggsuri=""):
         dggsstr=dggsstr.replace("CELLLIST","").replace("CELL","").replace("(","[").replace(")","]").replace("'","\"")
@@ -241,6 +260,12 @@ class LiteralUtils:
     def processWKBLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wkbLiteral")
 
+    ## Converts a geometry literal to a geometry object .
+    #  @param literal The geometry literal or a string  representation of it
+    #  @param datatype The datatype of the geometry literal if it is not given or a string representation was given as a parameter
+    #  @param create3D Indicates whether the function calling this function demands a 3D representation of the geometry
+    #  @param normsrs Indicates whether the created geometry should be normalized to a specific SRS
+    #  @returns A geometry representing the contents of the given geometry literal
     @staticmethod
     def processLiteralTypeToGeom(literal, datatype=None,create3D=False, normsrs=None):
         if not isinstance(literal, Literal) and datatype is None:
@@ -415,6 +440,7 @@ class LiteralUtils:
     def processGeomToWKTLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wktLiteral",geomtup[1])
 
+
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
         print("GEOMTOLIT: "+str(geom))
@@ -488,7 +514,9 @@ def area(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.area(thegeom), datatype=XSD.double)
 
-
+## Calculates the azimuth of a 2D geometry provided as a geometry literal .
+#  @param a The geometry literal.
+#  @returns The azimuth as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def azimuth(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     minrect = thegeom.minimum_rotated_rectangle
@@ -911,7 +939,7 @@ def getSRID(a: Literal) -> Literal:
 #  @param a The first geometry literal
 #  @param b The second geometry literal
 #  @returns The hausdorff distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def hausDorffDistance(a: Literal, b: Literal) -> Literal:
+def hausdorffDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.hausdorff_distance(geoms[0], geoms[1]), datatype=XSD.double)
@@ -1652,7 +1680,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "forceCCW"): forceCCW,
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
-    URIRef(GEOFEXT + "hausdorffDistance"): hausDorffDistance,
+    URIRef(GEOFEXT + "hausdorffDistance"): hausdorffDistance,
     URIRef(GEOFEXT + "intersection3D"): intersection3D,
     URIRef(GEOFEXT + "intersects3D"): intersects3D,
     URIRef(GEOFEXT + "isCCW"): isCCW,
