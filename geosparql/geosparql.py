@@ -769,6 +769,20 @@ def force2D(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.force_2d(thegeom), a.datatype, thegeomsrs)
 
 
+## Sets a clockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a counterclockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=False), datatype=XSD.boolean)
+
+## Sets a counterclockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a clockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=True), datatype=XSD.boolean)
+
 ## Calculates the FrechetDistance between two input geometries.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1462,6 +1476,8 @@ geosparql13 = {
     URIRef(GEOFEXT + "exteriorRing"): exteriorRing,
     URIRef(GEOFEXT + "force2D"): force2D,
     URIRef(GEOFEXT + "force3D"): extrude,
+    URIRef(GEOFEXT + "forceCW"): forceCW,
+    URIRef(GEOFEXT + "forceCCW"): forceCCW,
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
     URIRef(GEOFEXT + "hausdorffDistance"): hausDorffDistance,
