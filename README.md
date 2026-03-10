@@ -11,7 +11,7 @@ The library implements the following functions:
 URIs of standardized GeoSPARQL functions will not change.
 URIs of non-standardized functions might change in the case that these functions become standardized and assigned a new URI.
 
-
+ 
 ### Literal Types
 
 rdflib-geosparql supports the following geospatial literal types:
