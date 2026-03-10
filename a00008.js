@@ -47,7 +47,7 @@ var a00008 =
     [ "geometryType", "a00008.html#af3bc354df957057c78b6714a9cea2311", null ],
     [ "getfuncs", "a00008.html#a701d40182cc15db7bde1653e820a1b21", null ],
     [ "getSRID", "a00008.html#a7420df7dfaec27362f6b2957cb7b013b", null ],
-    [ "hausDorffDistance", "a00008.html#a16025540e7811d55c21e697344ecc4ab", null ],
+    [ "hausdorffDistance", "a00008.html#a4ba74920132ecefba9606740e8288812", null ],
     [ "inside", "a00008.html#a4b35be37e3b47b85564a65c90cf6b284", null ],
     [ "intersection", "a00008.html#adf69a70c1ec018524baa9007f12da0df", null ],
     [ "intersection3D", "a00008.html#a4c55a200fee896771b60177a591efb62", null ],

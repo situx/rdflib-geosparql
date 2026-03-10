@@ -135,14 +135,14 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  185</span>    <span class="keyword">def </span>convertMetricToUnit(thevalue,metricunit,targetunit):</div>
-<div class="line"><span class="lineno">  186</span>        <span class="keywordflow">if</span> metricunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit <span class="keywordflow">and</span> targetunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit:</div>
-<div class="line"><span class="lineno">  187</span>            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit])</div>
-<div class="line"><span class="lineno">  188</span>            thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit]))</div>
-<div class="line"><span class="lineno">  189</span>            <span class="keywordflow">return</span> thevalue_withunit.magnitude</div>
-<div class="line"><span class="lineno">  190</span> </div>
-<div class="line"><span class="lineno">  191</span> </div>
-<div class="line"><span class="lineno">  192</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  204</span>    <span class="keyword">def </span>convertMetricToUnit(thevalue,metricunit,targetunit):</div>
+<div class="line"><span class="lineno">  205</span>        <span class="keywordflow">if</span> metricunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit <span class="keywordflow">and</span> targetunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit:</div>
+<div class="line"><span class="lineno">  206</span>            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit])</div>
+<div class="line"><span class="lineno">  207</span>            thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit]))</div>
+<div class="line"><span class="lineno">  208</span>            <span class="keywordflow">return</span> thevalue_withunit.magnitude</div>
+<div class="line"><span class="lineno">  209</span> </div>
+<div class="line"><span class="lineno">  210</span> </div>
+<div class="line"><span class="lineno">  211</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -169,14 +169,14 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  176</span>    <span class="keyword">def </span>getEastingFromSRS(srsuri):</div>
-<div class="line"><span class="lineno">  177</span>        curcrs = CRS.from_epsg(srsuri)</div>
-<div class="line"><span class="lineno">  178</span>        unitres = []</div>
-<div class="line"><span class="lineno">  179</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
-<div class="line"><span class="lineno">  180</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
-<div class="line"><span class="lineno">  181</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
-<div class="line"><span class="lineno">  182</span>        <span class="keywordflow">return</span> unitres</div>
-<div class="line"><span class="lineno">  183</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  195</span>    <span class="keyword">def </span>getEastingFromSRS(srsuri):</div>
+<div class="line"><span class="lineno">  196</span>        curcrs = CRS.from_epsg(srsuri)</div>
+<div class="line"><span class="lineno">  197</span>        unitres = []</div>
+<div class="line"><span class="lineno">  198</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
+<div class="line"><span class="lineno">  199</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
+<div class="line"><span class="lineno">  200</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
+<div class="line"><span class="lineno">  201</span>        <span class="keywordflow">return</span> unitres</div>
+<div class="line"><span class="lineno">  202</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -203,14 +203,14 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  167</span>    <span class="keyword">def </span>getUnitsFromSRS(srsuri):</div>
-<div class="line"><span class="lineno">  168</span>        curcrs = CRS.from_epsg(srsuri)</div>
-<div class="line"><span class="lineno">  169</span>        unitres = []</div>
-<div class="line"><span class="lineno">  170</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
-<div class="line"><span class="lineno">  171</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
-<div class="line"><span class="lineno">  172</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
-<div class="line"><span class="lineno">  173</span>        <span class="keywordflow">return</span> unitres</div>
-<div class="line"><span class="lineno">  174</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  186</span>    <span class="keyword">def </span>getUnitsFromSRS(srsuri):</div>
+<div class="line"><span class="lineno">  187</span>        curcrs = CRS.from_epsg(srsuri)</div>
+<div class="line"><span class="lineno">  188</span>        unitres = []</div>
+<div class="line"><span class="lineno">  189</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
+<div class="line"><span class="lineno">  190</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
+<div class="line"><span class="lineno">  191</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
+<div class="line"><span class="lineno">  192</span>        <span class="keywordflow">return</span> unitres</div>
+<div class="line"><span class="lineno">  193</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
