@@ -862,6 +862,13 @@ def is3D(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_z, datatype=XSD.boolean)
 
+## Checks whether the coordinates of a LineString or LinearRing are counterclockwise.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the LineString or LinearRing is counterclockwise
+def isCCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.is_ccw(thegeom), datatype=XSD.boolean)
+
 ## Indicates whether a geometry literal contains a GeometryCollection.
 #  @param a The geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is a GeometryCollection
