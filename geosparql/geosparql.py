@@ -778,31 +778,56 @@ def equals(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.equals(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/envelope">geof:envelope</a>: Calculates a bounding box around the given geometry
+#  @param a The geometry literal
+#  @returns The envelope of the given geometry as a geometry literal of the same type and CRS as the input geometry
 def envelope(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom.envelope, a.datatype, thegeomsrs)
 
-
+## Extrudes a geometry to a fixed Z value.
+#  @param a The geometry literal
+#  @param The extrusion value
+#  @returns The extruded geometry as a geometry literal of the same type and CRS as the input geometry
 def extrude(a: Literal, extrudeval: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_3d(shapely.force_2d(thegeom), extrudeval), a.datatype,
                                              thegeomsrs)
 
-
+## Extracts an exerior ring from a geometry if it exists
+#  @param a The geometry literal
+#  @returns The exterior ring geometry as a geometry literal of the same type and CRS as the input geometry
 def exteriorRing(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_exterior_ring(thegeom), a.datatype, thegeomsrs)
 
-
+## Flips the XY coordinates included in the given geometry
+#  @param a The geometry literal
+#  @returns The geometry with XY flipped as a geometry literal of the same type and CRS as the input geometry
 def flipXY(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.ops.transform(lambda x, y: (y, x),thegeom), a.datatype, thegeomsrs)
 
-
+## Removes Z coordinates from the given geometry to make it twodimensional
+#  @param a The geometry literal
+#  @returns The geometry with Z coordinate removed as a geometry literal of the same type and CRS as the input geometry
 def force2D(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.force_2d(thegeom), a.datatype, thegeomsrs)
+
+## Sets a clockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a counterclockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=False), datatype=XSD.boolean)
+
+## Sets a counterclockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a clockwise orientation.
+#  @param a The geometry literal
+#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
+def forceCCW(a: Literal) -> Literal:
+    thegeom, thegeomsrs = a.value
+    return Literal(shapely.orient_polygons(thegeom,exterior_cw=True), datatype=XSD.boolean)
 
 ## Sets a clockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a counterclockwise orientation.
 #  @param a The geometry literal
@@ -827,7 +852,10 @@ def frechetDistance(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.frechet_distance(geoms[0], geoms[1]), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryN">geof:geometryN</a>: Returns the nth geometry of a GeometryCollection if it exists
+#  @param a The geometry literal
+#  @param n The index of the GeometryCollection to retrieve
+#  @returns The geometry at the nth position of the given GeometryColleciton as a geometry literal of the same type and CRS as the input geometry
 def geometryN(a: Literal, n: Literal) -> Literal:
     if isinstance(a, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
@@ -858,7 +886,10 @@ def hausDorffDistance(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.hausdorff_distance(geoms[0], geoms[1]), datatype=XSD.double)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehInside">geof:ehInside</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8ntpp">geof:rcc8ntpp</a>: Calculates whether the first geometry is inside the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is inside the second geometry
 def inside(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
@@ -908,14 +939,12 @@ def is3D(a: Literal) -> Literal:
     thegeom, thegeomsrs = a.value
     return Literal(thegeom.has_z, datatype=XSD.boolean)
 
-
 ## Checks whether the coordinates of a LineString or LinearRing are counterclockwise.
 #  @param a The geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the LineString or LinearRing is counterclockwise
 def isCCW(a: Literal) -> Literal:
     thegeom, thegeomsrs = a.value
     return Literal(shapely.is_ccw(thegeom), datatype=XSD.boolean)
-
 
 ## Indicates whether a geometry literal contains a GeometryCollection.
 #  @param a The geometry literal
@@ -1239,11 +1268,18 @@ def numPoints(a: Literal) -> Literal:
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/patchN">geof:patchN</a>: Returns the nth patch of a geometry
+#  @param a The geometry literal
+#  @param n The index of the patch to retrieve
+#  @returns The point at the nth patch of the given geometry as a geometry literal of the same type and CRS as the input geometry
 def patchN(a: Literal, n: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
 
-
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/pointN">geof:pointN</a>: Returns the nth point of a geometry
+#  @param a The geometry literal
+#  @param n The index of the point to retrieve
+#  @returns The point at the nth position of the given geometry as a geometry literal of the same type and CRS as the input geometry
 def pointN(a: Literal, n) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     if "Polygon" in str(thegeom.geom_type):
@@ -1251,6 +1287,9 @@ def pointN(a: Literal, n) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.get_point(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
 
+## Returns a point on the surface of the given geometry
+#  @param a The geometry literal
+#  @returns The surface point as a geometry literal of the same type and CRS as the input geometry
 def pointOnSurface(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     print(shapely.point_on_surface(thegeom))
