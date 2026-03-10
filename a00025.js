@@ -20,5 +20,6 @@ var a00025 =
     [ "processOBJLiteral", "a00025.html#ae5a81edd99074c31e0eb167586776f89", null ],
     [ "processPLYLiteral", "a00025.html#a20d1aa4a74394a0fb1872746402902a5", null ],
     [ "processWKBLiteral", "a00025.html#a3098f3bc3c498809d47c7a83bacf10f4", null ],
-    [ "processWKTLiteral", "a00025.html#a0d20fa81c1969b9b2c7a81634496e74e", null ]
+    [ "processWKTLiteral", "a00025.html#a0d20fa81c1969b9b2c7a81634496e74e", null ],
+    [ "literals3d", "a00025.html#a84fe7d96bce28d68a7e492533d867afd", null ]
 ];

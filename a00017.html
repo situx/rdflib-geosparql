@@ -133,20 +133,20 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  131</span>    <span class="keyword">def </span>dggsToGeom(dggsstr,dggsuri=&quot;&quot;):</div>
-<div class="line"><span class="lineno">  132</span>        dggsstr=dggsstr.replace(<span class="stringliteral">&quot;CELLLIST&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;CELL&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;(&quot;</span>,<span class="stringliteral">&quot;[&quot;</span>).replace(<span class="stringliteral">&quot;)&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;&#39;&quot;</span>,<span class="stringliteral">&quot;\&quot;&quot;</span>)</div>
-<div class="line"><span class="lineno">  133</span>        <span class="keywordflow">if</span> <span class="stringliteral">&quot;&lt;&quot;</span> <span class="keywordflow">in</span> dggsstr <span class="keywordflow">and</span> <span class="stringliteral">&quot;&gt;&quot;</span> <span class="keywordflow">in</span> dggsstr:</div>
-<div class="line"><span class="lineno">  134</span>            dggsuri=dggsstr[0:dggsstr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)].replace(<span class="stringliteral">&quot;&lt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;&gt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).strip()</div>
-<div class="line"><span class="lineno">  135</span>            dggsstr=dggsstr[dggsstr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)+1:]</div>
-<div class="line"><span class="lineno">  136</span>        dggsdict=json.loads(dggsstr)</div>
-<div class="line"><span class="lineno">  137</span>        thevalue=<span class="stringliteral">&quot;&quot;</span></div>
-<div class="line"><span class="lineno">  138</span>        <span class="keywordflow">for</span> dggsurisup <span class="keywordflow">in</span> Transformers.supported_dggs:</div>
-<div class="line"><span class="lineno">  139</span>            <span class="keywordflow">if</span> dggsuri.startswith(dggsurisup.replace(<span class="stringliteral">&quot;{RESOLUTION}&quot;</span>,<span class="stringliteral">&quot;&quot;</span>)):</div>
-<div class="line"><span class="lineno">  140</span>                thevalue=str(h3.cells_to_geo(dggsdict)).replace(<span class="stringliteral">&quot;(&quot;</span>,<span class="stringliteral">&quot;[&quot;</span>).replace(<span class="stringliteral">&quot;)&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;&#39;&quot;</span>,<span class="stringliteral">&quot;\&quot;&quot;</span>).replace(<span class="stringliteral">&quot;],&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;] [&quot;</span>,<span class="stringliteral">&quot;], [&quot;</span>)</div>
-<div class="line"><span class="lineno">  141</span>                thevalue=shapely.ops.transform(<span class="keyword">lambda</span> x, y: (y, x),shapely.from_geojson(thevalue))</div>
-<div class="line"><span class="lineno">  142</span>        <span class="keywordflow">return</span> thevalue</div>
-<div class="line"><span class="lineno">  143</span> </div>
-<div class="line"><span class="lineno">  144</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  133</span>    <span class="keyword">def </span>dggsToGeom(dggsstr,dggsuri=&quot;&quot;):</div>
+<div class="line"><span class="lineno">  134</span>        dggsstr=dggsstr.replace(<span class="stringliteral">&quot;CELLLIST&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;CELL&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;(&quot;</span>,<span class="stringliteral">&quot;[&quot;</span>).replace(<span class="stringliteral">&quot;)&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;&#39;&quot;</span>,<span class="stringliteral">&quot;\&quot;&quot;</span>)</div>
+<div class="line"><span class="lineno">  135</span>        <span class="keywordflow">if</span> <span class="stringliteral">&quot;&lt;&quot;</span> <span class="keywordflow">in</span> dggsstr <span class="keywordflow">and</span> <span class="stringliteral">&quot;&gt;&quot;</span> <span class="keywordflow">in</span> dggsstr:</div>
+<div class="line"><span class="lineno">  136</span>            dggsuri=dggsstr[0:dggsstr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)].replace(<span class="stringliteral">&quot;&lt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;&gt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).strip()</div>
+<div class="line"><span class="lineno">  137</span>            dggsstr=dggsstr[dggsstr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)+1:]</div>
+<div class="line"><span class="lineno">  138</span>        dggsdict=json.loads(dggsstr)</div>
+<div class="line"><span class="lineno">  139</span>        thevalue=<span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="lineno">  140</span>        <span class="keywordflow">for</span> dggsurisup <span class="keywordflow">in</span> Transformers.supported_dggs:</div>
+<div class="line"><span class="lineno">  141</span>            <span class="keywordflow">if</span> dggsuri.startswith(dggsurisup.replace(<span class="stringliteral">&quot;{RESOLUTION}&quot;</span>,<span class="stringliteral">&quot;&quot;</span>)):</div>
+<div class="line"><span class="lineno">  142</span>                thevalue=str(h3.cells_to_geo(dggsdict)).replace(<span class="stringliteral">&quot;(&quot;</span>,<span class="stringliteral">&quot;[&quot;</span>).replace(<span class="stringliteral">&quot;)&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;&#39;&quot;</span>,<span class="stringliteral">&quot;\&quot;&quot;</span>).replace(<span class="stringliteral">&quot;],&quot;</span>,<span class="stringliteral">&quot;]&quot;</span>).replace(<span class="stringliteral">&quot;] [&quot;</span>,<span class="stringliteral">&quot;], [&quot;</span>)</div>
+<div class="line"><span class="lineno">  143</span>                thevalue=shapely.ops.transform(<span class="keyword">lambda</span> x, y: (y, x),shapely.from_geojson(thevalue))</div>
+<div class="line"><span class="lineno">  144</span>        <span class="keywordflow">return</span> thevalue</div>
+<div class="line"><span class="lineno">  145</span> </div>
+<div class="line"><span class="lineno">  146</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -183,25 +183,25 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  111</span>    <span class="keyword">def </span>geocodeToGeom(geocodestr,geocodeuri=&quot;&quot;):</div>
-<div class="line"><span class="lineno">  112</span>        <span class="keywordflow">if</span> <span class="stringliteral">&quot;&lt;&quot;</span> <span class="keywordflow">in</span> geocodestr <span class="keywordflow">and</span> <span class="stringliteral">&quot;&gt;&quot;</span> <span class="keywordflow">in</span> geocodestr:</div>
-<div class="line"><span class="lineno">  113</span>            geocodeuri=geocodestr[0:geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)].replace(<span class="stringliteral">&quot;&lt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;&gt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).strip()</div>
-<div class="line"><span class="lineno">  114</span>            geocodestr=geocodestr[geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)+1:]</div>
-<div class="line"><span class="lineno">  115</span>        tehvalue=<span class="stringliteral">&quot;&quot;</span></div>
-<div class="line"><span class="lineno">  116</span>        <span class="keywordflow">if</span> geocodeuri <span class="keywordflow">in</span> Transformers.supported_geocodes:</div>
-<div class="line"><span class="lineno">  117</span>            <span class="keywordflow">if</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoURI&quot;</span>:</div>
-<div class="line"><span class="lineno">  118</span>                spl=geocodestr.split(<span class="stringliteral">&quot;,&quot;</span>)</div>
-<div class="line"><span class="lineno">  119</span>                <span class="keywordflow">if</span> len(spl)==2:</div>
-<div class="line"><span class="lineno">  120</span>                    thevalue=shapely.Point(float(spl[0]),float(spl[1]))</div>
-<div class="line"><span class="lineno">  121</span>                <span class="keywordflow">elif</span> len(spl)==3:</div>
-<div class="line"><span class="lineno">  122</span>                    thevalue = shapely.Point(float(spl[0]), float(spl[1]),float(spl[2]))</div>
-<div class="line"><span class="lineno">  123</span>            <span class="keywordflow">elif</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/OpenLocationCode&quot;</span>:</div>
-<div class="line"><span class="lineno">  124</span>                thevalue=shapely.Point(openlocationcode.decode(geocodestr).latlng())</div>
-<div class="line"><span class="lineno">  125</span>            <span class="keywordflow">elif</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoHash-36&quot;</span>:</div>
-<div class="line"><span class="lineno">  126</span>                decoded=pygeohash.decode(geocodestr)</div>
-<div class="line"><span class="lineno">  127</span>                thevalue=shapely.Point(decoded.latitude, decoded.longitude)</div>
-<div class="line"><span class="lineno">  128</span>        <span class="keywordflow">return</span> thevalue</div>
-<div class="line"><span class="lineno">  129</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  113</span>    <span class="keyword">def </span>geocodeToGeom(geocodestr,geocodeuri=&quot;&quot;):</div>
+<div class="line"><span class="lineno">  114</span>        <span class="keywordflow">if</span> <span class="stringliteral">&quot;&lt;&quot;</span> <span class="keywordflow">in</span> geocodestr <span class="keywordflow">and</span> <span class="stringliteral">&quot;&gt;&quot;</span> <span class="keywordflow">in</span> geocodestr:</div>
+<div class="line"><span class="lineno">  115</span>            geocodeuri=geocodestr[0:geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)].replace(<span class="stringliteral">&quot;&lt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;&gt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).strip()</div>
+<div class="line"><span class="lineno">  116</span>            geocodestr=geocodestr[geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)+1:]</div>
+<div class="line"><span class="lineno">  117</span>        tehvalue=<span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="lineno">  118</span>        <span class="keywordflow">if</span> geocodeuri <span class="keywordflow">in</span> Transformers.supported_geocodes:</div>
+<div class="line"><span class="lineno">  119</span>            <span class="keywordflow">if</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoURI&quot;</span>:</div>
+<div class="line"><span class="lineno">  120</span>                spl=geocodestr.split(<span class="stringliteral">&quot;,&quot;</span>)</div>
+<div class="line"><span class="lineno">  121</span>                <span class="keywordflow">if</span> len(spl)==2:</div>
+<div class="line"><span class="lineno">  122</span>                    thevalue=shapely.Point(float(spl[0]),float(spl[1]))</div>
+<div class="line"><span class="lineno">  123</span>                <span class="keywordflow">elif</span> len(spl)==3:</div>
+<div class="line"><span class="lineno">  124</span>                    thevalue = shapely.Point(float(spl[0]), float(spl[1]),float(spl[2]))</div>
+<div class="line"><span class="lineno">  125</span>            <span class="keywordflow">elif</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/OpenLocationCode&quot;</span>:</div>
+<div class="line"><span class="lineno">  126</span>                thevalue=shapely.Point(openlocationcode.decode(geocodestr).latlng())</div>
+<div class="line"><span class="lineno">  127</span>            <span class="keywordflow">elif</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoHash-36&quot;</span>:</div>
+<div class="line"><span class="lineno">  128</span>                decoded=pygeohash.decode(geocodestr)</div>
+<div class="line"><span class="lineno">  129</span>                thevalue=shapely.Point(decoded.latitude, decoded.longitude)</div>
+<div class="line"><span class="lineno">  130</span>        <span class="keywordflow">return</span> thevalue</div>
+<div class="line"><span class="lineno">  131</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -243,23 +243,23 @@ Args:
     geoms: the list of geometry tuples
     tosrs: the target SRS if defined. If none, the SRS of the first geometry is used as the target
 
-Returns: A list of geometry tuples normalized to the target SRS</pre> <div class="fragment"><div class="line"><span class="lineno">   52</span>    <span class="keyword">def </span>normalizeGeoms(geoms, tosrs=None):</div>
-<div class="line"><span class="lineno">   53</span>        <span class="stringliteral">&quot;&quot;&quot;</span></div>
-<div class="line"><span class="lineno">   54</span><span class="stringliteral">        Normalizes a list of geometry tuples to a common SRS</span></div>
-<div class="line"><span class="lineno">   55</span><span class="stringliteral">        Args:</span></div>
-<div class="line"><span class="lineno">   56</span><span class="stringliteral">            geoms: the list of geometry tuples</span></div>
-<div class="line"><span class="lineno">   57</span><span class="stringliteral">            tosrs: the target SRS if defined. If none, the SRS of the first geometry is used as the target</span></div>
-<div class="line"><span class="lineno">   58</span><span class="stringliteral"></span> </div>
-<div class="line"><span class="lineno">   59</span><span class="stringliteral">        Returns: A list of geometry tuples normalized to the target SRS</span></div>
+Returns: A list of geometry tuples normalized to the target SRS</pre> <div class="fragment"><div class="line"><span class="lineno">   54</span>    <span class="keyword">def </span>normalizeGeoms(geoms, tosrs=None):</div>
+<div class="line"><span class="lineno">   55</span>        <span class="stringliteral">&quot;&quot;&quot;</span></div>
+<div class="line"><span class="lineno">   56</span><span class="stringliteral">        Normalizes a list of geometry tuples to a common SRS</span></div>
+<div class="line"><span class="lineno">   57</span><span class="stringliteral">        Args:</span></div>
+<div class="line"><span class="lineno">   58</span><span class="stringliteral">            geoms: the list of geometry tuples</span></div>
+<div class="line"><span class="lineno">   59</span><span class="stringliteral">            tosrs: the target SRS if defined. If none, the SRS of the first geometry is used as the target</span></div>
 <div class="line"><span class="lineno">   60</span><span class="stringliteral"></span> </div>
-<div class="line"><span class="lineno">   61</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
-<div class="line"><span class="lineno">   62</span>        geomsnew = []</div>
-<div class="line"><span class="lineno">   63</span>        <span class="keywordflow">if</span> tosrs <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno">   64</span>            tosrs = geoms[0][1]</div>
-<div class="line"><span class="lineno">   65</span>        <span class="keywordflow">for</span> geom <span class="keywordflow">in</span> geoms:</div>
-<div class="line"><span class="lineno">   66</span>            geomsnew.append((Transformers.transformToSRS(geom[0], geom[1], str(tosrs)), tosrs))</div>
-<div class="line"><span class="lineno">   67</span>        <span class="keywordflow">return</span> geomsnew</div>
-<div class="line"><span class="lineno">   68</span> </div>
+<div class="line"><span class="lineno">   61</span><span class="stringliteral">        Returns: A list of geometry tuples normalized to the target SRS</span></div>
+<div class="line"><span class="lineno">   62</span><span class="stringliteral"></span> </div>
+<div class="line"><span class="lineno">   63</span><span class="stringliteral">        &quot;&quot;&quot;</span></div>
+<div class="line"><span class="lineno">   64</span>        geomsnew = []</div>
+<div class="line"><span class="lineno">   65</span>        <span class="keywordflow">if</span> tosrs <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno">   66</span>            tosrs = geoms[0][1]</div>
+<div class="line"><span class="lineno">   67</span>        <span class="keywordflow">for</span> geom <span class="keywordflow">in</span> geoms:</div>
+<div class="line"><span class="lineno">   68</span>            geomsnew.append((Transformers.transformToSRS(geom[0], geom[1], str(tosrs)), tosrs))</div>
+<div class="line"><span class="lineno">   69</span>        <span class="keywordflow">return</span> geomsnew</div>
+<div class="line"><span class="lineno">   70</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -302,17 +302,17 @@ Returns: A list of geometry tuples normalized to the target SRS</pre> <div class
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">   99</span>    <span class="keyword">def </span>transformToDGGS(geom, dggsuri,resolution=7):</div>
-<div class="line"><span class="lineno">  100</span>        thevalue=<span class="stringliteral">&quot;&quot;</span></div>
-<div class="line"><span class="lineno">  101</span>        <span class="keywordflow">for</span> dggsuri <span class="keywordflow">in</span> Transformers.supported_dggs:</div>
-<div class="line"><span class="lineno">  102</span>            <span class="keywordflow">if</span> dggsuri.startswith(<span class="stringliteral">&quot;https://h3geo.org/res/&quot;</span>):</div>
-<div class="line"><span class="lineno">  103</span>                thevalue=h3.geo_to_cells(geom,resolution)</div>
-<div class="line"><span class="lineno">  104</span>        <span class="keywordflow">if</span> thevalue!=<span class="stringliteral">&quot;&quot;</span>:</div>
-<div class="line"><span class="lineno">  105</span>            <span class="keywordflow">return</span> <span class="stringliteral">&quot;&lt;&quot;</span> + str(dggsuri).replace(<span class="stringliteral">&quot;{RESOLUTION}&quot;</span>,str(resolution)) + <span class="stringliteral">&quot;&gt; CELLLIST(&quot;</span> + str(thevalue).replace(<span class="stringliteral">&quot;[&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;]&quot;</span>,<span class="stringliteral">&quot;&quot;</span>)+<span class="stringliteral">&quot;)&quot;</span></div>
-<div class="line"><span class="lineno">  106</span>        <span class="keywordflow">raise</span> ValueError(</div>
-<div class="line"><span class="lineno">  107</span>            <span class="stringliteral">&quot;The DGGS with the given URI &quot;</span> + str(dggsuri) + <span class="stringliteral">&quot; is not supported! Supported DGGS: &quot;</span> + str(</div>
-<div class="line"><span class="lineno">  108</span>                Transformers.supported_dggs))</div>
-<div class="line"><span class="lineno">  109</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  101</span>    <span class="keyword">def </span>transformToDGGS(geom, dggsuri,resolution=7):</div>
+<div class="line"><span class="lineno">  102</span>        thevalue=<span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="lineno">  103</span>        <span class="keywordflow">for</span> dggsuri <span class="keywordflow">in</span> Transformers.supported_dggs:</div>
+<div class="line"><span class="lineno">  104</span>            <span class="keywordflow">if</span> dggsuri.startswith(<span class="stringliteral">&quot;https://h3geo.org/res/&quot;</span>):</div>
+<div class="line"><span class="lineno">  105</span>                thevalue=h3.geo_to_cells(geom,resolution)</div>
+<div class="line"><span class="lineno">  106</span>        <span class="keywordflow">if</span> thevalue!=<span class="stringliteral">&quot;&quot;</span>:</div>
+<div class="line"><span class="lineno">  107</span>            <span class="keywordflow">return</span> <span class="stringliteral">&quot;&lt;&quot;</span> + str(dggsuri).replace(<span class="stringliteral">&quot;{RESOLUTION}&quot;</span>,str(resolution)) + <span class="stringliteral">&quot;&gt; CELLLIST(&quot;</span> + str(thevalue).replace(<span class="stringliteral">&quot;[&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;]&quot;</span>,<span class="stringliteral">&quot;&quot;</span>)+<span class="stringliteral">&quot;)&quot;</span></div>
+<div class="line"><span class="lineno">  108</span>        <span class="keywordflow">raise</span> ValueError(</div>
+<div class="line"><span class="lineno">  109</span>            <span class="stringliteral">&quot;The DGGS with the given URI &quot;</span> + str(dggsuri) + <span class="stringliteral">&quot; is not supported! Supported DGGS: &quot;</span> + str(</div>
+<div class="line"><span class="lineno">  110</span>                Transformers.supported_dggs))</div>
+<div class="line"><span class="lineno">  111</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -349,22 +349,22 @@ Returns: A list of geometry tuples normalized to the target SRS</pre> <div class
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">   82</span>    <span class="keyword">def </span>transformToGeocode(geom, geocodeuri):</div>
-<div class="line"><span class="lineno">   83</span>        geocodeuri = str(geocodeuri)</div>
-<div class="line"><span class="lineno">   84</span>        <span class="keywordflow">if</span> geocodeuri <span class="keywordflow">not</span> <span class="keywordflow">in</span> Transformers.supported_geocodes:</div>
-<div class="line"><span class="lineno">   85</span>            <span class="keywordflow">raise</span> ValueError(</div>
-<div class="line"><span class="lineno">   86</span>                <span class="stringliteral">&quot;The Geocode with the given URI &quot;</span> + str(geocodeuri) + <span class="stringliteral">&quot; is not supported! Supported geocodes: &quot;</span> + str(</div>
-<div class="line"><span class="lineno">   87</span>                    Transformers.supported_geocodes))</div>
-<div class="line"><span class="lineno">   88</span>        thecode = <span class="stringliteral">&quot;&quot;</span></div>
-<div class="line"><span class="lineno">   89</span>        <span class="keywordflow">if</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoURI&quot;</span>:</div>
-<div class="line"><span class="lineno">   90</span>            thecode = <span class="stringliteral">&quot;geo:&quot;</span> + str(geom.centroid.x) + <span class="stringliteral">&quot;,&quot;</span> + str(geom.centroid.y) + (</div>
-<div class="line"><span class="lineno">   91</span>                <span class="stringliteral">&quot;,&quot;</span> + str(geom.centroid.z) <span class="keywordflow">if</span> geom.has_z <span class="keywordflow">else</span> <span class="stringliteral">&quot;&quot;</span>)</div>
-<div class="line"><span class="lineno">   92</span>        <span class="keywordflow">elif</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/OpenLocationCode&quot;</span>:</div>
-<div class="line"><span class="lineno">   93</span>            thecode = openlocationcode.encode(geom.centroid.x, geom.centroid.y)</div>
-<div class="line"><span class="lineno">   94</span>        <span class="keywordflow">elif</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoHash-36&quot;</span>:</div>
-<div class="line"><span class="lineno">   95</span>            thecode = pygeohash.encode(latitude=geom.x, longitude=geom.y)</div>
-<div class="line"><span class="lineno">   96</span>        <span class="keywordflow">return</span> <span class="stringliteral">&quot;&lt;&quot;</span> + str(geocodeuri) + <span class="stringliteral">&quot;&gt; &quot;</span> + str(thecode)</div>
-<div class="line"><span class="lineno">   97</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">   84</span>    <span class="keyword">def </span>transformToGeocode(geom, geocodeuri):</div>
+<div class="line"><span class="lineno">   85</span>        geocodeuri = str(geocodeuri)</div>
+<div class="line"><span class="lineno">   86</span>        <span class="keywordflow">if</span> geocodeuri <span class="keywordflow">not</span> <span class="keywordflow">in</span> Transformers.supported_geocodes:</div>
+<div class="line"><span class="lineno">   87</span>            <span class="keywordflow">raise</span> ValueError(</div>
+<div class="line"><span class="lineno">   88</span>                <span class="stringliteral">&quot;The Geocode with the given URI &quot;</span> + str(geocodeuri) + <span class="stringliteral">&quot; is not supported! Supported geocodes: &quot;</span> + str(</div>
+<div class="line"><span class="lineno">   89</span>                    Transformers.supported_geocodes))</div>
+<div class="line"><span class="lineno">   90</span>        thecode = <span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="lineno">   91</span>        <span class="keywordflow">if</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoURI&quot;</span>:</div>
+<div class="line"><span class="lineno">   92</span>            thecode = <span class="stringliteral">&quot;geo:&quot;</span> + str(geom.centroid.x) + <span class="stringliteral">&quot;,&quot;</span> + str(geom.centroid.y) + (</div>
+<div class="line"><span class="lineno">   93</span>                <span class="stringliteral">&quot;,&quot;</span> + str(geom.centroid.z) <span class="keywordflow">if</span> geom.has_z <span class="keywordflow">else</span> <span class="stringliteral">&quot;&quot;</span>)</div>
+<div class="line"><span class="lineno">   94</span>        <span class="keywordflow">elif</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/OpenLocationCode&quot;</span>:</div>
+<div class="line"><span class="lineno">   95</span>            thecode = openlocationcode.encode(geom.centroid.x, geom.centroid.y)</div>
+<div class="line"><span class="lineno">   96</span>        <span class="keywordflow">elif</span> geocodeuri == <span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoHash-36&quot;</span>:</div>
+<div class="line"><span class="lineno">   97</span>            thecode = pygeohash.encode(latitude=geom.x, longitude=geom.y)</div>
+<div class="line"><span class="lineno">   98</span>        <span class="keywordflow">return</span> <span class="stringliteral">&quot;&lt;&quot;</span> + str(geocodeuri) + <span class="stringliteral">&quot;&gt; &quot;</span> + str(thecode)</div>
+<div class="line"><span class="lineno">   99</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -407,17 +407,17 @@ Returns: A list of geometry tuples normalized to the target SRS</pre> <div class
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">   70</span>    <span class="keyword">def </span>transformToSRS(geom, fromsrs, tosrs):</div>
-<div class="line"><span class="lineno">   71</span>        <span class="keywordflow">if</span> fromsrs == tosrs:</div>
-<div class="line"><span class="lineno">   72</span>            <span class="keywordflow">return</span> geom</div>
-<div class="line"><span class="lineno">   73</span>        transformer = Transformer.from_crs(str(fromsrs), str(tosrs))</div>
-<div class="line"><span class="lineno">   74</span>        res = shapely.transform(geom, transformer.transform, interleaved=<span class="keyword">False</span>)</div>
-<div class="line"><span class="lineno">   75</span>        <span class="keywordflow">try</span>:</div>
-<div class="line"><span class="lineno">   76</span>            shapely.set_srid(res, tosrs)</div>
-<div class="line"><span class="lineno">   77</span>        <span class="keywordflow">except</span>:</div>
-<div class="line"><span class="lineno">   78</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno">   79</span>        <span class="keywordflow">return</span> res</div>
-<div class="line"><span class="lineno">   80</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">   72</span>    <span class="keyword">def </span>transformToSRS(geom, fromsrs, tosrs):</div>
+<div class="line"><span class="lineno">   73</span>        <span class="keywordflow">if</span> fromsrs == tosrs:</div>
+<div class="line"><span class="lineno">   74</span>            <span class="keywordflow">return</span> geom</div>
+<div class="line"><span class="lineno">   75</span>        transformer = Transformer.from_crs(str(fromsrs), str(tosrs))</div>
+<div class="line"><span class="lineno">   76</span>        res = shapely.transform(geom, transformer.transform, interleaved=<span class="keyword">False</span>)</div>
+<div class="line"><span class="lineno">   77</span>        <span class="keywordflow">try</span>:</div>
+<div class="line"><span class="lineno">   78</span>            shapely.set_srid(res, tosrs)</div>
+<div class="line"><span class="lineno">   79</span>        <span class="keywordflow">except</span>:</div>
+<div class="line"><span class="lineno">   80</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno">   81</span>        <span class="keywordflow">return</span> res</div>
+<div class="line"><span class="lineno">   82</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
