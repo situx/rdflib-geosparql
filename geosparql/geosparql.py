@@ -1149,7 +1149,7 @@ def numPoints(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @param n The index of the patch to retrieve
 #  @returns The point at the nth patch of the given geometry as a geometry literal of the same type and CRS as the input geometry
-def patchN(a: Literal, n: Literal)) -> Literal:
+def patchN(a: Literal, n: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_parts(thegeom).tolist()[n], a.datatype)
 
