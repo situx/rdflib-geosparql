@@ -234,6 +234,28 @@ end_header
             assert len(result) == 1
             assert str(result[0]["azimuth"]) == "90.0"
 
+    def test_closestPoint(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT ?cPoint
+        WHERE {
+          my:A my:hasPointGeometry ?aGeom .
+          ?aGeom geo:asWKT ?aLiteral .
+          my:D geo:hasDefaultGeometry ?dGeom .
+          ?dGeom geo:asWKT ?dLiteral .
+          BIND (geof:closestPoint(?aLiteral, ?dLiteral) as ?cPoint)
+        }
+        """,combinations,config,g)
+        expresult=shapely.from_wkt("POINT (-83.4 34.3)")
+        for res in resultlist:
+            result=res[0]
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["cPoint"])[0],expresult,tolerance=eqtolerance)
+
     def test_compactnessRatio(self):
         resultlist = TestUtils.queryExecution(
         """

@@ -672,6 +672,30 @@ def centroid(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
 
 
+## Retrieves the point on the second geometry parameter which is closest to the first geometry
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
+def closestPoint(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0].has_z and geoms[1].has_z:
+        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+    else:
+        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    mindistance=float("inf")
+    closest=None
+    for p1 in g1list:
+        for p2 in g2list:
+            cp = shapely.geometry.Point(p1)
+            dist = shapely.distance(cp, shapely.geometry.Point(p2))
+            if dist<mindistance:
+                mindistance=dist
+                closest=cp
+    if closest is not None:
+        return LiteralUtils.processGeomToLiteral(closest,a.datatype,"")
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfContains">geof:sfContains</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehContains">geof:ehContains</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8ntppi">geof:rcc8ntppi</a>: Calculates whether the first geometry contains the second geometry.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1670,6 +1694,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "asXYZ"): asXYZ,
     URIRef(GEOFEXT + "azimuth"): azimuth,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
+    URIRef(GEOFEXT + "closestPoint"): closestPoint,
     URIRef(GEOFEXT + "difference3D"): difference3D,
     URIRef(GEOFEXT + "endPoint"): endPoint,
     URIRef(GEOFEXT + "exteriorRing"): exteriorRing,
