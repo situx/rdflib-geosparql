@@ -383,6 +383,28 @@ end_header
             assert len(result) == 1
             assert str(result[0]["hdistance"]) == "0.41231056256177195"
 
+    def test_intersects3D(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfIntersects) as ?intersects)
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          my:D geo:hasDefaultGeometry ?dGeom .
+          ?dGeom %%literalrel2%% ?dLiteral .
+          BIND (geof:Intersects3D(?aLiteral, ?dLiteral) as ?sfIntersects)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["intersects"]) == "true"
+
     def test_isClosed(self):
         resultlist = TestUtils.queryExecution(
         """PREFIX geo: <"""+str(GEO)+""">
@@ -455,6 +477,29 @@ end_header
             assert str(result[0]["isValid"]) == "true"
             assert str(result[0]["isNotValid"]) == "false"
 
+    def test_longestLine(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?longestLine
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom geo:asWKT ?aLiteral .
+              my:D geo:hasDefaultGeometry ?dGeom .
+              ?dGeom geo:asWKT ?dLiteral .
+              BIND (geof:longestLine(?aLiteral, ?dLiteral) as ?longestLine)
+            }
+            """ ,combinationsM,config,g)
+        expresult=shapely.from_wkt("LINESTRING (-83.6 34.5, -83.1 34)")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["longestLine"])[0], expresult)
+
     def test_M(self):
         resultlist = TestUtils.queryExecution(
             """
@@ -472,6 +517,46 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert str(result[0]["m"]) == "5.0"
+
+    def test_maxDistance(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?maxDistance
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom geo:asWKT ?aLiteral .
+              my:D geo:hasDefaultGeometry ?dGeom .
+              ?dGeom geo:asWKT ?dLiteral .
+              BIND (geof:maxDistance(?aLiteral, ?dLiteral) as ?maxDistance)
+            }
+            """ ,combinationsM,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["maxDistance"]) == "0.7071067811865476"
+
+    def test_maxM(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            SELECT ?maxM
+            WHERE {
+              my:PExactGeom %%literalrel1%% ?literal .
+              BIND(geof:maxM(?literal) AS ?maxM)
+            }
+            """ ,combinationsM,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["maxM"]) == "10.0"
 
     def test_metricWithinDistance(self):
         resultlist = TestUtils.queryExecution(
@@ -574,24 +659,7 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert str(result[0]["minM"]) == "5.0"
-            
-    def test_maxM(self):
-        resultlist = TestUtils.queryExecution(
-            """
-            PREFIX my: <http://example.org/ApplicationSchema#>
-            PREFIX geo: <"""+str(GEO)+""">
-            PREFIX geof: <"""+str(GEOF)+""">
-            SELECT ?maxM
-            WHERE {
-              my:PExactGeom %%literalrel1%% ?literal .
-              BIND(geof:maxM(?literal) AS ?maxM)
-            }
-            """ ,combinationsM,config,g)
-        for res in resultlist:
-            result = res[0]
-            print("Testing with " + str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["maxM"]) == "10.0"
+
 
     def test_numInteriorRing(self):
         resultlist = TestUtils.queryExecution(
