@@ -421,7 +421,7 @@ class LiteralUtils:
         print(str(type(geom)))
         ltype = str(literaltype)
         if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
-            if thegeomsrs != "":
+            if thegeomsrs == "":
                 return Literal("<" + CRS84URI + "> " + str(geom.wkt), datatype=literaltype)
             else:
                 return Literal("<" + str(thegeomsrs) + "> " + str(geom.wkt), datatype=literaltype)
@@ -800,6 +800,32 @@ def extrude(a: Literal, extrudeval: Literal) -> Literal:
 def exteriorRing(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.get_exterior_ring(thegeom), a.datatype, thegeomsrs)
+
+## Retrieves the farthest coordinate on a geometry to a given point
+#  @param a The given point
+#  @param b The geometry to calculaet the farthest coordinate on.
+#  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
+def farthestCoordinate(a: Literal, b: Literal) -> Literal:
+    print("FARTHEST COORDINATE")
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[0].geom_type!="Point":
+        raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
+    print(geoms[0])
+    if geoms[0].has_z and geoms[1].has_z:
+        clist = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+    else:
+        clist = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    maxdistance=float("-inf")
+    farthest=None
+    for p in clist:
+        cp=shapely.geometry.Point(p)
+        dist=shapely.distance(geoms[0],cp)
+        if dist>maxdistance:
+            maxdistance=dist
+            farthest=cp
+    if farthest is not None:
+        return LiteralUtils.processGeomToLiteral(farthest,a.datatype,"")
+
 
 ## Flips the XY coordinates included in the given geometry
 #  @param a The geometry literal
@@ -1584,6 +1610,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "difference3D"): difference3D,
     URIRef(GEOFEXT + "endPoint"): endPoint,
     URIRef(GEOFEXT + "exteriorRing"): exteriorRing,
+    URIRef(GEOFEXT + "farthestCoordinate"): farthestCoordinate,
     URIRef(GEOFEXT + "force2D"): force2D,
     URIRef(GEOFEXT + "force3D"): extrude,
     URIRef(GEOFEXT + "forceCW"): forceCW,
@@ -1660,11 +1687,11 @@ PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 SELECT ?sfIntersects
 WHERE {
-  my:A geo:hasDefaultGeometry ?aGeom .
+  my:A my:hasPointGeometry ?aGeom .
   ?aGeom geo:asWKT ?aLiteral .
   my:D geo:hasDefaultGeometry ?dGeom .
   ?dGeom geo:asWKT ?dLiteral .
-  BIND (geof:longestLine(?aLiteral, ?dLiteral) as ?sfIntersects)
+  BIND (geof:farthestCoordinate(?aLiteral, ?dLiteral) as ?sfIntersects)
 }
 """
 )
