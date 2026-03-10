@@ -38,6 +38,8 @@ var a00008 =
     [ "extrude", "a00008.html#ac9e402aefe719812f50e063272d0055f", null ],
     [ "flipXY", "a00008.html#a174a8dffbb1759dad7797e136cea0317", null ],
     [ "force2D", "a00008.html#a096f9b9ca704d83f7299a424a665249e", null ],
+    [ "forceCCW", "a00008.html#af901668418979f414c31e57db03bd154", null ],
+    [ "forceCW", "a00008.html#afd2422048d2a7478b0e91f4dd9f6ad4e", null ],
     [ "frechetDistance", "a00008.html#a1fe1fa56351394f06d9baa69b65a9097", null ],
     [ "geometryN", "a00008.html#a55bd8aae3430be3fa5e353104e9bcfe9", null ],
     [ "geometryType", "a00008.html#af3bc354df957057c78b6714a9cea2311", null ],
