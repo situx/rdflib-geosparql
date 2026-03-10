@@ -37,6 +37,7 @@ var a00008 =
     [ "equals", "a00008.html#ab3157fded666746fc277c5556d9cff69", null ],
     [ "exteriorRing", "a00008.html#ab682a7e8d43ab886f89141cbe5e33523", null ],
     [ "extrude", "a00008.html#ac9e402aefe719812f50e063272d0055f", null ],
+    [ "farthestCoordinate", "a00008.html#acd73391e1135ee30e1070c189bd4bacd", null ],
     [ "flipXY", "a00008.html#a174a8dffbb1759dad7797e136cea0317", null ],
     [ "force2D", "a00008.html#a096f9b9ca704d83f7299a424a665249e", null ],
     [ "forceCCW", "a00008.html#adc53fefcab5e597e8533ea4b9b6587e1", null ],

@@ -382,7 +382,7 @@ Static Public Attributes</h2></td></tr>
 <div class="line"><span class="lineno">  421</span>        print(str(type(geom)))</div>
 <div class="line"><span class="lineno">  422</span>        ltype = str(literaltype)</div>
 <div class="line"><span class="lineno">  423</span>        <span class="keywordflow">if</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#wktLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  424</span>            <span class="keywordflow">if</span> thegeomsrs != <span class="stringliteral">&quot;&quot;</span>:</div>
+<div class="line"><span class="lineno">  424</span>            <span class="keywordflow">if</span> thegeomsrs == <span class="stringliteral">&quot;&quot;</span>:</div>
 <div class="line"><span class="lineno">  425</span>                <span class="keywordflow">return</span> Literal(<span class="stringliteral">&quot;&lt;&quot;</span> + CRS84URI + <span class="stringliteral">&quot;&gt; &quot;</span> + str(geom.wkt), datatype=literaltype)</div>
 <div class="line"><span class="lineno">  426</span>            <span class="keywordflow">else</span>:</div>
 <div class="line"><span class="lineno">  427</span>                <span class="keywordflow">return</span> Literal(<span class="stringliteral">&quot;&lt;&quot;</span> + str(thegeomsrs) + <span class="stringliteral">&quot;&gt; &quot;</span> + str(geom.wkt), datatype=literaltype)</div>
