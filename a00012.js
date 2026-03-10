@@ -20,6 +20,7 @@ var a00012 =
     [ "boundingCircle", "a00012.html#af9d7a95a140824d7e8742f0f5a6007e9", null ],
     [ "buffer", "a00012.html#ae4b81ad18af6f762a606266be8db951e", null ],
     [ "centroid", "a00012.html#aebaa983f26b0adfae9952284dbc631d6", null ],
+    [ "closestPoint", "a00012.html#ab09bd1c93ea18212c753cd096f7ee7a2", null ],
     [ "compactnessRatio", "a00012.html#a3ad08ed01ed046627cfe37c4bd6761f5", null ],
     [ "concaveHull", "a00012.html#aaac9ea6fee221c9df1e61b1851a95a88", null ],
     [ "contains", "a00012.html#a815b9f74a93b3dd0ead9271237ca0e28", null ],
