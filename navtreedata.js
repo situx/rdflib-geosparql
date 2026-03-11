@@ -24,7 +24,7 @@
 */
 var NAVTREE =
 [
-  [ "RDFlib GeoSPARQL", "index.html", [
+  [ "RDFLib GeoSPARQL", "index.html", [
     [ "Packages", "namespaces.html", [
       [ "Package List", "namespaces.html", "namespaces_dup" ],
       [ "Package Members", "namespacemembers.html", [
@@ -51,8 +51,8 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"a00002.html",
-"a00012.html#aebaa983f26b0adfae9952284dbc631d6"
+"a00017.html",
+"a00027.html#aebaa983f26b0adfae9952284dbc631d6"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -1,4 +1,4 @@
 var namespaces_dup =
 [
-    [ "geosparql", "a00011.html", "a00011" ]
+    [ "geosparql", "a00026.html", "a00026" ]
 ];
