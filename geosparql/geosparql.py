@@ -214,7 +214,7 @@ class LiteralUtils:
     #Literals which may only represent 3D geometries
     literals3d={GEO+"plyLiteral",GEO+"objLiteral",GEO+"gltfLiteral"}
 
-    ## Extrudes a 2D geometry to a 3D geometry of height 1.
+    ## Extrudes a 2D geometry to a 3D geometry of depth 1.
     #  @param literal The geometry
     #  @returns An extruded trimesh geometry
     @staticmethod
