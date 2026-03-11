@@ -137,12 +137,15 @@ $(document).ready(function(){initNavTree('a00032.html',''); initResizable(); });
   <div class="headertitle"><div class="title">Transformers Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Transformation functions for SRS, geocodes and DGGS systems.  
+ <a href="a00032.html#details">More...</a></p>
 <div class="dynheader">
 Collaboration diagram for Transformers:</div>
 <div class="dyncontent">
 <div class="center"><img src="a00030.png" border="0" usemap="#aTransformers_coll__map" alt="Collaboration graph"/></div>
 <map name="aTransformers_coll__map" id="aTransformers_coll__map">
-<area shape="rect" title=" " alt="" coords="5,108,112,133"/>
+<area shape="rect" title="Transformation functions for SRS, geocodes and DGGS systems." alt="" coords="5,108,112,133"/>
 <area shape="rect" title=" " alt="" coords="35,5,82,31"/>
 <area shape="poly" title=" " alt="" coords="61,45,61,108,56,108,56,45"/>
 </map>
@@ -176,7 +179,9 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a59f16f8795a4d61c340ddda712049cab" id="r_a59f16f8795a4d61c340ddda712049cab"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00032.html#a59f16f8795a4d61c340ddda712049cab">supported_dggs</a> = {&quot;https://h3geo.org/res/{RESOLUTION}&quot;}</td></tr>
 <tr class="separator:a59f16f8795a4d61c340ddda712049cab"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Transformation functions for SRS, geocodes and DGGS systems. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aa10e02d5e9860f82e32dba71d3f6239a" name="aa10e02d5e9860f82e32dba71d3f6239a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa10e02d5e9860f82e32dba71d3f6239a">&#9670;&#160;</a></span>dggsToGeom()</h2>
 
@@ -233,7 +238,6 @@ Static Public Attributes</h2></td></tr>
 <div class="line"><span class="lineno">  162</span>                thevalue=shapely.ops.transform(<span class="keyword">lambda</span> x, y: (y, x),shapely.from_geojson(thevalue))</div>
 <div class="line"><span class="lineno">  163</span>        <span class="keywordflow">return</span> thevalue</div>
 <div class="line"><span class="lineno">  164</span> </div>
-<div class="line"><span class="lineno">  165</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
