@@ -41,7 +41,7 @@ def merge_dicts(*dict_args):
         result.update(dictionary)
     return result
 
-
+## Transformation functions for SRS, geocodes and DGGS systems
 class Transformers:
 
     #The geocodes supported in this implementation identified by URI
@@ -162,7 +162,7 @@ class Transformers:
                 thevalue=shapely.ops.transform(lambda x, y: (y, x),shapely.from_geojson(thevalue))
         return thevalue
 
-
+## Utilities to get attributes from SRS
 class SRSUtils:
 
     ureg = UnitRegistry()
@@ -211,6 +211,7 @@ class SRSUtils:
 ## Utilities for the conversion between literal and geometry objects
 class LiteralUtils:
 
+    #Literals which may only represent 3D geometries
     literals3d={GEO+"plyLiteral",GEO+"objLiteral",GEO+"gltfLiteral"}
 
     ## Extrudes a 2D geometry to a 3D geometry of height 1.
