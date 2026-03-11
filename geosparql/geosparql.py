@@ -208,11 +208,14 @@ class SRSUtils:
             return thevalue_withunit.magnitude
 
 
-
+## Utilities for the conversion between literal and geometry objects
 class LiteralUtils:
 
     literals3d={GEO+"plyLiteral",GEO+"objLiteral",GEO+"gltfLiteral"}
 
+    ## Extrudes a 2D geometry to a 3D geometry of height 1.
+    #  @param literal The geometry
+    #  @returns An extruded trimesh geometry
     @staticmethod
     def createGeometry3D(shapelygeom):
         # print("CREATE3D")
@@ -223,39 +226,65 @@ class LiteralUtils:
         # print(ress)
         return ress
 
+    ## Converts a WKT literal to a geometry object .
+    #  @param literal The WKT literal
+    #  @returns A geometry representing the contents of the given WKT literal
     @staticmethod
     def processWKTLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wktLiteral")
 
+    ## Converts a GML literal to a geometry object .
+    #  @param literal The GML literal
+    #  @returns A geometry representing the contents of the given GML literal
     @staticmethod
     def processGMLLiteral(text):
-        print("PROCESSGMLLITERAL")
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gmlLiteral")
 
+    ## Converts a KML literal to a geometry object .
+    #  @param literal The KML literal
+    #  @returns A geometry representing the contents of the given KML literal
     @staticmethod
     def processKMLLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"kmlLiteral")
 
+    ## Converts a DGGS literal to a geometry object .
+    #  @param literal The DGGS literal
+    #  @returns A geometry representing the contents of the given DGGS literal
     @staticmethod
     def processDGGSLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"dggsLiteral")
 
+    ## Converts an GeoJSON literal to a geometry object .
+    #  @param literal The GeoJSON literal
+    #  @returns A geometry representing the contents of the given GeoJSON literal
     @staticmethod
     def processGeoJSONLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"geoJSONLiteral")
 
+    ## Converts an GLTF literal to a geometry object .
+    #  @param literal The GLTF literal
+    #  @returns A geometry representing the contents of the given GLTF literal
     @staticmethod
     def processGLTFLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral",create3D=True)
 
+    ## Converts an PLY literal to a geometry object .
+    #  @param literal The PLY literal
+    #  @returns A geometry representing the contents of the given PLY literal
     @staticmethod
     def processPLYLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral",create3D=True)
 
+    ## Converts an OBJ literal to a geometry object .
+    #  @param literal The OBJ literal
+    #  @returns A geometry representing the contents of the given OBJ literal
     @staticmethod
     def processOBJLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral",create3D=True)
 
+    ## Converts a WKB literal to a geometry object .
+    #  @param literal The WKB literal
+    #  @returns A geometry representing the contents of the given WKB literal
     @staticmethod
     def processWKBLiteral(text):
         return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wkbLiteral")
@@ -407,40 +436,69 @@ class LiteralUtils:
                 "The literal " + thelit + " (" + str(literal.datatype) + ") is no known geometry literal type!"
             )
 
+    ## Converts a geometry to a GeoJSON Literal.
+    #  @param literal The GeoJSON literal
+    #  @returns The resulting GeoJSON literal
     @staticmethod
     def processGeomToGeoJSONLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "geoJSONLiteral",geomtup[1])
 
+    ## Converts a geometry to a GLTF Literal.
+    #  @param literal The GLTF literal
+    #  @returns The resulting GLTF literal
     @staticmethod
     def processGeomToGLTFLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gltfLiteral",geomtup[1])
 
+    ## Converts a geometry to a GML Literal.
+    #  @param literal The GML literal
+    #  @returns The resulting GML literal
     @staticmethod
     def processGeomToGMLLiteral(geomtup):
         print("GEOMTUP: "+str(geomtup))
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
 
+    ## Converts a geometry to a KML Literal.
+    #  @param literal The KML literal
+    #  @returns The resulting KML literal
     @staticmethod
     def processGeomToKMLLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "kmlLiteral",geomtup[1])
 
+    ## Converts a geometry to a OBJ Literal.
+    #  @param literal The OBJ literal
+    #  @returns The resulting OBJ literal
     @staticmethod
     def processGeomToOBJLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "objLiteral",geomtup[1])
 
+    ## Converts a geometry to a PLY Literal.
+    #  @param literal The PLY literal
+    #  @returns The resulting PLY literal
     @staticmethod
     def processGeomToPLYLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
 
+    ## Converts a geometry to a WKB Literal.
+    #  @param literal The WKB literal
+    #  @returns The resulting WKB literal
     @staticmethod
     def processGeomToWKBLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
 
+    ## Converts a geometry to a WKT Literal.
+    #  @param literal The WKT literal
+    #  @returns The resulting WKT literal
     @staticmethod
     def processGeomToWKTLiteral(geomtup):
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wktLiteral",geomtup[1])
 
 
+    ## Converts a geometry to a geometry literal.
+    #  @param geom The geometry to convert
+    #  @param literaltype The literaltype to convert to
+    #  @param thegeomsrs The SRS of the output geometry
+    #  @returns A geometry literal in the required literal type and SRS
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
         print("GEOMTOLIT: "+str(geom))
@@ -488,6 +546,12 @@ class LiteralUtils:
                 "The literal type " + str(literaltype) + " is not supported for geometry conversion!"
             )
 
+    ## Converts a list of geometry literals to a list of geometries.
+    #  @param literals The list of literalts to convert
+    #  @param normalize Indicates whether the geometries should be harmonized to a SRS (per default the SRS of the first geometry)
+    #  @param normsrs The SRS to normalize to
+    #  @param create3D Indicates whether the geometries should be extruded to 3D
+    #  @returns A list of geometries
     @staticmethod
     def processLiteralsToGeom(literals, normalize=False, normsrs=None, create3D=False):
         geoms = []
