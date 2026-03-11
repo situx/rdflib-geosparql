@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['g_0',['g',['../a00012.html#a73c18c59a39b18382081ec00bb456d43',1,'geosparql::geosparql']]],
+  ['geo_1',['geo',['../a00012.html#a947ee3a0eaf685342b9e4017b9a72822',1,'geosparql.geosparql.GEO'],['../a00011.html#a343aeb1993e6b3800981bb634d5f29e7',1,'geosparql.GEO']]],
+  ['geocodetogeom_2',['geocodeToGeom',['../a00017.html#ab58c4f245a213537ecb8650f8d01fdbb',1,'geosparql::geosparql::Transformers']]],
+  ['geof_3',['geof',['../a00011.html#ad6ecd1eb6962592f382659bc2a7edda2',1,'geosparql.GEOF'],['../a00012.html#af0639043a333dae80a5b06fe9f8e2c14',1,'geosparql.geosparql.GEOF']]],
+  ['geofext_4',['geofext',['../a00011.html#a6118e6bb0de45bfeeeb25db22a7a40f3',1,'geosparql.GEOFEXT'],['../a00012.html#ad050ebfefc65edba6852815fdf066ca6',1,'geosparql.geosparql.GEOFEXT']]],
+  ['geofextprefix_5',['GEOFEXTPREFIX',['../a00012.html#a29f58435972cd84c35bec65e7bb33a28',1,'geosparql::geosparql']]],
+  ['geofprefix_6',['GEOFPREFIX',['../a00012.html#a32ca0a2d83109ad43b042d76cde6a57b',1,'geosparql::geosparql']]],
+  ['geometryn_7',['geometryN',['../a00012.html#a55bd8aae3430be3fa5e353104e9bcfe9',1,'geosparql::geosparql']]],
+  ['geometrytype_8',['geometryType',['../a00012.html#af3bc354df957057c78b6714a9cea2311',1,'geosparql::geosparql']]],
+  ['geosparql_9',['geosparql',['../a00011.html',1,'']]],
+  ['geosparql_2epy_10',['geosparql.py',['../a00008.html',1,'']]],
+  ['geosparql10_11',['geosparql10',['../a00012.html#ac51d3cb0facfecf51d8ebee22598cfca',1,'geosparql::geosparql']]],
+  ['geosparql11_12',['geosparql11',['../a00012.html#ad1bc7eb949b26e26be8fae5c5f1c6825',1,'geosparql::geosparql']]],
+  ['geosparql13_13',['geosparql13',['../a00012.html#a0c9d77dee2b186adb46335b39af23e3d',1,'geosparql::geosparql']]],
+  ['geosparql_3a_3ageosparql_14',['geosparql',['../a00012.html',1,'geosparql']]],
+  ['geosparql_3a_3ageosparql_5faggregates_15',['geosparql_aggregates',['../a00013.html',1,'geosparql']]],
+  ['geosparql_5faggregates_2epy_16',['geosparql_aggregates.py',['../a00002.html',1,'']]],
+  ['get_5fvalue_17',['get_value',['../a00053.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggUnion.get_value()'],['../a00049.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggConvexHull.get_value()'],['../a00045.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggConcaveHull.get_value()'],['../a00041.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggCollect.get_value()'],['../a00037.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggCentroid.get_value()'],['../a00033.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggBoundingCircle.get_value()'],['../a00029.html#a55413a8a2a746bbd8c037628498c2341',1,'geosparql.geosparql_aggregates.AggBoundingBox.get_value()']]],
+  ['geteastingfromsrs_18',['getEastingFromSRS',['../a00021.html#a818cdc094f92d5130ccf8493dffdfdc1',1,'geosparql::geosparql::SRSUtils']]],
+  ['getfuncs_19',['getfuncs',['../a00012.html#a701d40182cc15db7bde1653e820a1b21',1,'geosparql::geosparql']]],
+  ['getsrid_20',['getSRID',['../a00012.html#a7420df7dfaec27362f6b2957cb7b013b',1,'geosparql::geosparql']]],
+  ['getunitsfromsrs_21',['getUnitsFromSRS',['../a00021.html#a3b493477efcd64d76d58d916371ba1b9',1,'geosparql::geosparql::SRSUtils']]]
+];
