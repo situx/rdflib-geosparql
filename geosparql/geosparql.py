@@ -1,5 +1,6 @@
 import json
 import os
+import math
 from io import BytesIO, TextIOWrapper
 from math import nan, pi, sqrt, degrees, atan2
 from typing import Any
@@ -705,14 +706,20 @@ def contains(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.contains(geoms[0], geoms[1]), datatype=XSD.boolean)
 
-
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>: Calculates the concave hull of a geometry literal.
 #  @param a The geometry literal
-#  @returns The concave hull as a geometry literal in the CRS of the input geometry
+#  @returns The concave hull as a geometry literal in the format and CRS of the input geometry
 def concaveHull(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
 
+
+## Calculates s triangulation using the constrained delaunay algorithm.
+#  @param a The geometry literal
+#  @returns The constrained delaunay triangulation result as a geometry literal in the format and CRS of the input geometry
+def constrainedDelaunay(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.constrained_delaunay_triangles(thegeom), a.datatype, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>: Calculates the convex hull of a geometry literal.
 #  @param a The geometry literal
@@ -763,6 +770,13 @@ def crosses(a: Literal, b: Literal) -> Literal | None | Any:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.crosses(geoms[0], geoms[1]), datatype=XSD.boolean)
+
+## Calculates a delaunay triangulation on a given geometry.
+#  @param a The geometry literal
+#  @returns The delaunay triangulation result as a geometry literal in the format and CRS of the input geometry
+def delaunayTriangles(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.delaunay_triangles(thegeom), a.datatype, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfDisjoint">geof:sfDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehDisjoint">geof:ehDisjoint</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8dc">geof:rcc8dc</a>: Calculates whether the two input geometries are disjoint.
 #  @param a The first geometry literal
@@ -1062,6 +1076,15 @@ def isMeasured(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.has_m, datatype=XSD.boolean)
 
+## Calculates whether a geometry literal represents a rectangle.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is a rectangle
+def isRectangle(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    if "Polygon" in str(thegeom.geom_type):
+        return Literal(math.isclose(thegeom.minimum_rotated_rectangle.area, thegeom.area),datatype=XSD.boolean)
+    return Literal(False, datatype=XSD.boolean)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/isRing">geof:isRing</a>: Calculates whether a geometry literal is a ring.
 #  @param a The geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is a ring
@@ -1070,7 +1093,6 @@ def isRing(a: Literal) -> Literal:
     if "Polygon" in str(thegeom.geom_type):
         return Literal(True, datatype=XSD.boolean)
     return Literal(thegeom.is_ring, datatype=XSD.boolean)
-
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/isSimple">geof:isSimple</a>: Calculates whether a geometry literal represents a simple geometry.
 #  @param a The geometry literal
@@ -1081,12 +1103,38 @@ def isSimple(a: Literal) -> Literal:
     print("The Lit: " + str(Literal(thegeom.is_simple, datatype=XSD.boolean)))
     return Literal(thegeom.is_simple, datatype=XSD.boolean)
 
+## Calculates whether a geometry is a triangle.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> whether the geometry is a triangle
+def isTriangle(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    if thegeom.geom_type=="Triangle" or (thegeom.geom_type=="Polygon" and shapely.count_coordinates(thegeom)==4):
+        return Literal(True, datatype=XSD.boolean)
+    return Literal(False, datatype=XSD.boolean)
+
 ## Calculates whether a geometry literal represents a valid geometry.
 #  @param a The geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is valid
 def isValid(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.is_valid, datatype=XSD.boolean)
+
+## Calculates whether a geometry literal encodes a valid trajectory.
+#  @param a The geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry encodes a valid trajectory
+def isValidTrajectory(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    if thegeom.geom_type=="LineString" and shapely.has_m(thegeom):
+        clist = shapely.get_coordinates(thegeom, include_m=True).tolist()
+        curM=-float("inf")
+        print(clist)
+        for c in clist:
+            print("curM: " + str(curM))
+            if curM>c[2]:
+                return Literal(False, datatype=XSD.boolean)
+            curM = c[2]
+        return Literal(True, datatype=XSD.boolean)
+    return Literal(False, datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/length">geof:length</a>: Retrieves the length of a geometry.
 #  @param a The geometry literal
@@ -1355,6 +1403,15 @@ def numPoints(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfOverlaps">geof:sfOverlaps</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehOverlap">geof:ehOverlap</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8po">geof:rcc8po</a>: Calculates whether the two input geometries overlap.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries overlap
+def overlaps(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        return Literal(shapely.overlaps(geoms[0], geoms[1]), datatype=XSD.boolean)
+
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/patchN">geof:patchN</a>: Returns the nth patch of a geometry
 #  @param a The geometry literal
@@ -1383,6 +1440,7 @@ def pointOnSurface(a: Literal) -> Literal:
     print(shapely.point_on_surface(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/perimeter">geof:perimeter</a>: Retrieves the perimeter length of a geometry.
 #  @param a The geometry literal
 #  @param units The unit of measurement of the length as a URI
@@ -1390,16 +1448,6 @@ def pointOnSurface(a: Literal) -> Literal:
 def perimeter(a: Literal, unit: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeom.length, datatype=XSD.double)
-
-
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfOverlaps">geof:sfOverlaps</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehOverlap">geof:ehOverlap</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8po">geof:rcc8po</a>: Calculates whether the two input geometries overlap.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the two geometries overlap
-def overlaps(a: Literal, b: Literal) -> Literal:
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    if geoms[0] is not None and geoms[1] is not None:
-        return Literal(shapely.overlaps(geoms[0], geoms[1]), datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
 #  @param a The first geometry literal
@@ -1417,6 +1465,14 @@ def relate(a: Literal, b: Literal, matrix: Literal) -> Literal:
 def reverse(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
+
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
+#  @param a The first geometry literal
+#  @param b The rotation angle in degree
+#  @returns A rotated geometry
+def rotate(a: Literal,angle: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return Literal(shapely.affinity.rotate(thegeom,float(angle.value)), datatype=XSD.boolean)
 
 ## Returns a scaled version of the input geometry.
 #  @param a The geometry literal
@@ -1695,6 +1751,8 @@ geosparql13 = {
     URIRef(GEOFEXT + "azimuth"): azimuth,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
     URIRef(GEOFEXT + "closestPoint"): closestPoint,
+    URIRef(GEOFEXT + "constrainedDelaunay"): constrainedDelaunay,
+    URIRef(GEOFEXT + "delaunayTriangles"): delaunayTriangles,
     URIRef(GEOFEXT + "difference3D"): difference3D,
     URIRef(GEOFEXT + "endPoint"): endPoint,
     URIRef(GEOFEXT + "exteriorRing"): exteriorRing,
@@ -1711,8 +1769,11 @@ geosparql13 = {
     URIRef(GEOFEXT + "isCCW"): isCCW,
     URIRef(GEOFEXT + "isCollection"): isCollection,
     URIRef(GEOFEXT + "isClosed"): isClosed,
+    URIRef(GEOFEXT + "isRectangle"): isRectangle,
     URIRef(GEOFEXT + "isRing"): isRing,
+    URIRef(GEOFEXT + "isTriangle"): isTriangle,
     URIRef(GEOFEXT + "isValid"): isValid,
+    URIRef(GEOFEXT + "isValidTrajectory"): isValidTrajectory,
     URIRef(GEOFEXT + "longestLine"): longestLine,
     URIRef(GEOFEXT + "maxDistance"): maxDistance,
     URIRef(GEOFEXT + "maxM"): maxM,
@@ -1730,6 +1791,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "pointN"): pointN,
     URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
     URIRef(GEOFEXT + "reverse"): reverse,
+    URIRef(GEOFEXT + "rotate"): rotate,
     URIRef(GEOFEXT + "scale"): scale,
     URIRef(GEOFEXT + "shortestLine"): shortestLine,
     URIRef(GEOFEXT + "simplify"): simplify,
@@ -1746,6 +1808,7 @@ geosparql13 = {
 
 def getfuncs():
     thefuncs = merge_dicts(geosparql10, geosparql11, geosparql13)
+    print("")
     for uri in thefuncs:
         try:
             register_custom_function(uri, thefuncs[uri])
@@ -1769,17 +1832,14 @@ g.parse(dir_path + "/../tests/testdata.ttl")
 
 result = g.query(
     """
-PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
 PREFIX geof: <"""+str(GEOFEXT)+""">
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?sfIntersects
-WHERE {
-  my:A my:hasPointGeometry ?aGeom .
-  ?aGeom geo:asWKT ?aLiteral .
-  my:D geo:hasDefaultGeometry ?dGeom .
-  ?dGeom geo:asWKT ?dLiteral .
-  BIND (geof:farthestCoordinate(?aLiteral, ?dLiteral) as ?sfIntersects)
+SELECT ?isValidT ?isNotValidT2 ?isValidT {
+    <http://example.org/ApplicationSchema#AExactGeom> geo:asWKT ?a_wkt .
+    BIND(geof:isValidTrajectory(?a_wkt) AS ?isNotValidT)
+    <http://example.org/ApplicationSchema#OExactGeom> geo:asWKT ?o_wkt .
+    BIND(geof:isValidTrajectory(?o_wkt) AS ?isNotValidT2)
+    BIND(geof:isValidTrajectory("POLYGON M((0 0 1, 10 10 2, 0 10 3, 10 0 4, 0 0 5))"^^geo:wktLiteral) AS ?isValidT)
 }
 """
 )

@@ -503,6 +503,40 @@ end_header
             assert str(result[0]["isARing"]) == "true"
             assert str(result[0]["isORing"]) == "false"
 
+    def test_isTriangle(self):
+        resultlist = TestUtils.queryExecution(
+            """PREFIX geo: <"""+str(GEO)+""">
+                PREFIX geof: <"""+str(GEOF)+""">
+                SELECT ?isTriangle ?isNoTriangle {
+                    <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
+                    BIND(geof:isTriangle(?a_wkt) AS ?isNoTriangle)
+                    BIND(geof:isTriangle("POLYGON ((0 0,0 1,1 1,0 0))"^^geo:wktLiteral) AS ?isTriangle)
+                }
+            """,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["isTriangle"]) == "true"
+            assert str(result[0]["isNoTriangle"]) == "false"
+
+    def test_isRectangle(self):
+        resultlist = TestUtils.queryExecution(
+            """PREFIX geo: <"""+str(GEO)+""">
+                PREFIX geof: <"""+str(GEOF)+""">
+                SELECT ?isRectangle ?isNoRectangle {
+                    <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
+                    BIND(geof:isRectangle(?a_wkt) AS ?isNoRectangle)
+                    BIND(geof:isRectangle(geof:envelope(?a_wkt)) AS ?isRectangle)
+                }
+            """,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["isRectangle"]) == "true"
+            assert str(result[0]["isNoRectangle"]) == "false"
+
     def test_isValid(self):
         resultlist = TestUtils.queryExecution(
             """PREFIX geo: <"""+str(GEO)+""">
@@ -520,6 +554,26 @@ end_header
             assert len(result) == 1
             assert str(result[0]["isValid"]) == "true"
             assert str(result[0]["isNotValid"]) == "false"
+
+    def test_isValidTrajectory(self):
+        resultlist = TestUtils.queryExecution(
+        """PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            SELECT ?isValidT ?isNotValidT2 ?isNotValidT {
+                <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
+                BIND(geof:isValidTrajectory(?a_wkt) AS ?isNotValidT)
+                <http://example.org/ApplicationSchema#OExactGeom> %%literalrel1%% ?o_wkt .
+                BIND(geof:isValidTrajectory(?o_wkt) AS ?isNotValidT2)
+                BIND(geof:isValidTrajectory("LineString M(0 0 1, 10 10 2, 0 10 3, 10 0 4, 0 0 5)"^^geo:wktLiteral) AS ?isValidT)
+            }
+        """,combinations,config, g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["isValidT"]) == "true"
+            assert str(result[0]["isNotValidT"]) == "false"
+            assert str(result[0]["isNotValidT2"]) == "false"
 
     def test_longestLine(self):
         resultlist = TestUtils.queryExecution(
