@@ -11,7 +11,10 @@ var searchData=
   ['iscollection_8',['isCollection',['../a00027.html#a1da5e7a956d14974f8af4e3e9373c86b',1,'geosparql::geosparql']]],
   ['isempty_9',['isEmpty',['../a00027.html#a99909418f0abc22cedcce0d07a96bfc2',1,'geosparql::geosparql']]],
   ['ismeasured_10',['isMeasured',['../a00027.html#ac9d2a06054024e8ca17783eef00c6b4f',1,'geosparql::geosparql']]],
-  ['isring_11',['isRing',['../a00027.html#af740fa50836f3178c7e8df59bd0428fb',1,'geosparql::geosparql']]],
-  ['issimple_12',['isSimple',['../a00027.html#ad32697b6edac047f73766e6f287e2099',1,'geosparql::geosparql']]],
-  ['isvalid_13',['isValid',['../a00027.html#a924c379a49343079d2c2ad463ff43341',1,'geosparql::geosparql']]]
+  ['isrectangle_11',['isRectangle',['../a00027.html#a5dd33cb38a7373206280bb6e3fb5869e',1,'geosparql::geosparql']]],
+  ['isring_12',['isRing',['../a00027.html#af740fa50836f3178c7e8df59bd0428fb',1,'geosparql::geosparql']]],
+  ['issimple_13',['isSimple',['../a00027.html#ad32697b6edac047f73766e6f287e2099',1,'geosparql::geosparql']]],
+  ['istriangle_14',['isTriangle',['../a00027.html#ad33170070ce3c74741e75a639d751c97',1,'geosparql::geosparql']]],
+  ['isvalid_15',['isValid',['../a00027.html#a924c379a49343079d2c2ad463ff43341',1,'geosparql::geosparql']]],
+  ['isvalidtrajectory_16',['isValidTrajectory',['../a00027.html#af7d95f623e827510190c8f176e63c290',1,'geosparql::geosparql']]]
 ];
