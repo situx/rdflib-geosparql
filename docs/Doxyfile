@@ -32,7 +32,7 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = RDFlib GeoSPARQL
+PROJECT_NAME           = RDFLib GeoSPARQL
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
@@ -793,7 +793,7 @@ WARN_LOGFILE           = ./warning.log
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ../geosparql/ \
+INPUT                  = ../geosparql/
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -873,7 +873,7 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = ./ \
+EXAMPLE_PATH           = ./src/ \
                          ../
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
@@ -881,7 +881,7 @@ EXAMPLE_PATH           = ./ \
 # *.h) to filter out the source-files in the directories. If left blank all
 # files are included.
 
-EXAMPLE_PATTERNS       = *.java
+EXAMPLE_PATTERNS       = *.py
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be
 # searched for input files to be used with the \include or \dontinclude commands
@@ -1160,7 +1160,12 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  =
+HTML_EXTRA_STYLESHEET  = css/doxygen-awesome.css \
+                         css/doxygen-awesome-sidebar-only.css \
+                         css/doxygen-awesome-sidebar-only-darkmode-toggle.css \
+                         css/theme-round.css \
+                         css/theme-robot.css
+
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1170,7 +1175,13 @@ HTML_EXTRA_STYLESHEET  =
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =
+HTML_EXTRA_FILES       = css/doxygen-awesome-darkmode-toggle.js \
+                         css/doxygen-awesome-fragment-copy-button.js \
+                         css/doxygen-awesome-paragraph-link.js \
+                         css/doxygen-custom/toggle-alternative-theme.js \
+                         css/doxygen-awesome-interactive-toc.js \
+                         css/doxygen-awesome-tabs.js\
+                         css/toggle-alternative-theme.js
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
@@ -1560,7 +1571,7 @@ MATHJAX_CODEFILE       =
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-SEARCHENGINE           = NO
+SEARCHENGINE           = YES
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
 # implemented using a web server instead of a web client using Javascript. There
