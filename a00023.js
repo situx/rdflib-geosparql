@@ -71,6 +71,7 @@ var a00023 =
     [ "length", "a00023.html#a8c3a081c9e91a744824698b9d51c40b1", null ],
     [ "longestLine", "a00023.html#af908cfa07bd8d7d9285ff388c3cf4d03", null ],
     [ "m", "a00023.html#a05b8e61834266da1fd6eac74889ff6bf", null ],
+    [ "makeValid", "a00023.html#acdbc77647bc47bc0569628f89c21831a", null ],
     [ "matrixTransform", "a00023.html#aa37454a403ac32ff18b0f3749fd431ed", null ],
     [ "maxDistance", "a00023.html#abd090f4a22416d5639d2cd3eaf8ec407", null ],
     [ "maxM", "a00023.html#a9ff1c1c90a3a8d4bfd758e056824f767", null ],
