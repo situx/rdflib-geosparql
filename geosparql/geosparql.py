@@ -1038,6 +1038,7 @@ def getSRID(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(thegeomsrs, datatype=XSD.anyURI)
 
+
 ## Calculates the HausdorffDistance between two input geometries.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1244,6 +1245,15 @@ def m(a: Literal) -> Literal:
     if thegeom.geom_type == "Point":
         return Literal(shapely.get_m(thegeom), datatype=XSD.double)
 
+## Creates a valid version of an invalid geometry.
+#  @param a The geometry literal
+#  @returns A valid version of the given input geometry in the CRS and literal format of the first input geometry
+def makeValid(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.make_valid(thegeom), a.datatype)
+
+
+shapely.
 
 def matrixTransform(a: Literal, matrix) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
@@ -1840,6 +1850,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "isValid"): isValid,
     URIRef(GEOFEXT + "isValidTrajectory"): isValidTrajectory,
     URIRef(GEOFEXT + "longestLine"): longestLine,
+    URIRef(GEOFEXT + "makeValid"): makeValid,
     URIRef(GEOFEXT + "maxDistance"): maxDistance,
     URIRef(GEOFEXT + "maxM"): maxM,
     URIRef(GEOFEXT + "M"): m,
