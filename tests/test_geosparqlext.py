@@ -857,6 +857,25 @@ end_header
             assert len(result) == 1
             assert_geometries_equal(processLiteralTypeToGeom(result[0]["pointOnSurface"])[0],expresult,tolerance=eqtolerance)
 
+    def test_removeRepeatedPoints(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX geof: <"""+str(GEOF)+""">
+            SELECT ?rep
+            WHERE {
+              BIND(geof:removeRepeatedPoints("POLYGON ((-83.6 34.1, -83.6 34.5, -83.6 34.5, -83.2 34.5, -83.2 34.1, -83.6 34.1))"^^geo:wktLiteral) AS ?rep)
+            }
+            """ ,combinations,config,g)
+        expresult = shapely.from_wkt("POLYGON ((-83.6 34.1, -83.6 34.5, -83.2 34.5, -83.2 34.1, -83.6 34.1))")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["rep"])[0], expresult)
+
     def test_reverse(self):
         resultlist = TestUtils.queryExecution(
             """

@@ -1253,8 +1253,6 @@ def makeValid(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.make_valid(thegeom), a.datatype)
 
 
-shapely.
-
 def matrixTransform(a: Literal, matrix) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     shapely.affinity.affine_transform(thegeom, [])
@@ -1478,6 +1476,14 @@ def numPoints(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(shapely.count_coordinates(thegeom), datatype=XSD.integer)
 
+## Creates an offset line at a given distance and side from an input geometry .
+#  @param a The geometry literal
+#  @param d The distance
+#  @returns The offset curve as a LineString in the CRS and literal format of the input geometry
+def offsetCurve(a: Literal,d: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.offset_curve(thegeom,float(str(d))), a.datatype)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfOverlaps">geof:sfOverlaps</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehOverlap">geof:ehOverlap</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8po">geof:rcc8po</a>: Calculates whether the two input geometries overlap.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1533,6 +1539,13 @@ def relate(a: Literal, b: Literal, matrix: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.relate_pattern(geoms[0], geoms[1], str(matrix)), datatype=XSD.boolean)
+
+## Creates a geometry without repeated points.
+#  @param a The geometry literal
+#  @returns The geometry without repeated points in the CRS and literal format of the input geometry
+def removeRepeatedPoints(a: Literal,d: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.remove_repeated_points(thegeom), a.datatype)
 
 ## Returns a version of the input geometry with reversed point order.
 #  @param a The geometry literal
@@ -1863,9 +1876,11 @@ geosparql13 = {
     URIRef(GEOFEXT + "numPatches"): numPatches,
     URIRef(GEOFEXT + "numInteriorRing"): numInteriorRing,
     URIRef(GEOFEXT + "numPoints"): numPoints,
+    URIRef(GEOFEXT + "offsetCurve"): offsetCurve,
     URIRef(GEOFEXT + "patchN"): patchN,
     URIRef(GEOFEXT + "pointN"): pointN,
     URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
+    URIRef(GEOFEXT + "removeRepeatedPoints"): removeRepeatedPoints,
     URIRef(GEOFEXT + "reverse"): reverse,
     URIRef(GEOFEXT + "rotate"): rotate,
     URIRef(GEOFEXT + "scale"): scale,
