@@ -440,7 +440,7 @@ end_header
           ?aGeom %%literalrel1%% ?aLiteral .
           my:D geo:hasDefaultGeometry ?dGeom .
           ?dGeom %%literalrel2%% ?dLiteral .
-          BIND (geof:Intersects3D(?aLiteral, ?dLiteral) as ?sfIntersects)
+          BIND (geof:intersects3D(?aLiteral, ?dLiteral) as ?sfIntersects)
         }
         """,combinations,config,g)
         for res in resultlist:
@@ -524,10 +524,11 @@ end_header
         resultlist = TestUtils.queryExecution(
             """PREFIX geo: <"""+str(GEO)+""">
                 PREFIX geof: <"""+str(GEOF)+""">
+                PREFIX geofo: <http://www.opengis.net/def/function/geosparql/>
                 SELECT ?isRectangle ?isNoRectangle {
                     <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
                     BIND(geof:isRectangle(?a_wkt) AS ?isNoRectangle)
-                    BIND(geof:isRectangle(geof:envelope(?a_wkt)) AS ?isRectangle)
+                    BIND(geof:isRectangle(geofo:envelope(?a_wkt)) AS ?isRectangle)
                 }
             """,combinations,config,g)
         for res in resultlist:

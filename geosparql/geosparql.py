@@ -1543,7 +1543,7 @@ def relate(a: Literal, b: Literal, matrix: Literal) -> Literal:
 ## Creates a geometry without repeated points.
 #  @param a The geometry literal
 #  @returns The geometry without repeated points in the CRS and literal format of the input geometry
-def removeRepeatedPoints(a: Literal,d: Literal) -> Literal:
+def removeRepeatedPoints(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.remove_repeated_points(thegeom), a.datatype)
 
