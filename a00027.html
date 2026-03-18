@@ -443,9 +443,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a3e0572ecd5b59a722a4369a388da3c62" id="r_a3e0572ecd5b59a722a4369a388da3c62"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00027.html#a3e0572ecd5b59a722a4369a388da3c62">relate</a> (Literal a, Literal b, Literal matrix)</td></tr>
 <tr class="memdesc:a3e0572ecd5b59a722a4369a388da3c62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Implements <a href="http://www.opengis.net/def/function/geosparql/relate" target="_blank">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.  <br /></td></tr>
 <tr class="separator:a3e0572ecd5b59a722a4369a388da3c62"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5cc25fcb6b055fe0f9df5f4c7b752be1" id="r_a5cc25fcb6b055fe0f9df5f4c7b752be1"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00027.html#a5cc25fcb6b055fe0f9df5f4c7b752be1">removeRepeatedPoints</a> (Literal a, Literal d)</td></tr>
-<tr class="memdesc:a5cc25fcb6b055fe0f9df5f4c7b752be1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a geometry without repeated points.  <br /></td></tr>
-<tr class="separator:a5cc25fcb6b055fe0f9df5f4c7b752be1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e46daf72905f7ad8a6e4bc95b33d70d" id="r_a4e46daf72905f7ad8a6e4bc95b33d70d"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00027.html#a4e46daf72905f7ad8a6e4bc95b33d70d">removeRepeatedPoints</a> (Literal a)</td></tr>
+<tr class="memdesc:a4e46daf72905f7ad8a6e4bc95b33d70d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a geometry without repeated points.  <br /></td></tr>
+<tr class="separator:a4e46daf72905f7ad8a6e4bc95b33d70d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a063dad699c5184d57543a0a933f6183d" id="r_a063dad699c5184d57543a0a933f6183d"><td class="memItemLeft" align="right" valign="top">Literal&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00027.html#a063dad699c5184d57543a0a933f6183d">reverse</a> (Literal a)</td></tr>
 <tr class="memdesc:a063dad699c5184d57543a0a933f6183d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a version of the input geometry with reversed point order.  <br /></td></tr>
 <tr class="separator:a063dad699c5184d57543a0a933f6183d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -4282,8 +4282,8 @@ precedence goes to key-value pairs in latter dictionaries.
 </div><!-- fragment -->
 </div>
 </div>
-<a id="a5cc25fcb6b055fe0f9df5f4c7b752be1" name="a5cc25fcb6b055fe0f9df5f4c7b752be1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5cc25fcb6b055fe0f9df5f4c7b752be1">&#9670;&#160;</a></span>removeRepeatedPoints()</h2>
+<a id="a4e46daf72905f7ad8a6e4bc95b33d70d" name="a4e46daf72905f7ad8a6e4bc95b33d70d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e46daf72905f7ad8a6e4bc95b33d70d">&#9670;&#160;</a></span>removeRepeatedPoints()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -4292,18 +4292,8 @@ precedence goes to key-value pairs in latter dictionaries.
           <td class="memname"> Literal removeRepeatedPoints </td>
           <td>(</td>
           <td class="paramtype">Literal&#160;</td>
-          <td class="paramname"><em>a</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>a</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">Literal&#160;</td>
-          <td class="paramname"><em>d</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -4316,7 +4306,7 @@ precedence goes to key-value pairs in latter dictionaries.
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>The geometry without repeated points in the CRS and literal format of the input geometry </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno"> 1546</span><span class="keyword">def </span>removeRepeatedPoints(a: Literal,d: Literal) -&gt; Literal:</div>
+<div class="fragment"><div class="line"><span class="lineno"> 1546</span><span class="keyword">def </span>removeRepeatedPoints(a: Literal) -&gt; Literal:</div>
 <div class="line"><span class="lineno"> 1547</span>    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)</div>
 <div class="line"><span class="lineno"> 1548</span>    <span class="keywordflow">return</span> LiteralUtils.processGeomToLiteral(shapely.remove_repeated_points(thegeom), a.datatype)</div>
 <div class="line"><span class="lineno"> 1549</span> </div>

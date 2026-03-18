@@ -103,7 +103,7 @@ var a00027 =
     [ "pointN", "a00027.html#a3c5a5fd19d216d4cc6c95533b281b8b5", null ],
     [ "pointOnSurface", "a00027.html#a131f535423964231459f3507e61c511c", null ],
     [ "relate", "a00027.html#a3e0572ecd5b59a722a4369a388da3c62", null ],
-    [ "removeRepeatedPoints", "a00027.html#a5cc25fcb6b055fe0f9df5f4c7b752be1", null ],
+    [ "removeRepeatedPoints", "a00027.html#a4e46daf72905f7ad8a6e4bc95b33d70d", null ],
     [ "reverse", "a00027.html#a063dad699c5184d57543a0a933f6183d", null ],
     [ "rotate", "a00027.html#a698fc4be6a0f69ae13b4b47f01fe1b60", null ],
     [ "scale", "a00027.html#a80ab4a4873bc6820e171567ac1125e30", null ],
