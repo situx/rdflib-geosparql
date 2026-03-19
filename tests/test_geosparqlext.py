@@ -172,6 +172,27 @@ end_header
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["ply"])[0], expresult)
 
+    def test_asSVG(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT ?svg
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          BIND (geof:asSVG(?aLiteral) as ?svg)
+        }
+        """,combinations,config, g)
+        expresult=shapely.from_wkt("Polygon((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))")
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["svg"]).strip()=="""<path fill-rule="evenodd" fill="#66cc99" stroke="#555555" stroke-width="2.0" opacity="0.6" d="M -83.6,34.1 L -83.2,34.1 L -83.2,34.5 L -83.6,34.5 L -83.6,34.1 z" />"""
+
     def test_asWKB(self):
         resultlist = TestUtils.queryExecution(
         """

@@ -558,6 +558,8 @@ class LiteralUtils:
             return Literal("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(fastkml.geometry.create_kml_geometry(geom)) + "</Placemark></kml>", datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#wkbLiteral":
             return Literal(str(geom.wkb_hex), datatype=literaltype)
+        elif ltype == "http://www.opengis.net/ont/geosparql#svgLiteral":
+            return Literal(str(geom.svg()), datatype=literaltype)
         elif ltype == "http://www.opengis.net/ont/geosparql#plyLiteral":
             bio = BytesIO()
             geom.export(bio, file_type="ply", encoding='ascii')
@@ -726,6 +728,15 @@ def asPLY(a: Literal) -> Literal:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#plyLiteral", thegeomsrs)
+
+## Converts a geometry literal to a SVG literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#svgLiteral">geo:svgLiteral</a>
+def asSVG(a: Literal) -> Literal:
+    if a.datatype=="http://www.opengis.net/ont/geosparql#svgLiteral":
+        return a
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#svgLiteral", thegeomsrs)
 
 ## Converts a geometry literal to a XYZ literal .
 #  @param a The geometry literal
@@ -947,6 +958,7 @@ def distance(a: Literal, b: Literal, units: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
+
 
 ## Extracts the last point of an input geometry.
 #  @param a The geometry literal
@@ -1907,6 +1919,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "asGLTF"): asGLTF,
     URIRef(GEOFEXT + "asOBJ"): asOBJ,
     URIRef(GEOFEXT + "asPLY"): asPLY,
+    URIRef(GEOFEXT + "asSVG"): asSVG,
     URIRef(GEOFEXT + "asWKB"): asWKB,
     URIRef(GEOFEXT + "asXYZ"): asXYZ,
     URIRef(GEOFEXT + "azimuth"): azimuth,
