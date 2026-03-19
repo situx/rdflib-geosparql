@@ -167,6 +167,7 @@ class Transformers:
 class SRSUtils:
 
     ureg = UnitRegistry()
+
     unitsshort = {
         "m": "om:meter",
         "metre" : "om:metre",
@@ -176,9 +177,48 @@ class SRSUtils:
         "us-ft": "om:usfoot"
     }
 
+    uniturisToPint={
+        "http://qudt.org/vocab/unit/AC":"acre",
+        "http://qudt.org/vocab/unit/MI":"mile",
+        "http://qudt.org/vocab/unit/M": "meter",
+        "http://qudt.org/vocab/unit/M2": "meter ** 2",
+        "http://qudt.org/vocab/unit/M3": "meter ** 3",
+        "http://www.opengis.net/def/uom/OGC/1.0/meter": "meter",
+        "http://dbpedia.org/resource/Metre":"meter",
+        "http://www.wikidata.org/entity/Q81292":"acre",
+        "http://www.wikidata.org/entity/Q192624":"meter",
+        "http://www.wikidata.org/entity/Q25343":"meter ** 2",
+        "http://www.wikidata.org/wiki/Q25517":"meter ** 3",
+        "http://www.wikidata.org/entity/Q828224":"kilometer",
+        "http://www.wikidata.org/entity/Q253276": "mile",
+        "https://si-digital-framework.org/SI/units/metre":"meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/degree": "degree",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/kilometer": "kilometer",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/meter": "meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/metre": "meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/mile": "mile",
+    }
+
     uniturisToUnit={
         "http://qudt.org/vocab/unit/AC":"acre",
         "http://qudt.org/vocab/unit/MI":"mile",
+        "http://qudt.org/vocab/unit/M": "meter",
+        "http://qudt.org/vocab/unit/M2": "squaremeter",
+        "http://qudt.org/vocab/unit/M3": "cubicmeter",
+        "http://www.opengis.net/def/uom/OGC/1.0/meter": "meter",
+        "http://dbpedia.org/resource/Metre":"meter",
+        "http://www.wikidata.org/entity/Q81292":"acre",
+        "http://www.wikidata.org/entity/Q192624":"meter",
+        "http://www.wikidata.org/entity/Q25343":"squaremeter",
+        "http://www.wikidata.org/wiki/Q25517":"cubicmeter",
+        "http://www.wikidata.org/entity/Q828224":"kilometer",
+        "http://www.wikidata.org/entity/Q253276": "mile",
+        "https://si-digital-framework.org/SI/units/metre":"meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/degree": "degree",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/kilometer": "kilometer",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/meter": "meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/metre": "meter",
+        "http://www.ontology-of-units-of-measure.org/resource/om-2/mile": "mile",
     }
 
 
@@ -203,10 +243,10 @@ class SRSUtils:
 
     @staticmethod
     def convertMetricToUnit(thevalue,metricunit,targetunit):
-        if metricunit in SRSUtils.uniturisToUnit and targetunit in SRSUtils.uniturisToUnit:
-            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit])
-            thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit]))
-            return thevalue_withunit.magnitude
+        if metricunit in SRSUtils.uniturisToPint and targetunit in SRSUtils.uniturisToPint:
+            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToPint[metricunit])
+            return thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToPint[targetunit]).units).magnitude
+        return None
 
 
 ## Utilities for the conversion between literal and geometry objects
@@ -457,7 +497,6 @@ class LiteralUtils:
     #  @returns The resulting GML literal
     @staticmethod
     def processGeomToGMLLiteral(geomtup):
-        print("GEOMTUP: "+str(geomtup))
         return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
 
     ## Converts a geometry to a KML Literal.
@@ -572,13 +611,26 @@ class LiteralUtils:
         # print(geoms)
         return geoms
 
+class Handling3D:
+
+    @staticmethod
+    def identityMatrix(a: Literal):
+        print("")
+
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
 #  @param unit The unit in which to represent the area.
 #  @returns The area as an <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def area(a: Literal, unit: Literal) -> Literal:
+    if unit.value not in SRSUtils.uniturisToUnit:
+        raise ValueError("The provided unit "+str(unit)+" is not a supported unit.\nSupported units: "+str(SRSUtils.uniturisToUnit.keys()))
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return Literal(shapely.area(thegeom), datatype=XSD.double)
+    normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
+    thearea=shapely.area(normgeom)
+    if SRSUtils.uniturisToUnit[unit.value]!="squaremeter":
+        thearea=SRSUtils.convertMetricToUnit(thearea,"http://qudt.org/vocab/unit/M2",unit.value)
+    return Literal(thearea, datatype=XSD.double)
 
 ## Calculates the azimuth of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
@@ -1206,9 +1258,15 @@ def isValidTrajectory(a: Literal) -> Literal:
 #  @param a The geometry literal
 #  @param units The unit of measurement of the length as a URI
 #  @returns The length as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def length(a: Literal,units: Literal) -> Literal:
+def length(a: Literal,unit: Literal) -> Literal:
+    if unit.value not in SRSUtils.uniturisToUnit:
+        raise ValueError("The provided unit "+str(unit)+" is not a supported unit.\nSupported units: "+str(SRSUtils.uniturisToUnit.keys()))
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return Literal(thegeom.length, datatype=XSD.double)
+    normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
+    thelength=normgeom.length
+    if SRSUtils.uniturisToUnit[unit.value]!="meter":
+        thelength=SRSUtils.convertMetricToUnit(thelength,"http://qudt.org/vocab/unit/M",unit.value)
+    return Literal(thelength, datatype=XSD.double)
 
 ## Retrieves the longest line between two geometries defined by the two points with maximum distance
 #  @param a The first geometry literal.
@@ -1353,7 +1411,6 @@ def metricDistance(a: Literal, b: Literal) -> Literal:
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricLength">geof:metricLength</a>: Retrieves the length of a geometry in meters.
 #  @param a The geometry literal
-#  @param units The unit of measurement of the length as a URI
 #  @returns The length in meters as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def metricLength(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
@@ -1527,8 +1584,14 @@ def pointOnSurface(a: Literal) -> Literal:
 #  @param units The unit of measurement of the length as a URI
 #  @returns The perimeter length as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def perimeter(a: Literal, unit: Literal) -> Literal:
+    if unit.value not in SRSUtils.uniturisToUnit:
+        raise ValueError("The provided unit "+str(unit)+" is not a supported unit.\nSupported units: "+str(SRSUtils.uniturisToUnit.keys()))
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return Literal(thegeom.length, datatype=XSD.double)
+    normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
+    theperimeter=normgeom.length
+    if SRSUtils.uniturisToUnit[unit.value]!="meter":
+        theperimeter=SRSUtils.convertMetricToUnit(theperimeter,"http://qudt.org/vocab/unit/M",unit.value)
+    return Literal(theperimeter, datatype=XSD.double)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
 #  @param a The first geometry literal
@@ -1698,6 +1761,16 @@ def union(a: Literal, b: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.union(geomtps[0][0], geomtps[1][0]), a.datatype, geomtps[0][1])
     raise ValueError("Invalid parameters were provided for function geof:union")
 
+
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
+def union3D(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        print(trimesh.boolean.boolean_manifold(geoms, "intersection"))
+        return Literal(trimesh.boolean.union(geoms), datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfWithin">geof:sfWithin</a>: Calculates whether the first geometry is within the second geometry.
 #  @param a The first geometry literal
@@ -1924,19 +1997,17 @@ g.parse(dir_path + "/../tests/testdata.ttl")
 result = g.query(
     """
 PREFIX geo: <"""+str(GEO)+""">
-PREFIX geof: <"""+str(GEOFEXT)+""">
-SELECT ?isValidT ?isNotValidT2 ?isValidT {
+PREFIX geof: <"""+str(GEOF)+""">
+SELECT ?acrearea ?metricarea {
     <http://example.org/ApplicationSchema#AExactGeom> geo:asWKT ?a_wkt .
-    BIND(geof:isValidTrajectory(?a_wkt) AS ?isNotValidT)
-    <http://example.org/ApplicationSchema#OExactGeom> geo:asWKT ?o_wkt .
-    BIND(geof:isValidTrajectory(?o_wkt) AS ?isNotValidT2)
-    BIND(geof:isValidTrajectory("POLYGON M((0 0 1, 10 10 2, 0 10 3, 10 0 4, 0 0 5))"^^geo:wktLiteral) AS ?isValidT)
+    BIND(geof:area(?a_wkt,"http://qudt.org/vocab/unit/AC"^^xsd:anyURI) AS ?acrearea)
+    BIND(geof:metricArea(?a_wkt) AS ?metricarea)
 }
 """
 )
 print("THE RESULT")
 print(result)
-print(len(result.bindings))
+#print(len(result.bindings))
 #print([{str(k): v for k, v in i.items()} for i in result.bindings])
 for res in result:
     print(res)

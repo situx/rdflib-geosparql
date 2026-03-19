@@ -52,14 +52,14 @@ class TestGeoSPARQL11(TestGeoSPARQL10):
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
               ?aGeom %%literalrel1%% ?aLiteral .
-              BIND (geof:area(?aLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?area)
+              BIND (geof:area(?aLiteral,"http://qudt.org/vocab/unit/AC"^^xsd:anyURI) as ?area)
             }
             """,combinations,config, g)
         for res in resultlist:
             result = res[0]
             print("Testing with " + str(res[1]))
             assert len(result[0]) == 1
-            assert "area" in result[0] and str(result[0]["area"]) == "0.15999999999999603"
+            assert "area" in result[0] and str(result[0]["area"]) == "593079.4121828682"
 
     def test_asWKT(self):
         resultlist = TestUtils.queryExecution(
