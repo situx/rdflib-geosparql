@@ -1,5 +1,6 @@
 var a00027 =
 [
+    [ "Handling3D", "a00044.html", "a00044" ],
     [ "LiteralUtils", "a00040.html", "a00040" ],
     [ "SRSUtils", "a00036.html", "a00036" ],
     [ "Transformers", "a00032.html", "a00032" ],
@@ -68,7 +69,7 @@ var a00027 =
     [ "isTriangle", "a00027.html#ad33170070ce3c74741e75a639d751c97", null ],
     [ "isValid", "a00027.html#a924c379a49343079d2c2ad463ff43341", null ],
     [ "isValidTrajectory", "a00027.html#af7d95f623e827510190c8f176e63c290", null ],
-    [ "length", "a00027.html#a8c3a081c9e91a744824698b9d51c40b1", null ],
+    [ "length", "a00027.html#aad8d200592f8749c28caa2059fffdfab", null ],
     [ "longestLine", "a00027.html#af908cfa07bd8d7d9285ff388c3cf4d03", null ],
     [ "m", "a00027.html#a05b8e61834266da1fd6eac74889ff6bf", null ],
     [ "makeValid", "a00027.html#acdbc77647bc47bc0569628f89c21831a", null ],
@@ -118,6 +119,7 @@ var a00027 =
     [ "transformCRS84", "a00027.html#a315411288bfe632bf8d1fcdef6630a8b", null ],
     [ "translate", "a00027.html#a7cdb646fc9ac28c34f1dac2ac54e57bf", null ],
     [ "union", "a00027.html#a804c085c452727eb838f7e0713221472", null ],
+    [ "union3D", "a00027.html#a114f9da944bbe248a6c980a3ddc4199a", null ],
     [ "within", "a00027.html#a0d0151f88839ffd9643b4b346b1fad0e", null ],
     [ "withinDistance", "a00027.html#acdeee1c4ef1e410e9d0050a6f4d5bc89", null ],
     [ "x", "a00027.html#a9665010805c7f1f81c76ed055a756ccc", null ],

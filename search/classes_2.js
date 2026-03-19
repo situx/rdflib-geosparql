@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['srsutils_0',['SRSUtils',['../a00036.html',1,'geosparql::geosparql']]]
+  ['literalutils_0',['LiteralUtils',['../a00040.html',1,'geosparql::geosparql']]]
 ];

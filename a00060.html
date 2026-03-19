@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Doxygen Awesome" />
 <meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
 <!-- END twitter metadata -->
-<title>RDFLib GeoSPARQL: AggConcaveHull Class Reference</title>
+<title>RDFLib GeoSPARQL: AggCollect Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
 <script type="text/javascript" src="jquery.js"></script>
@@ -134,27 +134,27 @@ $(document).ready(function(){initNavTree('a00060.html',''); initResizable(); });
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="a00057.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">AggConcaveHull Class Reference</div></div>
+  <div class="headertitle"><div class="title">AggCollect Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="dynheader">
-Inheritance diagram for AggConcaveHull:</div>
+Inheritance diagram for AggCollect:</div>
 <div class="dyncontent">
-<div class="center"><img src="a00059.png" border="0" usemap="#aAggConcaveHull_inherit__map" alt="Inheritance graph"/></div>
-<map name="aAggConcaveHull_inherit__map" id="aAggConcaveHull_inherit__map">
-<area shape="rect" title=" " alt="" coords="5,79,135,104"/>
-<area shape="rect" title=" " alt="" coords="18,5,122,31"/>
-<area shape="poly" title=" " alt="" coords="73,44,73,79,67,79,67,44"/>
+<div class="center"><img src="a00059.png" border="0" usemap="#aAggCollect_inherit__map" alt="Inheritance graph"/></div>
+<map name="aAggCollect_inherit__map" id="aAggCollect_inherit__map">
+<area shape="rect" title=" " alt="" coords="11,79,103,104"/>
+<area shape="rect" title=" " alt="" coords="5,5,109,31"/>
+<area shape="poly" title=" " alt="" coords="60,44,60,79,55,79,55,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <div class="dynheader">
-Collaboration diagram for AggConcaveHull:</div>
+Collaboration diagram for AggCollect:</div>
 <div class="dyncontent">
-<div class="center"><img src="a00058.png" border="0" usemap="#aAggConcaveHull_coll__map" alt="Collaboration graph"/></div>
-<map name="aAggConcaveHull_coll__map" id="aAggConcaveHull_coll__map">
-<area shape="rect" title=" " alt="" coords="5,79,135,104"/>
-<area shape="rect" title=" " alt="" coords="18,5,122,31"/>
-<area shape="poly" title=" " alt="" coords="73,44,73,79,67,79,67,44"/>
+<div class="center"><img src="a00058.png" border="0" usemap="#aAggCollect_coll__map" alt="Collaboration graph"/></div>
+<map name="aAggCollect_coll__map" id="aAggCollect_coll__map">
+<area shape="rect" title=" " alt="" coords="11,79,103,104"/>
+<area shape="rect" title=" " alt="" coords="5,5,109,31"/>
+<area shape="poly" title=" " alt="" coords="60,44,60,79,55,79,55,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -200,15 +200,15 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  176</span>    <span class="keyword">def </span>__init__(self, aggregation: CompValue):</div>
-<div class="line"><span class="lineno">  177</span>        super(AggConcaveHull, self).__init__(aggregation)</div>
-<div class="line"><span class="lineno">  178</span>        self.value = shapely.empty(2)</div>
-<div class="line"><span class="lineno">  179</span>        self.datatype = <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#wktLiteral&quot;</span></div>
-<div class="line"><span class="lineno">  180</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  149</span>    <span class="keyword">def </span>__init__(self, aggregation: CompValue):</div>
+<div class="line"><span class="lineno">  150</span>        super(AggCollect, self).__init__(aggregation)</div>
+<div class="line"><span class="lineno">  151</span>        self.value = []</div>
+<div class="line"><span class="lineno">  152</span>        self.datatype = <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#wktLiteral&quot;</span></div>
+<div class="line"><span class="lineno">  153</span> </div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="a00060.html#a6863b95e546395d63501271ed5d48295">AggConcaveHull.__init__()</a>.</p>
+<p class="reference">References <a class="el" href="a00060.html#a6863b95e546395d63501271ed5d48295">AggCollect.__init__()</a>.</p>
 
-<p class="reference">Referenced by <a class="el" href="a00060.html#a6863b95e546395d63501271ed5d48295">AggConcaveHull.__init__()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="a00060.html#a6863b95e546395d63501271ed5d48295">AggCollect.__init__()</a>.</p>
 
 </div>
 </div>
@@ -228,11 +228,11 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  199</span>    <span class="keyword">def </span>get_value(self) -&gt; Literal:</div>
-<div class="line"><span class="lineno">  200</span>        <span class="keywordflow">return</span> Literal(shapely.concave_hull(self.value).to_wkt, datatype=self.datatype)</div>
-<div class="line"><span class="lineno">  201</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  172</span>    <span class="keyword">def </span>get_value(self) -&gt; Literal:</div>
+<div class="line"><span class="lineno">  173</span>        <span class="keywordflow">return</span> Literal(shapely.to_wkt(shapely.GeometryCollection(self.value)), datatype=self.datatype)</div>
+<div class="line"><span class="lineno">  174</span> </div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="a00044.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingBox.datatype</a>, <a class="el" href="a00048.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingCircle.datatype</a>, <a class="el" href="a00052.html#a72c1a52c82efe10f87620b64ae746370">AggCentroid.datatype</a>, <a class="el" href="a00056.html#a72c1a52c82efe10f87620b64ae746370">AggCollect.datatype</a>, <a class="el" href="a00060.html#a72c1a52c82efe10f87620b64ae746370">AggConcaveHull.datatype</a>, <a class="el" href="a00064.html#a72c1a52c82efe10f87620b64ae746370">AggConvexHull.datatype</a>, <a class="el" href="a00068.html#a72c1a52c82efe10f87620b64ae746370">AggUnion.datatype</a>, <a class="el" href="a00044.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingBox.value</a>, <a class="el" href="a00048.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingCircle.value</a>, <a class="el" href="a00052.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCentroid.value</a>, <a class="el" href="a00056.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCollect.value</a>, <a class="el" href="a00060.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConcaveHull.value</a>, <a class="el" href="a00064.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConvexHull.value</a>, and <a class="el" href="a00068.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggUnion.value</a>.</p>
+<p class="reference">References <a class="el" href="a00048.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingBox.datatype</a>, <a class="el" href="a00052.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingCircle.datatype</a>, <a class="el" href="a00056.html#a72c1a52c82efe10f87620b64ae746370">AggCentroid.datatype</a>, <a class="el" href="a00060.html#a72c1a52c82efe10f87620b64ae746370">AggCollect.datatype</a>, <a class="el" href="a00064.html#a72c1a52c82efe10f87620b64ae746370">AggConcaveHull.datatype</a>, <a class="el" href="a00068.html#a72c1a52c82efe10f87620b64ae746370">AggConvexHull.datatype</a>, <a class="el" href="a00072.html#a72c1a52c82efe10f87620b64ae746370">AggUnion.datatype</a>, <a class="el" href="a00048.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingBox.value</a>, <a class="el" href="a00052.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingCircle.value</a>, <a class="el" href="a00056.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCentroid.value</a>, <a class="el" href="a00060.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCollect.value</a>, <a class="el" href="a00064.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConcaveHull.value</a>, <a class="el" href="a00068.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConvexHull.value</a>, and <a class="el" href="a00072.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggUnion.value</a>.</p>
 
 </div>
 </div>
@@ -267,26 +267,26 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  181</span>    <span class="keyword">def </span>update(self, row: FrozenBindings, aggregator: Aggregator) -&gt; <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno">  182</span>        <span class="keywordflow">try</span>:</div>
-<div class="line"><span class="lineno">  183</span>            value = _eval(self.expr, row)</div>
-<div class="line"><span class="lineno">  184</span>            dt = self.datatype</div>
-<div class="line"><span class="lineno">  185</span>            <span class="keywordflow">if</span> dt <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno">  186</span>                dt = value.datatype</div>
-<div class="line"><span class="lineno">  187</span>            <span class="keywordflow">else</span>:</div>
-<div class="line"><span class="lineno">  188</span>                <span class="comment"># type error: Argument 1 to &quot;type_promotion&quot; has incompatible type &quot;str&quot;; expected &quot;URIRef&quot;</span></div>
-<div class="line"><span class="lineno">  189</span>                dt = type_promotion(dt, value.datatype)  <span class="comment"># type: ignore[arg-type]</span></div>
-<div class="line"><span class="lineno">  190</span>            self.datatype = dt</div>
-<div class="line"><span class="lineno">  191</span>            thegeom=processLiteralTypeToGeom(value)</div>
-<div class="line"><span class="lineno">  192</span>            self.value = shapely.union(self.value,thegeom)</div>
-<div class="line"><span class="lineno">  193</span>            <span class="keywordflow">if</span> self.distinct:</div>
-<div class="line"><span class="lineno">  194</span>                self.seen.add(value)</div>
-<div class="line"><span class="lineno">  195</span>        <span class="keywordflow">except</span> NotBoundError:</div>
-<div class="line"><span class="lineno">  196</span>            <span class="comment"># skip UNDEF</span></div>
-<div class="line"><span class="lineno">  197</span>            <span class="keywordflow">pass</span></div>
-<div class="line"><span class="lineno">  198</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  154</span>    <span class="keyword">def </span>update(self, row: FrozenBindings, aggregator: Aggregator) -&gt; <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno">  155</span>        <span class="keywordflow">try</span>:</div>
+<div class="line"><span class="lineno">  156</span>            value = _eval(self.expr, row)</div>
+<div class="line"><span class="lineno">  157</span>            dt = self.datatype</div>
+<div class="line"><span class="lineno">  158</span>            <span class="keywordflow">if</span> dt <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno">  159</span>                dt = value.datatype</div>
+<div class="line"><span class="lineno">  160</span>            <span class="keywordflow">else</span>:</div>
+<div class="line"><span class="lineno">  161</span>                <span class="comment"># type error: Argument 1 to &quot;type_promotion&quot; has incompatible type &quot;str&quot;; expected &quot;URIRef&quot;</span></div>
+<div class="line"><span class="lineno">  162</span>                dt = type_promotion(dt, value.datatype)  <span class="comment"># type: ignore[arg-type]</span></div>
+<div class="line"><span class="lineno">  163</span>            self.datatype = dt</div>
+<div class="line"><span class="lineno">  164</span>            thegeom=processLiteralTypeToGeom(value)</div>
+<div class="line"><span class="lineno">  165</span>            self.value.append(thegeom)</div>
+<div class="line"><span class="lineno">  166</span>            <span class="keywordflow">if</span> self.distinct:</div>
+<div class="line"><span class="lineno">  167</span>                self.seen.add(value)</div>
+<div class="line"><span class="lineno">  168</span>        <span class="keywordflow">except</span> NotBoundError:</div>
+<div class="line"><span class="lineno">  169</span>            <span class="comment"># skip UNDEF</span></div>
+<div class="line"><span class="lineno">  170</span>            <span class="keywordflow">pass</span></div>
+<div class="line"><span class="lineno">  171</span> </div>
 </div><!-- fragment -->
-<p class="reference">References <a class="el" href="a00044.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingBox.datatype</a>, <a class="el" href="a00048.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingCircle.datatype</a>, <a class="el" href="a00052.html#a72c1a52c82efe10f87620b64ae746370">AggCentroid.datatype</a>, <a class="el" href="a00056.html#a72c1a52c82efe10f87620b64ae746370">AggCollect.datatype</a>, <a class="el" href="a00060.html#a72c1a52c82efe10f87620b64ae746370">AggConcaveHull.datatype</a>, <a class="el" href="a00064.html#a72c1a52c82efe10f87620b64ae746370">AggConvexHull.datatype</a>, <a class="el" href="a00068.html#a72c1a52c82efe10f87620b64ae746370">AggUnion.datatype</a>, <a class="el" href="a00028.html#a2841b4b9fc82867b9e4313de39904308">geosparql.geosparql_aggregates.processLiteralTypeToGeom()</a>, <a class="el" href="a00044.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingBox.value</a>, <a class="el" href="a00048.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingCircle.value</a>, <a class="el" href="a00052.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCentroid.value</a>, <a class="el" href="a00056.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCollect.value</a>, <a class="el" href="a00060.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConcaveHull.value</a>, <a class="el" href="a00064.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConvexHull.value</a>, and <a class="el" href="a00068.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggUnion.value</a>.</p>
+<p class="reference">References <a class="el" href="a00048.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingBox.datatype</a>, <a class="el" href="a00052.html#a72c1a52c82efe10f87620b64ae746370">AggBoundingCircle.datatype</a>, <a class="el" href="a00056.html#a72c1a52c82efe10f87620b64ae746370">AggCentroid.datatype</a>, <a class="el" href="a00060.html#a72c1a52c82efe10f87620b64ae746370">AggCollect.datatype</a>, <a class="el" href="a00064.html#a72c1a52c82efe10f87620b64ae746370">AggConcaveHull.datatype</a>, <a class="el" href="a00068.html#a72c1a52c82efe10f87620b64ae746370">AggConvexHull.datatype</a>, <a class="el" href="a00072.html#a72c1a52c82efe10f87620b64ae746370">AggUnion.datatype</a>, <a class="el" href="a00028.html#a2841b4b9fc82867b9e4313de39904308">geosparql.geosparql_aggregates.processLiteralTypeToGeom()</a>, <a class="el" href="a00048.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingBox.value</a>, <a class="el" href="a00052.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggBoundingCircle.value</a>, <a class="el" href="a00056.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCentroid.value</a>, <a class="el" href="a00060.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggCollect.value</a>, <a class="el" href="a00064.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConcaveHull.value</a>, <a class="el" href="a00068.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggConvexHull.value</a>, and <a class="el" href="a00072.html#afcc7a4b78ecd8fa7e713f8cfa0f51017">AggUnion.value</a>.</p>
 
 </div>
 </div>
@@ -303,7 +303,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="reference">Referenced by <a class="el" href="a00044.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingBox.get_value()</a>, <a class="el" href="a00048.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingCircle.get_value()</a>, <a class="el" href="a00052.html#a55413a8a2a746bbd8c037628498c2341">AggCentroid.get_value()</a>, <a class="el" href="a00056.html#a55413a8a2a746bbd8c037628498c2341">AggCollect.get_value()</a>, <a class="el" href="a00060.html#a55413a8a2a746bbd8c037628498c2341">AggConcaveHull.get_value()</a>, <a class="el" href="a00064.html#a55413a8a2a746bbd8c037628498c2341">AggConvexHull.get_value()</a>, <a class="el" href="a00068.html#a55413a8a2a746bbd8c037628498c2341">AggUnion.get_value()</a>, <a class="el" href="a00044.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingBox.update()</a>, <a class="el" href="a00048.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingCircle.update()</a>, <a class="el" href="a00052.html#a9e8fa3105eed595ed428239e266faac3">AggCentroid.update()</a>, <a class="el" href="a00056.html#a9e8fa3105eed595ed428239e266faac3">AggCollect.update()</a>, <a class="el" href="a00060.html#a9e8fa3105eed595ed428239e266faac3">AggConcaveHull.update()</a>, <a class="el" href="a00064.html#a9e8fa3105eed595ed428239e266faac3">AggConvexHull.update()</a>, and <a class="el" href="a00068.html#a9e8fa3105eed595ed428239e266faac3">AggUnion.update()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="a00048.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingBox.get_value()</a>, <a class="el" href="a00052.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingCircle.get_value()</a>, <a class="el" href="a00056.html#a55413a8a2a746bbd8c037628498c2341">AggCentroid.get_value()</a>, <a class="el" href="a00060.html#a55413a8a2a746bbd8c037628498c2341">AggCollect.get_value()</a>, <a class="el" href="a00064.html#a55413a8a2a746bbd8c037628498c2341">AggConcaveHull.get_value()</a>, <a class="el" href="a00068.html#a55413a8a2a746bbd8c037628498c2341">AggConvexHull.get_value()</a>, <a class="el" href="a00072.html#a55413a8a2a746bbd8c037628498c2341">AggUnion.get_value()</a>, <a class="el" href="a00048.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingBox.update()</a>, <a class="el" href="a00052.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingCircle.update()</a>, <a class="el" href="a00056.html#a9e8fa3105eed595ed428239e266faac3">AggCentroid.update()</a>, <a class="el" href="a00060.html#a9e8fa3105eed595ed428239e266faac3">AggCollect.update()</a>, <a class="el" href="a00064.html#a9e8fa3105eed595ed428239e266faac3">AggConcaveHull.update()</a>, <a class="el" href="a00068.html#a9e8fa3105eed595ed428239e266faac3">AggConvexHull.update()</a>, and <a class="el" href="a00072.html#a9e8fa3105eed595ed428239e266faac3">AggUnion.update()</a>.</p>
 
 </div>
 </div>
@@ -319,7 +319,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="reference">Referenced by <a class="el" href="a00044.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingBox.get_value()</a>, <a class="el" href="a00048.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingCircle.get_value()</a>, <a class="el" href="a00052.html#a55413a8a2a746bbd8c037628498c2341">AggCentroid.get_value()</a>, <a class="el" href="a00056.html#a55413a8a2a746bbd8c037628498c2341">AggCollect.get_value()</a>, <a class="el" href="a00060.html#a55413a8a2a746bbd8c037628498c2341">AggConcaveHull.get_value()</a>, <a class="el" href="a00064.html#a55413a8a2a746bbd8c037628498c2341">AggConvexHull.get_value()</a>, <a class="el" href="a00068.html#a55413a8a2a746bbd8c037628498c2341">AggUnion.get_value()</a>, <a class="el" href="a00044.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingBox.update()</a>, <a class="el" href="a00048.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingCircle.update()</a>, <a class="el" href="a00052.html#a9e8fa3105eed595ed428239e266faac3">AggCentroid.update()</a>, <a class="el" href="a00056.html#a9e8fa3105eed595ed428239e266faac3">AggCollect.update()</a>, <a class="el" href="a00060.html#a9e8fa3105eed595ed428239e266faac3">AggConcaveHull.update()</a>, <a class="el" href="a00064.html#a9e8fa3105eed595ed428239e266faac3">AggConvexHull.update()</a>, and <a class="el" href="a00068.html#a9e8fa3105eed595ed428239e266faac3">AggUnion.update()</a>.</p>
+<p class="reference">Referenced by <a class="el" href="a00048.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingBox.get_value()</a>, <a class="el" href="a00052.html#a55413a8a2a746bbd8c037628498c2341">AggBoundingCircle.get_value()</a>, <a class="el" href="a00056.html#a55413a8a2a746bbd8c037628498c2341">AggCentroid.get_value()</a>, <a class="el" href="a00060.html#a55413a8a2a746bbd8c037628498c2341">AggCollect.get_value()</a>, <a class="el" href="a00064.html#a55413a8a2a746bbd8c037628498c2341">AggConcaveHull.get_value()</a>, <a class="el" href="a00068.html#a55413a8a2a746bbd8c037628498c2341">AggConvexHull.get_value()</a>, <a class="el" href="a00072.html#a55413a8a2a746bbd8c037628498c2341">AggUnion.get_value()</a>, <a class="el" href="a00048.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingBox.update()</a>, <a class="el" href="a00052.html#a9e8fa3105eed595ed428239e266faac3">AggBoundingCircle.update()</a>, <a class="el" href="a00056.html#a9e8fa3105eed595ed428239e266faac3">AggCentroid.update()</a>, <a class="el" href="a00060.html#a9e8fa3105eed595ed428239e266faac3">AggCollect.update()</a>, <a class="el" href="a00064.html#a9e8fa3105eed595ed428239e266faac3">AggConcaveHull.update()</a>, <a class="el" href="a00068.html#a9e8fa3105eed595ed428239e266faac3">AggConvexHull.update()</a>, and <a class="el" href="a00072.html#a9e8fa3105eed595ed428239e266faac3">AggUnion.update()</a>.</p>
 
 </div>
 </div>
@@ -329,7 +329,7 @@ Public Attributes</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="a00026.html">geosparql</a></li><li class="navelem"><a class="el" href="a00028.html">geosparql_aggregates</a></li><li class="navelem"><a class="el" href="a00060.html">AggConcaveHull</a></li>
+    <li class="navelem"><a class="el" href="a00026.html">geosparql</a></li><li class="navelem"><a class="el" href="a00028.html">geosparql_aggregates</a></li><li class="navelem"><a class="el" href="a00060.html">AggCollect</a></li>
     <li class="footer">Generated by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.9.8 </li>

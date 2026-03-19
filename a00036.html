@@ -145,9 +145,9 @@ Collaboration diagram for SRSUtils:</div>
 <div class="dyncontent">
 <div class="center"><img src="a00034.png" border="0" usemap="#aSRSUtils_coll__map" alt="Collaboration graph"/></div>
 <map name="aSRSUtils_coll__map" id="aSRSUtils_coll__map">
-<area shape="rect" title="Utilities to get attributes from SRS." alt="" coords="5,108,83,133"/>
+<area shape="rect" title="Utilities to get attributes from SRS." alt="" coords="5,123,83,148"/>
 <area shape="rect" title=" " alt="" coords="21,5,67,31"/>
-<area shape="poly" title=" " alt="" coords="47,45,47,108,41,108,41,45"/>
+<area shape="poly" title=" " alt="" coords="47,44,47,123,41,123,41,44"/>
 </map>
 <center><span class="legend">[<a target="top" href="graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -166,6 +166,8 @@ Static Public Attributes</h2></td></tr>
 <tr class="separator:a009eab35dec59c6e2478138e6faf239c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f15a94ae4b0de3b1d4e7d140724a4e7" id="r_a7f15a94ae4b0de3b1d4e7d140724a4e7"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00036.html#a7f15a94ae4b0de3b1d4e7d140724a4e7">unitsshort</a></td></tr>
 <tr class="separator:a7f15a94ae4b0de3b1d4e7d140724a4e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab650c217c844484f57789c451f339cb2" id="r_ab650c217c844484f57789c451f339cb2"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00036.html#ab650c217c844484f57789c451f339cb2">uniturisToPint</a></td></tr>
+<tr class="separator:ab650c217c844484f57789c451f339cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c1f2af53b3071c55da0e08a8894105a" id="r_a0c1f2af53b3071c55da0e08a8894105a"><td class="memItemLeft" align="right" valign="top">dict&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00036.html#a0c1f2af53b3071c55da0e08a8894105a">uniturisToUnit</a></td></tr>
 <tr class="separator:a0c1f2af53b3071c55da0e08a8894105a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -211,13 +213,13 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  205</span>    <span class="keyword">def </span>convertMetricToUnit(thevalue,metricunit,targetunit):</div>
-<div class="line"><span class="lineno">  206</span>        <span class="keywordflow">if</span> metricunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit <span class="keywordflow">and</span> targetunit <span class="keywordflow">in</span> SRSUtils.uniturisToUnit:</div>
-<div class="line"><span class="lineno">  207</span>            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit])</div>
-<div class="line"><span class="lineno">  208</span>            thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToUnit[metricunit]))</div>
-<div class="line"><span class="lineno">  209</span>            <span class="keywordflow">return</span> thevalue_withunit.magnitude</div>
-<div class="line"><span class="lineno">  210</span> </div>
-<div class="line"><span class="lineno">  211</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  245</span>    <span class="keyword">def </span>convertMetricToUnit(thevalue,metricunit,targetunit):</div>
+<div class="line"><span class="lineno">  246</span>        <span class="keywordflow">if</span> metricunit <span class="keywordflow">in</span> SRSUtils.uniturisToPint <span class="keywordflow">and</span> targetunit <span class="keywordflow">in</span> SRSUtils.uniturisToPint:</div>
+<div class="line"><span class="lineno">  247</span>            thevalue_withunit=thevalue*SRSUtils.ureg.parse_expression(SRSUtils.uniturisToPint[metricunit])</div>
+<div class="line"><span class="lineno">  248</span>            <span class="keywordflow">return</span> thevalue_withunit.to(SRSUtils.ureg.parse_expression(SRSUtils.uniturisToPint[targetunit]).units).magnitude</div>
+<div class="line"><span class="lineno">  249</span>        <span class="keywordflow">return</span> <span class="keywordtype">None</span></div>
+<div class="line"><span class="lineno">  250</span> </div>
+<div class="line"><span class="lineno">  251</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -244,14 +246,14 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  196</span>    <span class="keyword">def </span>getEastingFromSRS(srsuri):</div>
-<div class="line"><span class="lineno">  197</span>        curcrs = CRS.from_epsg(srsuri)</div>
-<div class="line"><span class="lineno">  198</span>        unitres = []</div>
-<div class="line"><span class="lineno">  199</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
-<div class="line"><span class="lineno">  200</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
-<div class="line"><span class="lineno">  201</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
-<div class="line"><span class="lineno">  202</span>        <span class="keywordflow">return</span> unitres</div>
-<div class="line"><span class="lineno">  203</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  236</span>    <span class="keyword">def </span>getEastingFromSRS(srsuri):</div>
+<div class="line"><span class="lineno">  237</span>        curcrs = CRS.from_epsg(srsuri)</div>
+<div class="line"><span class="lineno">  238</span>        unitres = []</div>
+<div class="line"><span class="lineno">  239</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
+<div class="line"><span class="lineno">  240</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
+<div class="line"><span class="lineno">  241</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
+<div class="line"><span class="lineno">  242</span>        <span class="keywordflow">return</span> unitres</div>
+<div class="line"><span class="lineno">  243</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -278,14 +280,14 @@ Static Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<div class="fragment"><div class="line"><span class="lineno">  187</span>    <span class="keyword">def </span>getUnitsFromSRS(srsuri):</div>
-<div class="line"><span class="lineno">  188</span>        curcrs = CRS.from_epsg(srsuri)</div>
-<div class="line"><span class="lineno">  189</span>        unitres = []</div>
-<div class="line"><span class="lineno">  190</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
-<div class="line"><span class="lineno">  191</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
-<div class="line"><span class="lineno">  192</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
-<div class="line"><span class="lineno">  193</span>        <span class="keywordflow">return</span> unitres</div>
-<div class="line"><span class="lineno">  194</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  227</span>    <span class="keyword">def </span>getUnitsFromSRS(srsuri):</div>
+<div class="line"><span class="lineno">  228</span>        curcrs = CRS.from_epsg(srsuri)</div>
+<div class="line"><span class="lineno">  229</span>        unitres = []</div>
+<div class="line"><span class="lineno">  230</span>        <span class="keywordflow">for</span> ax <span class="keywordflow">in</span> curcrs.coordinate_system.axis_list:</div>
+<div class="line"><span class="lineno">  231</span>            <span class="keywordflow">if</span> ax.unit_name <span class="keywordflow">in</span> SRSUtils.unitsshort:</div>
+<div class="line"><span class="lineno">  232</span>                unitres.append(SRSUtils.ureg.parse_expression(SRSUtils.unitsshort[ax.unit_name].replace(<span class="stringliteral">&quot;om:&quot;</span>, <span class="stringliteral">&quot;&quot;</span>)))</div>
+<div class="line"><span class="lineno">  233</span>        <span class="keywordflow">return</span> unitres</div>
+<div class="line"><span class="lineno">  234</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -320,6 +322,49 @@ Static Public Attributes</h2></td></tr>
 </div><!-- fragment -->
 </div>
 </div>
+<a id="ab650c217c844484f57789c451f339cb2" name="ab650c217c844484f57789c451f339cb2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab650c217c844484f57789c451f339cb2">&#9670;&#160;</a></span>uniturisToPint</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">dict uniturisToPint</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/AC&quot;</span>:<span class="stringliteral">&quot;acre&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/MI&quot;</span>:<span class="stringliteral">&quot;mile&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M2&quot;</span>: <span class="stringliteral">&quot;meter ** 2&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M3&quot;</span>: <span class="stringliteral">&quot;meter ** 3&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.opengis.net/def/uom/OGC/1.0/meter&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://dbpedia.org/resource/Metre&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q81292&quot;</span>:<span class="stringliteral">&quot;acre&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q192624&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q25343&quot;</span>:<span class="stringliteral">&quot;meter ** 2&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/wiki/Q25517&quot;</span>:<span class="stringliteral">&quot;meter ** 3&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q828224&quot;</span>:<span class="stringliteral">&quot;kilometer&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q253276&quot;</span>: <span class="stringliteral">&quot;mile&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;https://si-digital-framework.org/SI/units/metre&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/degree&quot;</span>: <span class="stringliteral">&quot;degree&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/kilometer&quot;</span>: <span class="stringliteral">&quot;kilometer&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/meter&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/metre&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/mile&quot;</span>: <span class="stringliteral">&quot;mile&quot;</span>,</div>
+<div class="line">    }</div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a0c1f2af53b3071c55da0e08a8894105a" name="a0c1f2af53b3071c55da0e08a8894105a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0c1f2af53b3071c55da0e08a8894105a">&#9670;&#160;</a></span>uniturisToUnit</h2>
 
@@ -342,6 +387,23 @@ Static Public Attributes</h2></td></tr>
 <b>Initial value:</b><div class="fragment"><div class="line">= {</div>
 <div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/AC&quot;</span>:<span class="stringliteral">&quot;acre&quot;</span>,</div>
 <div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/MI&quot;</span>:<span class="stringliteral">&quot;mile&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M2&quot;</span>: <span class="stringliteral">&quot;squaremeter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://qudt.org/vocab/unit/M3&quot;</span>: <span class="stringliteral">&quot;cubicmeter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.opengis.net/def/uom/OGC/1.0/meter&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://dbpedia.org/resource/Metre&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q81292&quot;</span>:<span class="stringliteral">&quot;acre&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q192624&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q25343&quot;</span>:<span class="stringliteral">&quot;squaremeter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/wiki/Q25517&quot;</span>:<span class="stringliteral">&quot;cubicmeter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q828224&quot;</span>:<span class="stringliteral">&quot;kilometer&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.wikidata.org/entity/Q253276&quot;</span>: <span class="stringliteral">&quot;mile&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;https://si-digital-framework.org/SI/units/metre&quot;</span>:<span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/degree&quot;</span>: <span class="stringliteral">&quot;degree&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/kilometer&quot;</span>: <span class="stringliteral">&quot;kilometer&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/meter&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/metre&quot;</span>: <span class="stringliteral">&quot;meter&quot;</span>,</div>
+<div class="line">        <span class="stringliteral">&quot;http://www.ontology-of-units-of-measure.org/resource/om-2/mile&quot;</span>: <span class="stringliteral">&quot;mile&quot;</span>,</div>
 <div class="line">    }</div>
 </div><!-- fragment -->
 </div>
