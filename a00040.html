@@ -564,35 +564,37 @@ Static Public Attributes</h2></td></tr>
 <div class="line"><span class="lineno">  558</span>            <span class="keywordflow">return</span> Literal(<span class="stringliteral">&quot;&lt;kml xmlns=\&quot;http://www.opengis.net/kml/2.2\&quot;&gt;&lt;Placemark&gt;&quot;</span> + str(fastkml.geometry.create_kml_geometry(geom)) + <span class="stringliteral">&quot;&lt;/Placemark&gt;&lt;/kml&gt;&quot;</span>, datatype=literaltype)</div>
 <div class="line"><span class="lineno">  559</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#wkbLiteral&quot;</span>:</div>
 <div class="line"><span class="lineno">  560</span>            <span class="keywordflow">return</span> Literal(str(geom.wkb_hex), datatype=literaltype)</div>
-<div class="line"><span class="lineno">  561</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#plyLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  562</span>            bio = BytesIO()</div>
-<div class="line"><span class="lineno">  563</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;ply&quot;</span>, encoding=<span class="stringliteral">&#39;ascii&#39;</span>)</div>
-<div class="line"><span class="lineno">  564</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
-<div class="line"><span class="lineno">  565</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
-<div class="line"><span class="lineno">  566</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#objLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  567</span>            bio = BytesIO()</div>
-<div class="line"><span class="lineno">  568</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;obj&quot;</span>, encoding=<span class="stringliteral">&#39;ascii&#39;</span>)</div>
-<div class="line"><span class="lineno">  569</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
-<div class="line"><span class="lineno">  570</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
-<div class="line"><span class="lineno">  571</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#xyzLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  572</span>            bio = BytesIO()</div>
-<div class="line"><span class="lineno">  573</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;xyz&quot;</span>)</div>
-<div class="line"><span class="lineno">  574</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
-<div class="line"><span class="lineno">  575</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
-<div class="line"><span class="lineno">  576</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#gltfLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  577</span>            bio = BytesIO()</div>
-<div class="line"><span class="lineno">  578</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;gltf&quot;</span>)</div>
-<div class="line"><span class="lineno">  579</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
-<div class="line"><span class="lineno">  580</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
-<div class="line"><span class="lineno">  581</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#dggsLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  582</span>            <span class="keywordflow">return</span> Literal(Transformers.transformToDGGS(geom,thegeomsrs),datatype=literaltype)</div>
-<div class="line"><span class="lineno">  583</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#geocodeLiteral&quot;</span>:</div>
-<div class="line"><span class="lineno">  584</span>            <span class="keywordflow">return</span> Literal(Transformers.transformToGeocode(geom,thegeomsrs),datatype=literaltype)</div>
-<div class="line"><span class="lineno">  585</span>        <span class="keywordflow">else</span>:</div>
-<div class="line"><span class="lineno">  586</span>            <span class="keywordflow">raise</span> ValueError(</div>
-<div class="line"><span class="lineno">  587</span>                <span class="stringliteral">&quot;The literal type &quot;</span> + str(literaltype) + <span class="stringliteral">&quot; is not supported for geometry conversion!&quot;</span></div>
-<div class="line"><span class="lineno">  588</span>            )</div>
-<div class="line"><span class="lineno">  589</span> </div>
+<div class="line"><span class="lineno">  561</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#svgLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  562</span>            <span class="keywordflow">return</span> Literal(str(geom.svg()), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  563</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#plyLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  564</span>            bio = BytesIO()</div>
+<div class="line"><span class="lineno">  565</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;ply&quot;</span>, encoding=<span class="stringliteral">&#39;ascii&#39;</span>)</div>
+<div class="line"><span class="lineno">  566</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
+<div class="line"><span class="lineno">  567</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  568</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#objLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  569</span>            bio = BytesIO()</div>
+<div class="line"><span class="lineno">  570</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;obj&quot;</span>, encoding=<span class="stringliteral">&#39;ascii&#39;</span>)</div>
+<div class="line"><span class="lineno">  571</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
+<div class="line"><span class="lineno">  572</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  573</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#xyzLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  574</span>            bio = BytesIO()</div>
+<div class="line"><span class="lineno">  575</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;xyz&quot;</span>)</div>
+<div class="line"><span class="lineno">  576</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
+<div class="line"><span class="lineno">  577</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  578</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#gltfLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  579</span>            bio = BytesIO()</div>
+<div class="line"><span class="lineno">  580</span>            geom.export(bio, file_type=<span class="stringliteral">&quot;gltf&quot;</span>)</div>
+<div class="line"><span class="lineno">  581</span>            wrapper = TextIOWrapper(bio, encoding=<span class="stringliteral">&#39;utf-8&#39;</span>)</div>
+<div class="line"><span class="lineno">  582</span>            <span class="keywordflow">return</span> Literal(wrapper.read(), datatype=literaltype)</div>
+<div class="line"><span class="lineno">  583</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#dggsLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  584</span>            <span class="keywordflow">return</span> Literal(Transformers.transformToDGGS(geom,thegeomsrs),datatype=literaltype)</div>
+<div class="line"><span class="lineno">  585</span>        <span class="keywordflow">elif</span> ltype == <span class="stringliteral">&quot;http://www.opengis.net/ont/geosparql#geocodeLiteral&quot;</span>:</div>
+<div class="line"><span class="lineno">  586</span>            <span class="keywordflow">return</span> Literal(Transformers.transformToGeocode(geom,thegeomsrs),datatype=literaltype)</div>
+<div class="line"><span class="lineno">  587</span>        <span class="keywordflow">else</span>:</div>
+<div class="line"><span class="lineno">  588</span>            <span class="keywordflow">raise</span> ValueError(</div>
+<div class="line"><span class="lineno">  589</span>                <span class="stringliteral">&quot;The literal type &quot;</span> + str(literaltype) + <span class="stringliteral">&quot; is not supported for geometry conversion!&quot;</span></div>
+<div class="line"><span class="lineno">  590</span>            )</div>
+<div class="line"><span class="lineno">  591</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -920,23 +922,23 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>A list of geometries </dd></dl>
-<div class="fragment"><div class="line"><span class="lineno">  597</span>    <span class="keyword">def </span>processLiteralsToGeom(literals, normalize=False, normsrs=None, create3D=False):</div>
-<div class="line"><span class="lineno">  598</span>        geoms = []</div>
-<div class="line"><span class="lineno">  599</span>        first = <span class="keyword">True</span></div>
-<div class="line"><span class="lineno">  600</span>        <span class="keywordflow">for</span> lit <span class="keywordflow">in</span> literals:</div>
-<div class="line"><span class="lineno">  601</span>            <span class="keywordflow">if</span> isinstance(lit, Literal):</div>
-<div class="line"><span class="lineno">  602</span>                <span class="comment"># print(&quot;NormSRS: &quot;+str(normsrs))</span></div>
-<div class="line"><span class="lineno">  603</span>                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D=create3D, normsrs=normsrs)</div>
-<div class="line"><span class="lineno">  604</span>                <span class="comment"># print(g)</span></div>
-<div class="line"><span class="lineno">  605</span> </div>
-<div class="line"><span class="lineno">  606</span>                <span class="keywordflow">if</span> normalize <span class="keywordflow">and</span> first <span class="keywordflow">and</span> normsrs <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
-<div class="line"><span class="lineno">  607</span>                    normsrs = str(g[1])</div>
-<div class="line"><span class="lineno">  608</span>                    first = <span class="keyword">False</span></div>
-<div class="line"><span class="lineno">  609</span>                    <span class="comment"># g=(Transformers.transformToSRS(g[0], g[1], str(normsrs)), normsrs)</span></div>
-<div class="line"><span class="lineno">  610</span>                geoms.append(g)</div>
-<div class="line"><span class="lineno">  611</span>        <span class="comment"># print(geoms)</span></div>
-<div class="line"><span class="lineno">  612</span>        <span class="keywordflow">return</span> geoms</div>
-<div class="line"><span class="lineno">  613</span> </div>
+<div class="fragment"><div class="line"><span class="lineno">  599</span>    <span class="keyword">def </span>processLiteralsToGeom(literals, normalize=False, normsrs=None, create3D=False):</div>
+<div class="line"><span class="lineno">  600</span>        geoms = []</div>
+<div class="line"><span class="lineno">  601</span>        first = <span class="keyword">True</span></div>
+<div class="line"><span class="lineno">  602</span>        <span class="keywordflow">for</span> lit <span class="keywordflow">in</span> literals:</div>
+<div class="line"><span class="lineno">  603</span>            <span class="keywordflow">if</span> isinstance(lit, Literal):</div>
+<div class="line"><span class="lineno">  604</span>                <span class="comment"># print(&quot;NormSRS: &quot;+str(normsrs))</span></div>
+<div class="line"><span class="lineno">  605</span>                g = LiteralUtils.processLiteralTypeToGeom(lit, create3D=create3D, normsrs=normsrs)</div>
+<div class="line"><span class="lineno">  606</span>                <span class="comment"># print(g)</span></div>
+<div class="line"><span class="lineno">  607</span> </div>
+<div class="line"><span class="lineno">  608</span>                <span class="keywordflow">if</span> normalize <span class="keywordflow">and</span> first <span class="keywordflow">and</span> normsrs <span class="keywordflow">is</span> <span class="keywordtype">None</span>:</div>
+<div class="line"><span class="lineno">  609</span>                    normsrs = str(g[1])</div>
+<div class="line"><span class="lineno">  610</span>                    first = <span class="keyword">False</span></div>
+<div class="line"><span class="lineno">  611</span>                    <span class="comment"># g=(Transformers.transformToSRS(g[0], g[1], str(normsrs)), normsrs)</span></div>
+<div class="line"><span class="lineno">  612</span>                geoms.append(g)</div>
+<div class="line"><span class="lineno">  613</span>        <span class="comment"># print(geoms)</span></div>
+<div class="line"><span class="lineno">  614</span>        <span class="keywordflow">return</span> geoms</div>
+<div class="line"><span class="lineno">  615</span> </div>
 </div><!-- fragment -->
 </div>
 </div>

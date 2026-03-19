@@ -13,6 +13,7 @@ var a00023 =
     [ "asKML", "a00023.html#aa5cededc12afc41bad1513f249b92bfd", null ],
     [ "asOBJ", "a00023.html#a59773558de2c9f02e6e95207f0297255", null ],
     [ "asPLY", "a00023.html#a86706b865e8ee6937a43f1e4747c79cc", null ],
+    [ "asSVG", "a00023.html#a13a99012a7207d68d883dda42bc3aa54", null ],
     [ "asWKB", "a00023.html#a4440909d991c8d179b31a24a00f99c87", null ],
     [ "asWKT", "a00023.html#a5a179b5c5211cd6828622114f9734d92", null ],
     [ "asXYZ", "a00023.html#a6cff1fb754a78c4a85982669e061be72", null ],

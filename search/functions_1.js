@@ -9,8 +9,9 @@ var searchData=
   ['askml_6',['asKML',['../a00027.html#aa5cededc12afc41bad1513f249b92bfd',1,'geosparql::geosparql']]],
   ['asobj_7',['asOBJ',['../a00027.html#a59773558de2c9f02e6e95207f0297255',1,'geosparql::geosparql']]],
   ['asply_8',['asPLY',['../a00027.html#a86706b865e8ee6937a43f1e4747c79cc',1,'geosparql::geosparql']]],
-  ['aswkb_9',['asWKB',['../a00027.html#a4440909d991c8d179b31a24a00f99c87',1,'geosparql::geosparql']]],
-  ['aswkt_10',['asWKT',['../a00027.html#a5a179b5c5211cd6828622114f9734d92',1,'geosparql::geosparql']]],
-  ['asxyz_11',['asXYZ',['../a00027.html#a6cff1fb754a78c4a85982669e061be72',1,'geosparql::geosparql']]],
-  ['azimuth_12',['azimuth',['../a00027.html#a7ad3337a49e6416a9e49996d0e64699d',1,'geosparql::geosparql']]]
+  ['assvg_9',['asSVG',['../a00027.html#a13a99012a7207d68d883dda42bc3aa54',1,'geosparql::geosparql']]],
+  ['aswkb_10',['asWKB',['../a00027.html#a4440909d991c8d179b31a24a00f99c87',1,'geosparql::geosparql']]],
+  ['aswkt_11',['asWKT',['../a00027.html#a5a179b5c5211cd6828622114f9734d92',1,'geosparql::geosparql']]],
+  ['asxyz_12',['asXYZ',['../a00027.html#a6cff1fb754a78c4a85982669e061be72',1,'geosparql::geosparql']]],
+  ['azimuth_13',['azimuth',['../a00027.html#a7ad3337a49e6416a9e49996d0e64699d',1,'geosparql::geosparql']]]
 ];
