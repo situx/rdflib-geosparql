@@ -141,8 +141,71 @@ $(document).ready(function(){initNavTree('a00044.html',''); initResizable(); });
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a64719f0d9316642e90c60705f70f015a" id="r_a64719f0d9316642e90c60705f70f015a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00044.html#a64719f0d9316642e90c60705f70f015a">identityMatrix</a> (Literal a)</td></tr>
 <tr class="separator:a64719f0d9316642e90c60705f70f015a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dc5efbf597fd483723878d69bc25e99" id="r_a7dc5efbf597fd483723878d69bc25e99"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00044.html#a7dc5efbf597fd483723878d69bc25e99">distance3D</a> (geom1, geom2, minDist=True)</td></tr>
+<tr class="separator:a7dc5efbf597fd483723878d69bc25e99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7dc5efbf597fd483723878d69bc25e99" name="a7dc5efbf597fd483723878d69bc25e99"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dc5efbf597fd483723878d69bc25e99">&#9670;&#160;</a></span>distance3D()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">distance3D </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>geom1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>geom2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>minDist</em> = <code>True</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="fragment"><div class="line"><span class="lineno">  623</span>    <span class="keyword">def </span>distance3D(geom1,geom2,minDist=True):</div>
+<div class="line"><span class="lineno">  624</span>        g1list = shapely.get_coordinates(geom1, include_z=<span class="keyword">False</span>).tolist()</div>
+<div class="line"><span class="lineno">  625</span>        g2list = shapely.get_coordinates(geom2, include_z=<span class="keyword">False</span>).tolist()</div>
+<div class="line"><span class="lineno">  626</span>        <span class="keywordflow">if</span> minDist==<span class="keyword">False</span>:</div>
+<div class="line"><span class="lineno">  627</span>            distance = float(<span class="stringliteral">&quot;-inf&quot;</span>)</div>
+<div class="line"><span class="lineno">  628</span>        <span class="keywordflow">else</span>:</div>
+<div class="line"><span class="lineno">  629</span>            distance = float(<span class="stringliteral">&quot;inf&quot;</span>)</div>
+<div class="line"><span class="lineno">  630</span>        <span class="keywordflow">for</span> p1 <span class="keywordflow">in</span> g1list:</div>
+<div class="line"><span class="lineno">  631</span>            <span class="keywordflow">for</span> p2 <span class="keywordflow">in</span> g2list:</div>
+<div class="line"><span class="lineno">  632</span>                pt1=shapely.geometry.Point(p1)</div>
+<div class="line"><span class="lineno">  633</span>                pt2 = shapely.geometry.Point(p2)</div>
+<div class="line"><span class="lineno">  634</span>                dist=math.sqrt(((pt2.x-pt1.x)**2)+((pt2.y-pt1.y)**2)+((pt2.z-pt1.z)**2))</div>
+<div class="line"><span class="lineno">  635</span>                <span class="keywordflow">if</span> minDist <span class="keywordflow">and</span> dist &lt; distance:</div>
+<div class="line"><span class="lineno">  636</span>                    distance = dist</div>
+<div class="line"><span class="lineno">  637</span>                <span class="keywordflow">elif</span> <span class="keywordflow">not</span> minDist <span class="keywordflow">and</span> dist &gt; distance:</div>
+<div class="line"><span class="lineno">  638</span>                    distance=dist</div>
+<div class="line"><span class="lineno">  639</span>        <span class="keywordflow">return</span> distance</div>
+<div class="line"><span class="lineno">  640</span> </div>
+<div class="line"><span class="lineno">  641</span> </div>
+</div><!-- fragment -->
+</div>
+</div>
 <a id="a64719f0d9316642e90c60705f70f015a" name="a64719f0d9316642e90c60705f70f015a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a64719f0d9316642e90c60705f70f015a">&#9670;&#160;</a></span>identityMatrix()</h2>
 
@@ -169,7 +232,6 @@ Static Public Member Functions</h2></td></tr>
 <div class="fragment"><div class="line"><span class="lineno">  619</span>    <span class="keyword">def </span>identityMatrix(a: Literal):</div>
 <div class="line"><span class="lineno">  620</span>        print(<span class="stringliteral">&quot;&quot;</span>)</div>
 <div class="line"><span class="lineno">  621</span> </div>
-<div class="line"><span class="lineno">  622</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
