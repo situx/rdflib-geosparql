@@ -619,6 +619,25 @@ class Handling3D:
     def identityMatrix(a: Literal):
         print("")
 
+    @staticmethod
+    def distance3D(geom1,geom2,minDist=True):
+        g1list = shapely.get_coordinates(geom1, include_z=False).tolist()
+        g2list = shapely.get_coordinates(geom2, include_z=False).tolist()
+        if minDist==False:
+            distance = float("-inf")
+        else:
+            distance = float("inf")
+        for p1 in g1list:
+            for p2 in g2list:
+                pt1=shapely.geometry.Point(p1)
+                pt2 = shapely.geometry.Point(p2)
+                dist=math.sqrt(((pt2.x-pt1.x)**2)+((pt2.y-pt1.y)**2)+((pt2.z-pt1.z)**2))
+                if minDist and dist < distance:
+                    distance = dist
+                elif not minDist and dist > distance:
+                    distance=dist
+        return distance
+
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
@@ -957,8 +976,19 @@ def difference3D(a: Literal, b: Literal) -> Literal:
 def distance(a: Literal, b: Literal, units: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
+        if geoms[0].has_z and geoms[1].has_z:
+            return Literal(Handling3D.distance3D(geoms[0],geoms[1]), datatype=XSD.double)
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
 
+
+## Retrieves the distance between two geometries in 3D.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns The distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+def distance3D(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        return Literal(Handling3D.distance3D(geoms[0],geoms[1]), datatype=XSD.double)
 
 ## Extracts the last point of an input geometry.
 #  @param a The geometry literal
@@ -1122,6 +1152,14 @@ def inside(a: Literal, b: Literal) -> Literal:
         print(shapely.contains_properly(geoms[1], geoms[0]))
         return Literal(shapely.contains_properly(geoms[1], geoms[0]), datatype=XSD.boolean)
 
+## Returns a point interpolated at a given distance on a line.
+#  @param a The geometry literal
+#  @param d The distance
+#  @returns The interpolated point
+def interpolatePoint(a: Literal, d: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.line_interpolate_point(thegeom,float(str(d.value))), a.datatype)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/intersection">geof:intersection</a>: Calculates the intersection of two geometry literals.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1129,8 +1167,7 @@ def inside(a: Literal, b: Literal) -> Literal:
 def intersection(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
     if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.intersection(geomtps[0][0], geomtps[1][0]), a.datatype,
-                                                 geomtps[0][1])
+        return LiteralUtils.processGeomToLiteral(shapely.intersection(geomtps[0][0], geomtps[1][0]), a.datatype,geomtps[0][1])
 
 
 def intersection3D(a: Literal, b: Literal) -> Literal:
@@ -1938,6 +1975,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
     URIRef(GEOFEXT + "hausdorffDistance"): hausdorffDistance,
+    URIRef(GEOFEXT + "interpolatePoint"): interpolatePoint,
     URIRef(GEOFEXT + "intersection3D"): intersection3D,
     URIRef(GEOFEXT + "intersects3D"): intersects3D,
     URIRef(GEOFEXT + "isCCW"): isCCW,
