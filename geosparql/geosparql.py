@@ -638,6 +638,61 @@ class Handling3D:
                     distance=dist
         return distance
 
+    @staticmethod
+    def minZ(thegeom):
+        clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
+        flinf = float("inf")
+        minZ = flinf
+        for c in clist:
+            print(c)
+            if c[2] != nan and minZ > c[2]:
+                minZ = c[2]
+        if minZ == flinf:
+            minZ = "NaN"
+        return minZ
+
+    @staticmethod
+    def maxZ(thegeom):
+        clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
+        flinf = -float("inf")
+        maxZ = flinf
+        for c in clist:
+            if c[2] != nan and maxZ < c[2]:
+                maxZ = c[2]
+        if maxZ == flinf:
+            maxZ = "NaN"
+        return maxZ
+
+def range_overlap(start1, end1, start2, end2):
+    """how much does the range (start1, end1) overlap with (start2, end2)"""
+    return max(max((end2-start1), 0) - max((end2-end1), 0) - max((start2-start1), 0), 0)
+
+## Calculates whether the first geometry is above the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is above the second geometry
+def above(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].maxY>geom[1].minY
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds=shapely.total_bounds(geoms[1])
+        ro=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+        return Literal(ro>0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
+
+## Calculates whether the first 3D geometry is above the 3D second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is above the second geometry
+def above3D(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].maxY>geom[1].minY and
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds=shapely.total_bounds(geoms[1])
+        rox=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+        roz=range_overlap(Handling3D.minZ(geoms[0]),Handling3D.maxZ(geoms[0]),Handling3D.minZ(geoms[1]),Handling3D.maxZ(geoms[1]))
+        return Literal(rox>0 and roz>0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
@@ -785,6 +840,34 @@ def asWKT(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
 
+## Calculates whether the first geometry is below the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is below the second geometry
+def behind(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].maxZ<geom[1].minZ
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds = shapely.total_bounds(geoms[1])
+        rox=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+        roy=range_overlap(geom1bounds[1],geom1bounds[3],geom2bounds[1],geom2bounds[3])
+        geom1maxZ=Handling3D.maxZ(geoms[0])
+        geom2minZ=Handling3D.minZ(geoms[1])
+        return Literal(rox>0 and roy>0 and geom1maxZ<geom2minZ, datatype=XSD.boolean)
+
+## Calculates whether the first geometry is below the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is below the second geometry
+def below(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].maxY<geom[1].minY
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds=shapely.total_bounds(geoms[1])
+        ro=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+        return Literal(ro>0 and geom1bounds[3]<geom2bounds[1], datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>: Calculates the boundary of a geometry literal.
 #  @param a The geometry literal
@@ -1084,20 +1167,6 @@ def forceCCW(a: Literal) -> Literal:
     thegeom, thegeomsrs = a.value
     return Literal(shapely.orient_polygons(thegeom,exterior_cw=True), datatype=XSD.boolean)
 
-## Sets a clockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a counterclockwise orientation.
-#  @param a The geometry literal
-#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
-def forceCW(a: Literal) -> Literal:
-    thegeom, thegeomsrs = a.value
-    return Literal(shapely.orient_polygons(thegeom,exterior_cw=False), datatype=XSD.boolean)
-
-## Sets a counterclockwise ring orientation on the exterior ring of a polygon. Interior rings will be set to a clockwise orientation.
-#  @param a The geometry literal
-#  @returns The oriented polygon as a geometry literal in the CRS and literal format of the first input geometry
-def forceCCW(a: Literal) -> Literal:
-    thegeom, thegeomsrs = a.value
-    return Literal(shapely.orient_polygons(thegeom,exterior_cw=True), datatype=XSD.boolean)
-
 ## Calculates the FrechetDistance between two input geometries.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -1303,6 +1372,19 @@ def isValidTrajectory(a: Literal) -> Literal:
         return Literal(True, datatype=XSD.boolean)
     return Literal(False, datatype=XSD.boolean)
 
+## Calculates whether the first geometry is left of the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is left of the second geometry
+def leftOf(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].maxX<geom[1].minX
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds=shapely.total_bounds(geoms[1])
+        ro=range_overlap(geom1bounds[1],geom1bounds[3],geom2bounds[1],geom2bounds[3])
+        return Literal(ro>0 and shapely.total_bounds(geoms[0])[2]<shapely.total_bounds(geoms[1])[0], datatype=XSD.boolean)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/length">geof:length</a>: Retrieves the length of a geometry.
 #  @param a The geometry literal
 #  @param units The unit of measurement of the length as a URI
@@ -1420,15 +1502,7 @@ def maxY(a: Literal) -> Literal:
 #  @returns The maximum Z coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxZ(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
-    flinf = -float("inf")
-    maxZ = flinf
-    for c in clist:
-        if c[2] != nan and maxZ < c[2]:
-            maxZ = c[2]
-    if maxZ == flinf:
-        maxZ = "NaN"
-    return Literal(str(maxZ), datatype=XSD.double)
+    return Literal(str(Handling3D.maxZ(thegeom)), datatype=XSD.double)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricArea">geof:metricArea</a>: Calculates the area of a 2D geometry provided as a geometry literal in squaremeters.
 #  @param a The geometry literal.
@@ -1542,16 +1616,8 @@ def minY(a: Literal) -> Literal:
 #  @returns The minimum z coordinate as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def minZ(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    clist = shapely.get_coordinates(thegeom, include_z=True).tolist()
-    flinf = float("inf")
-    minZ = flinf
-    for c in clist:
-        print(c)
-        if c[2] != nan and minZ > c[2]:
-            minZ = c[2]
-    if minZ == flinf:
-        minZ = "NaN"
-    return Literal(str(minZ), datatype=XSD.double)
+    return Literal(str(Handling3D.minZ(thegeom)), datatype=XSD.double)
+
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numGeometries">geof:numGeometries</a>: Calculates the number of geometries included in the geometry literal.
@@ -1665,6 +1731,19 @@ def removeRepeatedPoints(a: Literal) -> Literal:
 def reverse(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.reverse(thegeom), a.datatype, thegeomsrs)
+
+## Calculates whether the first geometry is right of the second geometry.
+#  @param a The first geometry literal
+#  @param b The second geometry literal
+#  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is right of the second geometry
+def rightOf(a: Literal, b: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    if geoms[0] is not None and geoms[1] is not None:
+        #geom[0].minX>geom[1].maxX
+        geom1bounds=shapely.total_bounds(geoms[0])
+        geom2bounds=shapely.total_bounds(geoms[1])
+        ro=range_overlap(geom1bounds[1],geom1bounds[3],geom2bounds[1],geom2bounds[3])
+        return Literal(ro>0 and shapely.total_bounds(geoms[0])[0]>shapely.total_bounds(geoms[1])[2], datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
 #  @param a The first geometry literal
@@ -1952,6 +2031,7 @@ geosparql11 = {
 }
 
 geosparql13 = {
+    URIRef(GEOFEXT + "above"): above,
     URIRef(GEOFEXT + "asGeocode"): asGeocode,
     URIRef(GEOFEXT + "asGLTF"): asGLTF,
     URIRef(GEOFEXT + "asOBJ"): asOBJ,
@@ -1960,6 +2040,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "asWKB"): asWKB,
     URIRef(GEOFEXT + "asXYZ"): asXYZ,
     URIRef(GEOFEXT + "azimuth"): azimuth,
+    URIRef(GEOFEXT + "below"): below,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
     URIRef(GEOFEXT + "closestPoint"): closestPoint,
     URIRef(GEOFEXT + "constrainedDelaunay"): constrainedDelaunay,
@@ -1986,6 +2067,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "isTriangle"): isTriangle,
     URIRef(GEOFEXT + "isValid"): isValid,
     URIRef(GEOFEXT + "isValidTrajectory"): isValidTrajectory,
+    URIRef(GEOFEXT + "leftOf"): leftOf,
     URIRef(GEOFEXT + "longestLine"): longestLine,
     URIRef(GEOFEXT + "makeValid"): makeValid,
     URIRef(GEOFEXT + "maxDistance"): maxDistance,
@@ -2006,6 +2088,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
     URIRef(GEOFEXT + "removeRepeatedPoints"): removeRepeatedPoints,
     URIRef(GEOFEXT + "reverse"): reverse,
+    URIRef(GEOFEXT + "rightOf"): rightOf,
     URIRef(GEOFEXT + "rotate"): rotate,
     URIRef(GEOFEXT + "scale"): scale,
     URIRef(GEOFEXT + "shortestLine"): shortestLine,

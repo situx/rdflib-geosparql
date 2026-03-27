@@ -615,7 +615,75 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert str(result[0]["relates"]) == "true"
             assert str(result[0]["relates2"]) == "false"
-    
+
+    def test_sfCrosses(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfCrosses) as ?crosses)
+        WHERE {
+          my:E geo:hasDefaultGeometry ?eGeom .
+          ?eGeom %%literalrel1%% ?eLiteral .
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel2%% ?aLiteral .
+          BIND (geof:sfCrosses(?eLiteral, ?aLiteral) as ?sfCrosses)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["crosses"]) == "true"
+
+    def test_sfContains(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfContains) as ?contains)
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          my:F geo:hasDefaultGeometry ?fGeom .
+          ?fGeom %%literalrel2%% ?fLiteral .
+          BIND (geof:sfContains(?aLiteral, ?fLiteral) as ?sfContains)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["contains"]) == "true"
+
+
+    def test_sfDisjoint(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfDisjoint) as ?disjoint)
+        WHERE {
+          my:C geo:hasDefaultGeometry ?cGeom .
+          ?cGeom %%literalrel1%% ?cLiteral .
+          my:F geo:hasDefaultGeometry ?fGeom .
+          ?fGeom %%literalrel2%% ?fLiteral .
+          BIND (geof:sfDisjoint(?cLiteral, ?fLiteral) as ?sfDisjoint)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["disjoint"]) == "true"
+
+
     def test_sfEquals(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -639,29 +707,7 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert str(result[0]["equals"]) == "true"
             assert str(result[0]["equals2"]) == "false"
-    
-    def test_sfDisjoint(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?sfDisjoint) as ?disjoint)
-        WHERE {
-          my:C geo:hasDefaultGeometry ?cGeom .
-          ?cGeom %%literalrel1%% ?cLiteral .
-          my:F geo:hasDefaultGeometry ?fGeom .
-          ?fGeom %%literalrel2%% ?fLiteral .
-          BIND (geof:sfDisjoint(?cLiteral, ?fLiteral) as ?sfDisjoint)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["disjoint"]) == "true"
-    
+
     def test_sfIntersects(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -683,7 +729,8 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["intersects"]) == "true"
-    
+
+
     def test_sfTouches(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -705,30 +752,7 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["touches"]) == "true"
-    
-    
-    def test_sfCrosses(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?sfCrosses) as ?crosses)
-        WHERE {
-          my:E geo:hasDefaultGeometry ?eGeom .
-          ?eGeom %%literalrel1%% ?eLiteral .
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel2%% ?aLiteral .
-          BIND (geof:sfCrosses(?eLiteral, ?aLiteral) as ?sfCrosses)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["crosses"]) == "true"
-    
+
     def test_sfWithin(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -750,29 +774,7 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["within"]) == "true"
-    
-    def test_sfContains(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?sfContains) as ?contains)
-        WHERE {
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel1%% ?aLiteral .
-          my:F geo:hasDefaultGeometry ?fGeom .
-          ?fGeom %%literalrel2%% ?fLiteral .
-          BIND (geof:sfContains(?aLiteral, ?fLiteral) as ?sfContains)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["contains"]) == "true"
-    
+
     def test_sfOverlaps(self):
         resultlist = TestUtils.queryExecution(
         """
