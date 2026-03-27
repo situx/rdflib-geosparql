@@ -143,6 +143,10 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a64719f0d9316642e90c60705f70f015a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7dc5efbf597fd483723878d69bc25e99" id="r_a7dc5efbf597fd483723878d69bc25e99"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00044.html#a7dc5efbf597fd483723878d69bc25e99">distance3D</a> (geom1, geom2, minDist=True)</td></tr>
 <tr class="separator:a7dc5efbf597fd483723878d69bc25e99"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad71b5f37bc4bfec92e2e4d3411d73755" id="r_ad71b5f37bc4bfec92e2e4d3411d73755"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00044.html#ad71b5f37bc4bfec92e2e4d3411d73755">minZ</a> (thegeom)</td></tr>
+<tr class="separator:ad71b5f37bc4bfec92e2e4d3411d73755"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0bf3df0a199c67006f2d493d4d97be9" id="r_aa0bf3df0a199c67006f2d493d4d97be9"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="a00044.html#aa0bf3df0a199c67006f2d493d4d97be9">maxZ</a> (thegeom)</td></tr>
+<tr class="separator:aa0bf3df0a199c67006f2d493d4d97be9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a7dc5efbf597fd483723878d69bc25e99" name="a7dc5efbf597fd483723878d69bc25e99"></a>
@@ -202,7 +206,6 @@ Static Public Member Functions</h2></td></tr>
 <div class="line"><span class="lineno">  638</span>                    distance=dist</div>
 <div class="line"><span class="lineno">  639</span>        <span class="keywordflow">return</span> distance</div>
 <div class="line"><span class="lineno">  640</span> </div>
-<div class="line"><span class="lineno">  641</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -232,6 +235,81 @@ Static Public Member Functions</h2></td></tr>
 <div class="fragment"><div class="line"><span class="lineno">  619</span>    <span class="keyword">def </span>identityMatrix(a: Literal):</div>
 <div class="line"><span class="lineno">  620</span>        print(<span class="stringliteral">&quot;&quot;</span>)</div>
 <div class="line"><span class="lineno">  621</span> </div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="aa0bf3df0a199c67006f2d493d4d97be9" name="aa0bf3df0a199c67006f2d493d4d97be9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0bf3df0a199c67006f2d493d4d97be9">&#9670;&#160;</a></span>maxZ()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">maxZ </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>thegeom</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="fragment"><div class="line"><span class="lineno">  655</span>    <span class="keyword">def </span>maxZ(thegeom):</div>
+<div class="line"><span class="lineno">  656</span>        clist = shapely.get_coordinates(thegeom, include_z=<span class="keyword">True</span>).tolist()</div>
+<div class="line"><span class="lineno">  657</span>        flinf = -float(<span class="stringliteral">&quot;inf&quot;</span>)</div>
+<div class="line"><span class="lineno">  658</span>        maxZ = flinf</div>
+<div class="line"><span class="lineno">  659</span>        <span class="keywordflow">for</span> c <span class="keywordflow">in</span> clist:</div>
+<div class="line"><span class="lineno">  660</span>            <span class="keywordflow">if</span> c[2] != nan <span class="keywordflow">and</span> maxZ &lt; c[2]:</div>
+<div class="line"><span class="lineno">  661</span>                maxZ = c[2]</div>
+<div class="line"><span class="lineno">  662</span>        <span class="keywordflow">if</span> maxZ == flinf:</div>
+<div class="line"><span class="lineno">  663</span>            maxZ = <span class="stringliteral">&quot;NaN&quot;</span></div>
+<div class="line"><span class="lineno">  664</span>        <span class="keywordflow">return</span> maxZ</div>
+<div class="line"><span class="lineno">  665</span> </div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="ad71b5f37bc4bfec92e2e4d3411d73755" name="ad71b5f37bc4bfec92e2e4d3411d73755"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad71b5f37bc4bfec92e2e4d3411d73755">&#9670;&#160;</a></span>minZ()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">minZ </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>thegeom</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<div class="fragment"><div class="line"><span class="lineno">  642</span>    <span class="keyword">def </span>minZ(thegeom):</div>
+<div class="line"><span class="lineno">  643</span>        clist = shapely.get_coordinates(thegeom, include_z=<span class="keyword">True</span>).tolist()</div>
+<div class="line"><span class="lineno">  644</span>        flinf = float(<span class="stringliteral">&quot;inf&quot;</span>)</div>
+<div class="line"><span class="lineno">  645</span>        minZ = flinf</div>
+<div class="line"><span class="lineno">  646</span>        <span class="keywordflow">for</span> c <span class="keywordflow">in</span> clist:</div>
+<div class="line"><span class="lineno">  647</span>            print(c)</div>
+<div class="line"><span class="lineno">  648</span>            <span class="keywordflow">if</span> c[2] != nan <span class="keywordflow">and</span> minZ &gt; c[2]:</div>
+<div class="line"><span class="lineno">  649</span>                minZ = c[2]</div>
+<div class="line"><span class="lineno">  650</span>        <span class="keywordflow">if</span> minZ == flinf:</div>
+<div class="line"><span class="lineno">  651</span>            minZ = <span class="stringliteral">&quot;NaN&quot;</span></div>
+<div class="line"><span class="lineno">  652</span>        <span class="keywordflow">return</span> minZ</div>
+<div class="line"><span class="lineno">  653</span> </div>
 </div><!-- fragment -->
 </div>
 </div>
