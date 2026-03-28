@@ -6,5 +6,6 @@ var searchData=
   ['result_3',['result',['../a00027.html#a937d4dd628a8858b443a399410d2600b',1,'geosparql::geosparql']]],
   ['reverse_4',['reverse',['../a00027.html#a063dad699c5184d57543a0a933f6183d',1,'geosparql::geosparql']]],
   ['rightof_5',['rightOf',['../a00027.html#aae1f916bd59095acdbb6e79f3d0aaddb',1,'geosparql::geosparql']]],
-  ['rotate_6',['rotate',['../a00027.html#a698fc4be6a0f69ae13b4b47f01fe1b60',1,'geosparql::geosparql']]]
+  ['rightof3d_6',['rightOf3D',['../a00027.html#a9663f7a53da878e3e0b3fbb9b17b05e2',1,'geosparql::geosparql']]],
+  ['rotate_7',['rotate',['../a00027.html#a698fc4be6a0f69ae13b4b47f01fe1b60',1,'geosparql::geosparql']]]
 ];
