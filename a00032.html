@@ -288,7 +288,7 @@ Static Public Attributes</h2></td></tr>
 <div class="line"><span class="lineno">  130</span>        <span class="keywordflow">if</span> <span class="stringliteral">&quot;&lt;&quot;</span> <span class="keywordflow">in</span> geocodestr <span class="keywordflow">and</span> <span class="stringliteral">&quot;&gt;&quot;</span> <span class="keywordflow">in</span> geocodestr:</div>
 <div class="line"><span class="lineno">  131</span>            geocodeuri=geocodestr[0:geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)].replace(<span class="stringliteral">&quot;&lt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).replace(<span class="stringliteral">&quot;&gt;&quot;</span>,<span class="stringliteral">&quot;&quot;</span>).strip()</div>
 <div class="line"><span class="lineno">  132</span>            geocodestr=geocodestr[geocodestr.find(<span class="stringliteral">&quot;&gt;&quot;</span>)+1:]</div>
-<div class="line"><span class="lineno">  133</span>        tehvalue=<span class="stringliteral">&quot;&quot;</span></div>
+<div class="line"><span class="lineno">  133</span>        thevalue=<span class="stringliteral">&quot;&quot;</span></div>
 <div class="line"><span class="lineno">  134</span>        <span class="keywordflow">if</span> geocodeuri <span class="keywordflow">in</span> Transformers.supported_geocodes:</div>
 <div class="line"><span class="lineno">  135</span>            <span class="keywordflow">if</span> geocodeuri==<span class="stringliteral">&quot;http://opengis.net/ont/geocode/GeoURI&quot;</span>:</div>
 <div class="line"><span class="lineno">  136</span>                spl=geocodestr.split(<span class="stringliteral">&quot;,&quot;</span>)</div>
