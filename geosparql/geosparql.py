@@ -50,7 +50,7 @@ class Transformers:
                           "http://opengis.net/ont/geocode/OpenLocationCode",
                           "http://opengis.net/ont/geocode/GeoHash-36"}
 
-    #The DGGS supported in this implementation identified by URI
+    #The DGGS supported in this implementation identified by URIs
     supported_dggs = {"https://h3geo.org/res/{RESOLUTION}"}
 
     ## Normalizes a list of geometry tuples to a common SRS.
@@ -130,7 +130,7 @@ class Transformers:
         if "<" in geocodestr and ">" in geocodestr:
             geocodeuri=geocodestr[0:geocodestr.find(">")].replace("<","").replace(">","").strip()
             geocodestr=geocodestr[geocodestr.find(">")+1:]
-        tehvalue=""
+        thevalue=""
         if geocodeuri in Transformers.supported_geocodes:
             if geocodeuri=="http://opengis.net/ont/geocode/GeoURI":
                 spl=geocodestr.split(",")
@@ -674,11 +674,16 @@ def range_overlap(start1, end1, start2, end2):
 def above(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
-        #geom[0].maxY>geom[1].minY
+        #geom[0].maxY<geom[1].minY
         geom1bounds=shapely.total_bounds(geoms[0])
         geom2bounds=shapely.total_bounds(geoms[1])
         ro=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
-        return Literal(ro>0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
+        print(geom1bounds)
+        print(geom2bounds)
+        print(ro)
+        print(str(geom1bounds[3])+" < "+str(geom2bounds[1])+" = "+str(geom1bounds[3]<geom2bounds[1]))
+        print("GEOM1 ABOVE GEOM2? "+str(ro>0 and geom1bounds[3]<geom2bounds[1]))
+        return Literal(ro>0 and geom1bounds[3]<geom2bounds[1], datatype=XSD.boolean)
 
 ## Calculates whether the first 3D geometry is above the 3D second geometry.
 #  @param a The first geometry literal
@@ -867,6 +872,11 @@ def below(a: Literal, b: Literal) -> Literal:
         geom1bounds=shapely.total_bounds(geoms[0])
         geom2bounds=shapely.total_bounds(geoms[1])
         ro=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+        print(geom1bounds)
+        print(geom2bounds)
+        print(ro)
+        print(str(geom1bounds[3])+" < "+str(geom2bounds[1])+" = "+str(geom1bounds[3]<geom2bounds[1]))
+        print("GEOM1 BELOW GEOM2? "+str(ro>0 and geom1bounds[3]<geom2bounds[1]))
         return Literal(ro>0 and geom1bounds[3]<geom2bounds[1], datatype=XSD.boolean)
 
 ## Calculates whether the first 3D geometry is below the 3D second geometry.
@@ -1076,7 +1086,7 @@ def distance(a: Literal, b: Literal, units: Literal) -> Literal:
         if geoms[0].has_z and geoms[1].has_z:
             return Literal(Handling3D.distance3D(geoms[0],geoms[1]), datatype=XSD.double)
         return Literal(shapely.distance(geoms[0], geoms[1]), datatype=XSD.double)
-
+    raise ValueError("Invalid parameters, e.g. invalid geometry literals were provided for function geof:distance")
 
 ## Retrieves the distance between two geometries in 3D.
 #  @param a The first geometry literal
@@ -1086,6 +1096,7 @@ def distance3D(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(Handling3D.distance3D(geoms[0],geoms[1]), datatype=XSD.double)
+    raise ValueError("Invalid parameters, e.g. invalid geometry literals were provided for function geof:distance3D")
 
 ## Extracts the last point of an input geometry.
 #  @param a The geometry literal
@@ -1413,7 +1424,12 @@ def leftOf(a: Literal, b: Literal) -> Literal:
         geom1bounds=shapely.total_bounds(geoms[0])
         geom2bounds=shapely.total_bounds(geoms[1])
         ro=range_overlap(geom1bounds[1],geom1bounds[3],geom2bounds[1],geom2bounds[3])
-        return Literal(ro>0 and shapely.total_bounds(geoms[0])[2]<shapely.total_bounds(geoms[1])[0], datatype=XSD.boolean)
+        print(geom1bounds)
+        print(geom2bounds)
+        print(ro)
+        print(str(geom1bounds[2])+" < "+str(geom2bounds[0])+" = "+str(geom1bounds[2]<geom2bounds[0]))
+        print("GEOM1 LEFTOF GEOM2? "+str(ro>0 and geom1bounds[2]<geom2bounds[0]))
+        return Literal(ro>0 and geom1bounds[2]<geom2bounds[0], datatype=XSD.boolean)
 
 ## Calculates whether the first 3D geometry is left of the 3D second geometry.
 #  @param a The first geometry literal
@@ -2062,7 +2078,6 @@ geosparql11 = {
     URIRef(GEOF + "centroid"): centroid,
     URIRef(GEOF + "concaveHull"): concaveHull,
     URIRef(GEOF + "coordinateDimension"): coordinateDimension,
-    URIRef(GEOF + "endPoint"): endPoint,
     URIRef(GEOF + "geometryN"): geometryN,
     URIRef(GEOF + "is3D"): is3D,
     URIRef(GEOF + "isEmpty"): isEmpty,
@@ -2084,7 +2099,6 @@ geosparql11 = {
     URIRef(GEOF + "numPoints"): numPoints,
     URIRef(GEOF + "perimeter"): perimeter,
     URIRef(GEOF + "spatialDimension"): spatialDimension,
-    URIRef(GEOF + "startPoint"): startPoint,
     URIRef(GEOF + "transform"): transform,
 }
 
@@ -2195,11 +2209,16 @@ g.parse(dir_path + "/../tests/testdata.ttl")
 result = g.query(
     """
 PREFIX geo: <"""+str(GEO)+""">
-PREFIX geof: <"""+str(GEOF)+""">
-SELECT ?acrearea ?metricarea {
-    <http://example.org/ApplicationSchema#AExactGeom> geo:asWKT ?a_wkt .
-    BIND(geof:area(?a_wkt,"http://qudt.org/vocab/unit/AC"^^xsd:anyURI) AS ?acrearea)
-    BIND(geof:metricArea(?a_wkt) AS ?metricarea)
+PREFIX geof: <"""+str(GEOFEXT)+""">
+PREFIX my: <http://example.org/ApplicationSchema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT (xsd:boolean(?leftt) as ?left) (xsd:boolean(?nleftt) as ?notleft)
+WHERE {
+  my:A geo:hasDefaultGeometry ?aGeom .
+  ?aGeom geo:asWKT ?aLiteral .
+  BIND("Polygon((-82.3 34.0, -82.1 34.0, -82.1 34.2, -82.3 34.2, -82.3 34.0))"^^geo:wktLiteral AS ?dLiteral)
+  BIND (geof:leftOf(?aLiteral, ?dLiteral) as ?nleftt)
+  BIND (geof:leftOf(?dLiteral, ?aLiteral) as ?leftt)
 }
 """
 )

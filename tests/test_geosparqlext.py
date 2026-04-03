@@ -60,6 +60,29 @@ ltypesM=config["literalTypesM"].keys()
 
 class TestGeoSPARQLExt(TestGeoSPARQL11):
 
+    def test_above(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?abovee) as ?above) (xsd:boolean(?nabovee) as ?notabove)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND("Polygon((-83.3 33.0, -83.1 33.0, -83.1 33.2, -83.3 33.2, -83.3 33.0))"^^geo:wktLiteral AS ?dLiteral)
+              BIND (geof:above(?aLiteral, ?dLiteral) as ?nabovee)
+              BIND (geof:above(?dLiteral, ?aLiteral) as ?abovee)
+            }
+            """ ,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["above"]) == "true"
+            assert str(result[0]["notabove"]) == "false"
+
     def test_asGeocode(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -254,6 +277,29 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert str(result[0]["azimuth"]) == "90.0"
+
+    def test_below(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?beloww) as ?below) (xsd:boolean(?nbeloww) as ?notbelow)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND("Polygon((-83.3 33.0, -83.1 33.0, -83.1 33.2, -83.3 33.2, -83.3 33.0))"^^geo:wktLiteral AS ?dLiteral)
+              BIND (geof:below(?aLiteral, ?dLiteral) as ?nbeloww)
+              BIND (geof:below(?dLiteral, ?aLiteral) as ?beloww)
+            }
+            """ ,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["below"]) == "true"
+            assert str(result[0]["notbelow"]) == "false"
 
     def test_closestPoint(self):
         resultlist = TestUtils.queryExecution(
@@ -597,6 +643,29 @@ end_header
             assert str(result[0]["isNotValidT"]) == "false"
             assert str(result[0]["isNotValidT2"]) == "false"
 
+    def test_leftof(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?leftt) as ?left) (xsd:boolean(?nleftt) as ?notleft)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND("Polygon((-82.3 34.0, -82.1 34.0, -82.1 34.2, -82.3 34.2, -82.3 34.0))"^^geo:wktLiteral AS ?dLiteral)
+              BIND (geof:leftOf(?aLiteral, ?dLiteral) as ?leftt)
+              BIND (geof:leftOf(?dLiteral, ?aLiteral) as ?nleftt)
+            }
+            """ ,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["left"]) == "true"
+            assert str(result[0]["notleft"]) == "false"
+
     def test_longestLine(self):
         resultlist = TestUtils.queryExecution(
             """
@@ -918,6 +987,29 @@ end_header
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["reverse"])[0], expresult)
 
+    def test_rightof(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?rightt) as ?right) (xsd:boolean(?nrightt) as ?notright)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND("Polygon((-82.3 34.0, -82.1 34.0, -82.1 34.2, -82.3 34.2, -82.3 34.0))"^^geo:wktLiteral AS ?dLiteral)
+              BIND (geof:rightOf(?aLiteral, ?dLiteral) as ?nrightt)
+              BIND (geof:rightOf(?dLiteral, ?aLiteral) as ?rightt)
+            }
+            """ ,combinations,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["right"]) == "true"
+            assert str(result[0]["notright"]) == "false"
+
     def test_scale(self):
         resultlist = TestUtils.queryExecution(
             """
@@ -978,7 +1070,6 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["simple"])[0], expresult)
-
 
     def test_translate(self):
         resultlist = TestUtils.queryExecution(
