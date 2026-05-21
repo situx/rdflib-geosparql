@@ -121,7 +121,7 @@ class TestGeoSPARQLExt(TestGeoSPARQL11):
             print("Testing with " + str(res[1]))
             result = res[0]
             assert len(result) == 1
-            assert str(result[0][gltf"]) == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"
+            assert str(result[0]["gltf"]) == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"
 
     def test_asJSONFG(self):
         resultlist = TestUtils.queryExecution(
