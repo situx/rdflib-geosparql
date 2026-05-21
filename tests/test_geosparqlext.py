@@ -121,8 +121,28 @@ class TestGeoSPARQLExt(TestGeoSPARQL11):
             print("Testing with " + str(res[1]))
             result = res[0]
             assert len(result) == 1
-            assert str(result[0][
-                           "gltf"]) == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"
+            assert str(result[0][gltf"]) == "<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))"
+
+    def test_asJSONFG(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?jsonfg
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND (geof:asJSONFG(?aLiteral) as ?gltf)
+            }
+            """ ,combinations,config,g)
+        expresult=shapely.from_wkt("<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))")
+        for res in resultlist:
+            print("Testing with " + str(res[1]))
+            result = res[0]
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["jsonfg"]),expresult)
 
     def test_asOBJ(self):
         resultlist = TestUtils.queryExecution(
@@ -311,9 +331,9 @@ end_header
         SELECT ?cPoint
         WHERE {
           my:A my:hasPointGeometry ?aGeom .
-          ?aGeom geo:asWKT ?aLiteral .
+          ?aGeom %%literalrel1%% ?aLiteral .
           my:D geo:hasDefaultGeometry ?dGeom .
-          ?dGeom geo:asWKT ?dLiteral .
+          ?dGeom %%literalrel2%% ?dLiteral .
           BIND (geof:closestPoint(?aLiteral, ?dLiteral) as ?cPoint)
         }
         """,combinations,config,g)
@@ -516,6 +536,24 @@ end_header
             assert len(result) == 1
             assert str(result[0]["intersects"]) == "true"
 
+    def test_isCCW(self):
+        resultlist = TestUtils.queryExecution(
+        """PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            SELECT ?isACW ?isECW {
+                <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
+                BIND(geof:isCCW(?a_wkt) AS ?isACW)
+                <http://example.org/ApplicationSchema#EExactGeom> %%literalrel1%% ?e_wkt .
+                BIND(geof:isCCW(?e_wkt) AS ?isECW)
+            }
+        """,combinations,config, g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["isACW"]) == "true"
+            assert str(result[0]["isECW"]) == "false"
+
     def test_isClosed(self):
         resultlist = TestUtils.queryExecution(
         """PREFIX geo: <"""+str(GEO)+""">
@@ -551,6 +589,24 @@ end_header
             assert str(result[0]["isC1"]) == "true"
             assert str(result[0]["isC2"]) == "true"
             assert str(result[0]["isC3"]) == "false"
+
+    def test_isCW(self):
+        resultlist = TestUtils.queryExecution(
+        """PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            SELECT ?isACW ?isECW {
+                <http://example.org/ApplicationSchema#AExactGeom> %%literalrel1%% ?a_wkt .
+                BIND(geof:isCW(?a_wkt) AS ?isACW)
+                <http://example.org/ApplicationSchema#EExactGeom> %%literalrel1%% ?e_wkt .
+                BIND(geof:isCW(?e_wkt) AS ?isECW)
+            }
+        """,combinations,config, g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["isACW"]) == "true"
+            assert str(result[0]["isECW"]) == "false"
 
     def test_isRing(self):
         resultlist = TestUtils.queryExecution(
@@ -643,7 +699,7 @@ end_header
             assert str(result[0]["isNotValidT"]) == "false"
             assert str(result[0]["isNotValidT2"]) == "false"
 
-    def test_leftof(self):
+    def test_leftOf(self):
         resultlist = TestUtils.queryExecution(
             """
             PREFIX my: <http://example.org/ApplicationSchema#>
@@ -906,6 +962,27 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert str(result[0]["numPoints"]) == "5"
+
+    def test_offsetCurve(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            SELECT ?offsetCurve
+            WHERE {
+              my:AExactGeom %%literalrel1%% ?literal .
+              BIND(geof:offsetCurve(?literal,10) AS ?offsetCurve)
+            }
+            """, combinations,config,g)
+        expresult = shapely.from_wkt("LINESTRING (-93.6 34.1, -93.6 34.5, -93.4078528040323 36.45090322016129, -92.83879532511287 38.3268343236509, -91.91469612302545 40.05570233019602, -90.67106781186547 41.571067811865476, -89.15570233019602 42.814696123025456, -87.4268343236509 43.73879532511287, -85.55090322016127 44.30785280403231, -83.6 44.5, -83.2 44.5, -81.24909677983872 44.30785280403231, -79.3731656763491 43.73879532511287, -77.64429766980398 42.814696123025456, -76.12893218813453 41.571067811865476, -74.88530387697455 40.05570233019602, -73.96120467488714 38.3268343236509, -73.3921471959677 36.45090322016128, -73.2 34.5, -73.2 34.1, -73.3921471959677 32.14909677983872, -73.96120467488714 30.2731656763491, -74.88530387697455 28.54429766980398, -76.12893218813453 27.028932188134526, -77.64429766980398 25.78530387697455, -79.3731656763491 24.861204674887134, -81.24909677983872 24.292147195967697, -83.2 24.1, -83.6 24.1, -85.55090322016127 24.292147195967697, -87.4268343236509 24.861204674887134, -89.15570233019602 25.785303876974545, -90.67106781186547 27.028932188134526, -91.91469612302545 28.54429766980398, -92.83879532511287 30.2731656763491, -93.4078528040323 32.149096779838715, -93.6 34.1)")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            print(result)
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["offsetCurve"])[0],expresult,tolerance=eqtolerance)
 
     def test_pointN(self):
         resultlist = TestUtils.queryExecution(

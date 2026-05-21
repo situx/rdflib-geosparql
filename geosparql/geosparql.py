@@ -31,6 +31,20 @@ GEOFEXTPREFIX = "geofext:"
 GEO = "http://www.opengis.net/ont/geosparql#"
 CRS84URI = "http://www.opengis.net/def/crs/OGC/1.3/CRS84"
 
+WKTLiteral = "http://www.opengis.net/ont/geosparql#wktLiteral"
+GMLLiteral = "http://www.opengis.net/ont/geosparql#gmlLiteral"
+KMLLiteral = "http://www.opengis.net/ont/geosparql#kmlLiteral"
+DGGSLiteral = "http://www.opengis.net/ont/geosparql#dggsLiteral"
+JSONFGLiteral = "http://www.opengis.net/ont/geosparql#jsonfgLiteral"
+GEOJSONLiteral = "http://www.opengis.net/ont/geosparql#geoJSONLiteral"
+GEOCODELiteral="http://www.opengis.net/ont/geosparql#geocodeLiteral"
+PLYLiteral = "http://www.opengis.net/ont/geosparql#plyLiteral"
+OBJLiteral = "http://www.opengis.net/ont/geosparql#objLiteral"
+GLTFLiteral = "http://www.opengis.net/ont/geosparql#gltfLiteral"
+SVGLiteral = "http://www.opengis.net/ont/geosparql#svgLiteral"
+WKBLiteral = "http://www.opengis.net/ont/geosparql#wkbLiteral"
+XYZLiteral = "http://www.opengis.net/ont/geosparql#xyzLiteral"
+
 
 def merge_dicts(*dict_args):
     """
@@ -133,7 +147,7 @@ class Transformers:
         thevalue=""
         if geocodeuri in Transformers.supported_geocodes:
             if geocodeuri=="http://opengis.net/ont/geocode/GeoURI":
-                spl=geocodestr.split(",")
+                spl=geocodestr.replace("geo:","").split(",")
                 if len(spl)==2:
                     thevalue=shapely.Point(float(spl[0]),float(spl[1]))
                 elif len(spl)==3:
@@ -273,63 +287,70 @@ class LiteralUtils:
     #  @returns A geometry representing the contents of the given WKT literal
     @staticmethod
     def processWKTLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wktLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=WKTLiteral)
 
     ## Converts a GML literal to a geometry object .
     #  @param literal The GML literal
     #  @returns A geometry representing the contents of the given GML literal
     @staticmethod
     def processGMLLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gmlLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GMLLiteral)
 
     ## Converts a KML literal to a geometry object .
     #  @param literal The KML literal
     #  @returns A geometry representing the contents of the given KML literal
     @staticmethod
     def processKMLLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"kmlLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=KMLLiteral)
 
     ## Converts a DGGS literal to a geometry object .
     #  @param literal The DGGS literal
     #  @returns A geometry representing the contents of the given DGGS literal
     @staticmethod
     def processDGGSLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"dggsLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=DGGSLiteral)
 
     ## Converts an GeoJSON literal to a geometry object .
     #  @param literal The GeoJSON literal
     #  @returns A geometry representing the contents of the given GeoJSON literal
     @staticmethod
     def processGeoJSONLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"geoJSONLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEOJSONLiteral)
 
     ## Converts an GLTF literal to a geometry object .
     #  @param literal The GLTF literal
     #  @returns A geometry representing the contents of the given GLTF literal
     @staticmethod
     def processGLTFLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"gltfLiteral",create3D=True)
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GLTFLiteral,create3D=True)
 
     ## Converts an PLY literal to a geometry object .
     #  @param literal The PLY literal
     #  @returns A geometry representing the contents of the given PLY literal
     @staticmethod
     def processPLYLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"plyLiteral",create3D=True)
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=PLYLiteral,create3D=True)
 
     ## Converts an OBJ literal to a geometry object .
     #  @param literal The OBJ literal
     #  @returns A geometry representing the contents of the given OBJ literal
     @staticmethod
     def processOBJLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"objLiteral",create3D=True)
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=OBJLiteral,create3D=True)
 
     ## Converts a WKB literal to a geometry object .
     #  @param literal The WKB literal
     #  @returns A geometry representing the contents of the given WKB literal
     @staticmethod
     def processWKBLiteral(text):
-        return LiteralUtils.processLiteralTypeToGeom(text,datatype=GEO+"wkbLiteral")
+        return LiteralUtils.processLiteralTypeToGeom(text,datatype=WKBLiteral)
+
+    @staticmethod
+    def getBBOXFromLiteralType(geom):
+        if isinstance(geom,trimesh.Trimesh):
+            return geom.bounding_box_oriented
+        else:
+            return shapely.bounds(geom)
 
     ## Converts a geometry literal to a geometry object .
     #  @param literal The geometry literal or a string  representation of it
@@ -349,7 +370,7 @@ class LiteralUtils:
         #print(literal)
         #print(dtype)
         print("LString: "+str(lstring))
-        if str(dtype) == "http://www.opengis.net/ont/geosparql#wktLiteral":
+        if str(dtype) == WKTLiteral:
             if lstring.startswith("<"):
                 srsuri = lstring[0:lstring.find(">")].replace("<", "").replace(">", "")
                 gstring = lstring[lstring.find(">") + 1:].strip()
@@ -376,7 +397,7 @@ class LiteralUtils:
                 if create3D:
                     return (LiteralUtils.createGeometry3D(geo), srsuri)
                 return (geo, srsuri)
-        elif dtype == "http://www.opengis.net/ont/geosparql#wkbLiteral":
+        elif dtype == WKBLiteral:
             geo = shapely.from_wkb(lstring)
             shapely.set_srid(geo, 4326)
             srsuri = CRS84URI
@@ -386,7 +407,7 @@ class LiteralUtils:
             if create3D:
                 return (LiteralUtils.createGeometry3D(geo), srsuri)
             return (geo, srsuri)
-        elif dtype == "http://www.opengis.net/ont/geosparql#gmlLiteral":
+        elif dtype == GMLLiteral:
             gjson = None
             if "<gml:posList></gml:posList>" in lstring or "<posList></posList>" in lstring or "<gml:pos></gml:pos>" in lstring or "<pos></pos>" in lstring:
                 if "LineString" in lstring:
@@ -423,7 +444,7 @@ class LiteralUtils:
             if create3D:
                 return (LiteralUtils.createGeometry3D(geo), srsuri)
             return (geo, srsuri)
-        elif dtype == "http://www.opengis.net/ont/geosparql#geoJSONLiteral":
+        elif dtype == GEOJSONLiteral:
             geo = shapely.from_geojson(lstring)
             shapely.set_srid(geo, 4326)
             srsuri = CRS84URI
@@ -433,7 +454,21 @@ class LiteralUtils:
             if create3D:
                 return (LiteralUtils.createGeometry3D(geo), srsuri)
             return (geo, srsuri)
-        elif dtype == "http://www.opengis.net/ont/geosparql#kmlLiteral":
+        elif dtype == JSONFGLiteral:
+            geo = shapely.from_geojson(lstring)
+            if "coordRefSystem" in geo:
+                shapely.set_srid(geo, 4326)
+                srsuri = CRS84URI
+            else:
+                shapely.set_srid(geo, 4326)
+                srsuri = CRS84URI
+            if normsrs is not None:
+                geo = Transformers.transformToSRS(geo, CRS84URI, str(normsrs))
+                srsuri = normsrs
+            if create3D:
+                return (LiteralUtils.createGeometry3D(geo), srsuri)
+            return (geo, srsuri)
+        elif dtype == KMLLiteral:
             if not lstring.startswith("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>"):
                 lstring = "<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(
                     lstring) + "</Placemark></kml>"
@@ -455,19 +490,19 @@ class LiteralUtils:
             if create3D:
                 return (LiteralUtils.createGeometry3D(geo), srsuri)
             return (geo, srsuri)
-        elif dtype == "http://www.opengis.net/ont/geosparql#dggsLiteral":
+        elif dtype == DGGSLiteral:
             geo = Transformers.dggsToGeom(lstring)
             return (geo, CRS84URI)
-        elif dtype == "http://www.opengis.net/ont/geosparql#plyLiteral":
+        elif dtype == PLYLiteral:
             geo = trimesh.load(file_obj=trimesh.util.wrap_as_stream(lstring), file_type="ply")
             return (geo, CRS84URI)
-        elif dtype == "http://www.opengis.net/ont/geosparql#objLiteral":
+        elif dtype == OBJLiteral:
             geo = trimesh.load(file_obj=trimesh.util.wrap_as_stream(lstring), file_type="obj")
             return (geo, CRS84URI)
-        elif dtype == "http://www.opengis.net/ont/geosparql#gltfLiteral":
+        elif dtype == GLTFLiteral:
             geo = trimesh.load(file_obj=trimesh.util.wrap_as_stream(lstring), file_type="gltf")
             return (geo, CRS84URI)
-        elif dtype == "http://www.opengis.net/ont/geosparql#xyzLiteral":
+        elif dtype == XYZLiteral:
             geo = trimesh.load(file_obj=trimesh.util.wrap_as_stream(lstring), file_type="xyz")
             return (geo, CRS84URI)
         else:
@@ -483,57 +518,59 @@ class LiteralUtils:
     #  @returns The resulting GeoJSON literal
     @staticmethod
     def processGeomToGeoJSONLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "geoJSONLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GEOJSONLiteral,geomtup[1])
 
     ## Converts a geometry to a GLTF Literal.
     #  @param literal The GLTF literal
     #  @returns The resulting GLTF literal
     @staticmethod
     def processGeomToGLTFLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gltfLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GLTFLiteral,geomtup[1])
 
     ## Converts a geometry to a GML Literal.
     #  @param literal The GML literal
     #  @returns The resulting GML literal
     @staticmethod
     def processGeomToGMLLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "gmlLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], GMLLiteral,geomtup[1])
 
     ## Converts a geometry to a KML Literal.
     #  @param literal The KML literal
     #  @returns The resulting KML literal
     @staticmethod
     def processGeomToKMLLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "kmlLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], KMLLiteral,geomtup[1])
 
     ## Converts a geometry to a OBJ Literal.
     #  @param literal The OBJ literal
     #  @returns The resulting OBJ literal
     @staticmethod
     def processGeomToOBJLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "objLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], OBJLiteral,geomtup[1])
 
     ## Converts a geometry to a PLY Literal.
     #  @param literal The PLY literal
     #  @returns The resulting PLY literal
     @staticmethod
     def processGeomToPLYLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "plyLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], PLYLiteral,geomtup[1])
 
     ## Converts a geometry to a WKB Literal.
     #  @param literal The WKB literal
     #  @returns The resulting WKB literal
     @staticmethod
     def processGeomToWKBLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wkbLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], WKBLiteral,geomtup[1])
 
     ## Converts a geometry to a WKT Literal.
     #  @param literal The WKT literal
     #  @returns The resulting WKT literal
     @staticmethod
     def processGeomToWKTLiteral(geomtup):
-        return LiteralUtils.processGeomToLiteral(geomtup[0], GEO + "wktLiteral",geomtup[1])
+        return LiteralUtils.processGeomToLiteral(geomtup[0], WKTLiteral,geomtup[1])
 
+
+        
 
     ## Converts a geometry to a geometry literal.
     #  @param geom The geometry to convert
@@ -545,44 +582,50 @@ class LiteralUtils:
         print("GEOMTOLIT: "+str(geom))
         print(str(type(geom)))
         ltype = str(literaltype)
-        if ltype == "http://www.opengis.net/ont/geosparql#wktLiteral":
+        if ltype == WKTLiteral:
             if thegeomsrs == "":
                 return Literal("<" + CRS84URI + "> " + str(geom.wkt), datatype=literaltype)
             else:
                 return Literal("<" + str(thegeomsrs) + "> " + str(geom.wkt), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#geoJSONLiteral":
+        elif ltype == GEOJSONLiteral:
             return Literal(str(to_geojson(geom)), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#gmlLiteral":
+        elif ltype == JSONFGLiteral:
+            thegeofg=to_geojson(geom)
+            thegeofg["coordRefSys"] = thegeomsrs
+            thegeofg["conformsTo"] = ["http://www.opengis.net/spec/json-fg-1/1.0/conf/core",
+                                    "http://www.opengis.net/spec/json-fg-1/1.0/conf/types-schemas"]
+            return Literal(str(thegeofg), datatype=literaltype)
+        elif ltype == GMLLiteral:
             return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID"),encoding="unicode"), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#kmlLiteral":
+        elif ltype == KMLLiteral:
             return Literal("<kml xmlns=\"http://www.opengis.net/kml/2.2\"><Placemark>" + str(fastkml.geometry.create_kml_geometry(geom)) + "</Placemark></kml>", datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#wkbLiteral":
+        elif ltype == WKBLiteral:
             return Literal(str(geom.wkb_hex), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#svgLiteral":
+        elif ltype == SVGLiteral:
             return Literal(str(geom.svg()), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#plyLiteral":
+        elif ltype == PLYLiteral:
             bio = BytesIO()
             geom.export(bio, file_type="ply", encoding='ascii')
             wrapper = TextIOWrapper(bio, encoding='utf-8')
             return Literal(wrapper.read(), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#objLiteral":
+        elif ltype == OBJLiteral:
             bio = BytesIO()
             geom.export(bio, file_type="obj", encoding='ascii')
             wrapper = TextIOWrapper(bio, encoding='utf-8')
             return Literal(wrapper.read(), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#xyzLiteral":
+        elif ltype == XYZLiteral:
             bio = BytesIO()
             geom.export(bio, file_type="xyz")
             wrapper = TextIOWrapper(bio, encoding='utf-8')
             return Literal(wrapper.read(), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#gltfLiteral":
+        elif ltype == GLTFLiteral:
             bio = BytesIO()
             geom.export(bio, file_type="gltf")
             wrapper = TextIOWrapper(bio, encoding='utf-8')
             return Literal(wrapper.read(), datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#dggsLiteral":
+        elif ltype == DGGSLiteral:
             return Literal(Transformers.transformToDGGS(geom,thegeomsrs),datatype=literaltype)
-        elif ltype == "http://www.opengis.net/ont/geosparql#geocodeLiteral":
+        elif ltype == GEOCODELiteral:
             return Literal(Transformers.transformToGeocode(geom,thegeomsrs),datatype=literaltype)
         else:
             raise ValueError(
@@ -620,9 +663,15 @@ class Handling3D:
         print("")
 
     @staticmethod
-    def distance3D(geom1,geom2,minDist=True):
-        g1list = shapely.get_coordinates(geom1, include_z=False).tolist()
-        g2list = shapely.get_coordinates(geom2, include_z=False).tolist()
+    def distanceWrapper(pt1,pt2,is3D):
+        if is3D:
+            return math.sqrt(((pt2.x-pt1.x)**2)+((pt2.y-pt1.y)**2)+((pt2.z-pt1.z)**2))
+        return shapely.distance(pt1,pt2)
+
+    @staticmethod
+    def distance3DAware(geom1,geom2,minDist=True):
+        g1list = shapely.get_coordinates(geom1, include_z=True).tolist()
+        g2list = shapely.get_coordinates(geom2, include_z=True).tolist()
         if minDist==False:
             distance = float("-inf")
         else:
@@ -637,6 +686,7 @@ class Handling3D:
                 elif not minDist and dist > distance:
                     distance=dist
         return distance
+
 
     @staticmethod
     def minZ(thegeom):
@@ -736,25 +786,34 @@ def asDGGS(a: Literal, dggsType) -> Literal:
     #print(a: Literal)
     #print(dggsType)
     #print(Transformers.transformToDGGS(thegeom, dggsType))
-    return Literal(Transformers.transformToDGGS(thegeom, dggsType),datatype="http://www.opengis.net/ont/geosparql#dggsLiteral")
+    return Literal(Transformers.transformToDGGS(thegeom, dggsType),datatype=DGGSLiteral)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeoJSON">geof:asGeoJSON</a>: Converts a geometry literal to a GeoJSON literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
 def asGeoJSON(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#geoJSONLiteral":
+    if a.datatype==GEOJSONLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#geoJSONLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, GEOJSONLiteral, thegeomsrs)
+
+## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeoJSON">geof:asGeoJSON</a>: Converts a geometry literal to a GeoJSON literal .
+#  @param a The geometry literal
+#  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#geoJSONLiteral">geo:geoJSONLiteral</a>
+def asJSONFG(a: Literal) -> Literal:
+    if a.datatype==JSONFGLiteral:
+        return a
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(thegeom, JSONFGLiteral, thegeomsrs)
 
 ## Converts a geometry literal to a GLTF literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gltfLiteral">geo:gltfLiteral</a>
 def asGLTF(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#gltfLiteral":
+    if a.datatype==GLTFLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gltfLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, GLTFLiteral, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGeocode">geof:asGeocode</a>: Converts a geometry literal to a Geocode literal .
 #  @param a The geometry literal
@@ -765,85 +824,85 @@ def asGeocode(a: Literal, geocodeURI) -> Literal:
     print(thegeom)
     print(geocodeURI)
     return Literal(Transformers.transformToGeocode(thegeom, str(geocodeURI)),
-                   datatype="http://www.opengis.net/ont/geosparql#geocodeLiteral")
+                   datatype=GEOCODELiteral)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asGML">geof:asGML</a>: Converts a geometry literal to a GML literal preserving its coordinate reference system. 
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#gmlLiteral">geo:gmlLiteral</a>
 def asGML(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#gmlLiteral":
+    if a.datatype==GMLLiteral:
         return a
     thegeom, thegeomsrs = a.value #LiteralUtils.processLiteralTypeToGeom(a)
     print("THE GEOM GML: "+str(thegeom))
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#gmlLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, GMLLiteral, thegeomsrs)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asKML">geof:asKML</a>: Converts a geometry literal to a KML literal.
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#kmlLiteral">geo:kmlLiteral</a>
 def asKML(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#kmlLiteral":
+    if a.datatype==KMLLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#kmlLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, KMLLiteral, thegeomsrs)
 
 
 ## Converts a geometry literal to a OBJ literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#objLiteral">geo:objLiteral</a>
 def asOBJ(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#objLiteral":
+    if a.datatype==OBJLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#objLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, OBJLiteral, thegeomsrs)
 
 
 ## Converts a geometry literal to a PLY literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#objLiteral">geo:plyLiteral</a>
 def asPLY(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#plyLiteral":
+    if a.datatype==PLYLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#plyLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, PLYLiteral, thegeomsrs)
 
 ## Converts a geometry literal to a SVG literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#svgLiteral">geo:svgLiteral</a>
 def asSVG(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#svgLiteral":
+    if a.datatype==SVGLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#svgLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, SVGLiteral, thegeomsrs)
 
 ## Converts a geometry literal to a XYZ literal .
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#xyzLiteral">geo:xyzLiteral</a>
 def asXYZ(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#xyzLiteral":
+    if a.datatype==XYZLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a, create3D=True)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#xyzLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, XYZLiteral, thegeomsrs)
 
 ## Converts a geometry literal to a WKB literal.
 #  Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asWKB">geof:asWKB</a>
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wkbLiteral">geo:wkbLiteral</a>
 def asWKB(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#wkbLiteral":
+    if a.datatype==WKBLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wkbLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, WKBLiteral, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/asWKT">geof:asWKT</a>: Converts a geometry literal to a WKT literal.
 #  @param a The geometry literal
 #  @returns The geometry as a <a target="_blank" href="http://www.opengis.net/ont/geosparql#wktLiteral">geo:wktLiteral</a>
 def asWKT(a: Literal) -> Literal:
-    if a.datatype=="http://www.opengis.net/ont/geosparql#wktLiteral":
+    if a.datatype==WKTLiteral:
         return a
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom, "http://www.opengis.net/ont/geosparql#wktLiteral", thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(thegeom, WKTLiteral, thegeomsrs)
 
 ## Calculates whether the first geometry is behind the second geometry.
 #  @param a The first geometry literal
@@ -1148,15 +1207,17 @@ def farthestCoordinate(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[0].geom_type!="Point":
         raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
     print(geoms[0])
+    is3D=False
     if geoms[0].has_z and geoms[1].has_z:
         clist = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+        is3D=True
     else:
         clist = shapely.get_coordinates(geoms[1], include_z=False).tolist()
     maxdistance=float("-inf")
     farthest=None
     for p in clist:
         cp=shapely.geometry.Point(p)
-        dist=shapely.distance(geoms[0],cp)
+        dist=Handling3D.distanceWrapper(geoms[0],cp,is3D)
         if dist>maxdistance:
             maxdistance=dist
             farthest=cp
@@ -1466,9 +1527,11 @@ def length(a: Literal,unit: Literal) -> Literal:
 def longestLine(a: Literal, b: Literal) -> Literal:
     print("LONGESTLINE")
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    is3D=False
     if geoms[0].has_z and geoms[1].has_z:
         g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
         g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+        is3D=True
     else:
         g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
         g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
@@ -1477,7 +1540,7 @@ def longestLine(a: Literal, b: Literal) -> Literal:
     fpoint2=None
     for p1 in g1list:
         for p2 in g2list:
-            dist = shapely.distance(shapely.geometry.Point(p1), shapely.geometry.Point(p2))
+            dist = Handling3D.distanceWrapper(shapely.geometry.Point(p1), shapely.geometry.Point(p2),is3D)
             print(dist)
             if dist>maxdistance:
                 maxdistance=dist
@@ -1514,16 +1577,18 @@ def matrixTransform(a: Literal, matrix) -> Literal:
 #  @returns The maximum distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    is3D=False
     if geoms[0].has_z and geoms[1].has_z:
         g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
         g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+        is3D=True
     else:
         g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
         g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
     maxdistance=float("-inf")
     for p1 in g1list:
         for p2 in g2list:
-            dist=shapely.distance(shapely.geometry.Point(p1),shapely.geometry.Point(p2))
+            dist=Handling3D.distanceWrapper(shapely.geometry.Point(p1),shapely.geometry.Point(p2),is3D)
             if dist>maxdistance:
                 maxdistance=dist
     return Literal(str(maxdistance), datatype=XSD.double)
@@ -2107,6 +2172,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "above3D"): above3D,
     URIRef(GEOFEXT + "asGeocode"): asGeocode,
     URIRef(GEOFEXT + "asGLTF"): asGLTF,
+    URIRef(GEOFEXT + "asJSONFG"): asJSONFG,
     URIRef(GEOFEXT + "asOBJ"): asOBJ,
     URIRef(GEOFEXT + "asPLY"): asPLY,
     URIRef(GEOFEXT + "asSVG"): asSVG,
@@ -2212,13 +2278,11 @@ PREFIX geo: <"""+str(GEO)+""">
 PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT (xsd:boolean(?leftt) as ?left) (xsd:boolean(?nleftt) as ?notleft)
+SELECT ?kml
 WHERE {
   my:A geo:hasDefaultGeometry ?aGeom .
   ?aGeom geo:asWKT ?aLiteral .
-  BIND("Polygon((-82.3 34.0, -82.1 34.0, -82.1 34.2, -82.3 34.2, -82.3 34.0))"^^geo:wktLiteral AS ?dLiteral)
-  BIND (geof:leftOf(?aLiteral, ?dLiteral) as ?nleftt)
-  BIND (geof:leftOf(?dLiteral, ?aLiteral) as ?leftt)
+  BIND (geof:asKML(?aLiteral) as ?kml)
 }
 """
 )
