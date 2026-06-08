@@ -369,12 +369,12 @@ class LiteralUtils:
         lstring = str(literal).strip()
         #print(literal)
         #print(dtype)
-        print("LString: "+str(lstring))
+        #print("LString: "+str(lstring))
         if str(dtype) == WKTLiteral:
             if lstring.startswith("<"):
                 srsuri = lstring[0:lstring.find(">")].replace("<", "").replace(">", "")
                 gstring = lstring[lstring.find(">") + 1:].strip()
-                print("GString: "+str(gstring))
+                #print("GString: "+str(gstring))
                 geo = shapely.from_wkt(gstring)
                 srid = srsuri[srsuri.rfind("/") + 1:]
                 if srid.isnumeric():
