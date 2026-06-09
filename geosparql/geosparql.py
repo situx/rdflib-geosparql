@@ -7,6 +7,8 @@ from typing import Any
 
 import fastkml.geometry
 import h3
+import yaml
+import shapelysmooth
 import pint
 import pygeohash
 import pygml
@@ -38,6 +40,7 @@ DGGSLiteral = "http://www.opengis.net/ont/geosparql#dggsLiteral"
 JSONFGLiteral = "http://www.opengis.net/ont/geosparql#jsonfgLiteral"
 GEOJSONLiteral = "http://www.opengis.net/ont/geosparql#geoJSONLiteral"
 GEOCODELiteral="http://www.opengis.net/ont/geosparql#geocodeLiteral"
+GEOYAMLLiteral = "http://www.opengis.net/ont/geosparql#geoYAMLLiteral"
 PLYLiteral = "http://www.opengis.net/ont/geosparql#plyLiteral"
 OBJLiteral = "http://www.opengis.net/ont/geosparql#objLiteral"
 GLTFLiteral = "http://www.opengis.net/ont/geosparql#gltfLiteral"
@@ -369,12 +372,12 @@ class LiteralUtils:
         lstring = str(literal).strip()
         #print(literal)
         #print(dtype)
-        print("LString: "+str(lstring))
+        #print("LString: "+str(lstring))
         if str(dtype) == WKTLiteral:
             if lstring.startswith("<"):
                 srsuri = lstring[0:lstring.find(">")].replace("<", "").replace(">", "")
                 gstring = lstring[lstring.find(">") + 1:].strip()
-                print("GString: "+str(gstring))
+                #print("GString: "+str(gstring))
                 geo = shapely.from_wkt(gstring)
                 srid = srsuri[srsuri.rfind("/") + 1:]
                 if srid.isnumeric():
@@ -481,7 +484,7 @@ class LiteralUtils:
                     geo = shapely.empty(2, shapely.GeometryType.POLYGON)[0]
             else:
                 geo = shapely.geometry.shape(kml.KML.from_string(lstring).features[0].geometry)
-            print(geo)
+            #print(geo)
             shapely.set_srid(geo, 4326)
             srsuri = CRS84URI
             if normsrs is not None:
@@ -667,6 +670,20 @@ class Handling3D:
         if is3D:
             return math.sqrt(((pt2.x-pt1.x)**2)+((pt2.y-pt1.y)**2)+((pt2.z-pt1.z)**2))
         return shapely.distance(pt1,pt2)
+
+    @staticmethod
+    def length3D(coords):
+        length3d = 0
+        i=0
+        while i < len(coords):
+            coord1=coords[i]
+            coord2=coords[i+1]
+            dx = coord1[0] - coord2[0]
+            dy = coord1[1] - coord2[1]
+            dz = coord1[2] - coord2[2]
+            length3d += math.sqrt(dx * dx + dy * dy + dz * dz)
+            i+=2
+        return length3d
 
     @staticmethod
     def distance3DAware(geom1,geom2,minDist=True):
@@ -958,6 +975,14 @@ def below3D(a: Literal, b: Literal) -> Literal:
 def boundary(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
+
+## Retrieves the diagonal of the bounding box between the minimum coordinate and the maximum coordinate
+#  @param a The input geometry literal
+#  @returns The bounding diagonal
+def boundingDiagonal(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    thebounds=thegeom.bounds
+    return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([[thebounds[0],thebounds[2]],[thebounds[1],thebounds[3]]]), a.datatype, thegeomsrs)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
@@ -1515,7 +1540,10 @@ def length(a: Literal,unit: Literal) -> Literal:
         raise ValueError("The provided unit "+str(unit)+" is not a supported unit.\nSupported units: "+str(SRSUtils.uniturisToUnit.keys()))
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
-    thelength=normgeom.length
+    if thegeom.has_z:
+        thelength=Handling3D.length3D(shapely.get_coordinates(normgeom, include_z=True))
+    else:
+        thelength=normgeom.length
     if SRSUtils.uniturisToUnit[unit.value]!="meter":
         thelength=SRSUtils.convertMetricToUnit(thelength,"http://qudt.org/vocab/unit/M",unit.value)
     return Literal(thelength, datatype=XSD.double)
@@ -1743,8 +1771,6 @@ def minZ(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return Literal(str(Handling3D.minZ(thegeom)), datatype=XSD.double)
 
-
-
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/numGeometries">geof:numGeometries</a>: Calculates the number of geometries included in the geometry literal.
 #  @param a The first geometry literal
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating the number of geometries included
@@ -1809,6 +1835,18 @@ def pointN(a: Literal, n) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.get_point(shapely.get_exterior_ring(thegeom), int(str(n))), a.datatype, thegeomsrs)
     return LiteralUtils.processGeomToLiteral(shapely.get_point(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
+
+## Checks if a point is include inside a circle. If the inputs are 3D geometries, checks if the input is contained in a sphere.
+#  @param a The geometry literal
+#  @param center The point geometry of the center of the circle
+#  @param radius The radius of the circle
+#  @returns True if the point is included in the sphere, false otherwise
+def pointInsideCircle(a: Literal, centerpoint:Literal, rad) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    cpoint, centersrs = LiteralUtils.processLiteralTypeToGeom(centerpoint)
+    if shapely.has_z(thegeom) and shapely.has_z(cpoint):
+        return Literal(((shapely.get_x(thegeom) - shapely.get_x(cpoint)) ** 2 + (shapely.get_y(thegeom) - shapely.get_y(cpoint)) ** 2 + (shapely.get_z(thegeom) - shapely.get_z(cpoint)) ** 2 <= rad ** 2), datatype=XSD.boolean)
+    return Literal(((shapely.get_x(thegeom) - shapely.get_x(cpoint)) ** 2 + (shapely.get_y(thegeom) - shapely.get_y(cpoint)) ** 2 <= rad ** 2), datatype=XSD.boolean)
 
 ## Returns a point on the surface of the given geometry
 #  @param a The geometry literal
@@ -1907,6 +1945,12 @@ def scale(a: Literal, scaleX: Literal, scaleY: Literal, scaleZ: Literal) -> Lite
                                zfact=float(scaleZ.value)), a.datatype, thegeomsrs)
 
 
+def sharedPaths(a: Literal, b: Literal) -> Literal:
+    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+    if len(geomtps) > 1:
+        return LiteralUtils.processGeomToLiteral(shapely.shared_paths(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                 geomtps[0][1])
+
 ## Retrieves the shortest line between two geometries defined by the two points with minimum distance
 #  @param a The first geometry literal.
 #  @param b The first geometry literal.
@@ -1938,6 +1982,9 @@ def skew(a: Literal, xs: Literal, ys: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     return LiteralUtils.processGeomToLiteral(shapely.affinity.skew(thegeom, xs, ys), a.datatype, thegeomsrs)
 
+def smooth(a: Literal, tolerance: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapelysmooth.chaikin_smooth(thegeom), a.datatype, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/spatialDimension">geof:spatialDimension</a>: Calculates the spatial dimension of a geometry literal.
 #  @param a The geometry literal
@@ -2182,6 +2229,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "below"): below,
     URIRef(GEOFEXT + "below3D"): below3D,
     URIRef(GEOFEXT + "behind"): behind,
+    URIRef(GEOFEXT + "boundingDiagonal"): boundingDiagonal,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
     URIRef(GEOFEXT + "closestPoint"): closestPoint,
     URIRef(GEOFEXT + "constrainedDelaunay"): constrainedDelaunay,
@@ -2235,9 +2283,11 @@ geosparql13 = {
     URIRef(GEOFEXT + "rightOf3D"): rightOf3D,
     URIRef(GEOFEXT + "rotate"): rotate,
     URIRef(GEOFEXT + "scale"): scale,
+    URIRef(GEOFEXT + "sharedPaths"): sharedPaths,
     URIRef(GEOFEXT + "shortestLine"): shortestLine,
     URIRef(GEOFEXT + "simplify"): simplify,
     URIRef(GEOFEXT + "skew"): skew,
+    URIRef(GEOFEXT + "smooth"): smooth,
     URIRef(GEOFEXT + "startPoint"): startPoint,
     URIRef(GEOFEXT + "transformCRS84"): transformCRS84,
     URIRef(GEOFEXT + "translate"): translate,
@@ -2274,15 +2324,15 @@ g.parse(dir_path + "/../tests/testdata.ttl")
 
 result = g.query(
     """
-PREFIX geo: <"""+str(GEO)+""">
-PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX my: <http://example.org/ApplicationSchema#>
+PREFIX geo: <"""+str(GEO)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?kml
+PREFIX geof: <"""+str(GEOFEXT)+""">
+SELECT ?spaths
 WHERE {
-  my:A geo:hasDefaultGeometry ?aGeom .
-  ?aGeom geo:asWKT ?aLiteral .
-  BIND (geof:asKML(?aLiteral) as ?kml)
+  my:EExactGeom geo:asWKT ?literal .
+  my:EExactGeom geo:asWKT ?literal2 .
+  BIND(geof:sharedPaths(?literal,?literal2) AS ?spaths)
 }
 """
 )
