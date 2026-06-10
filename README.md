@@ -20,7 +20,10 @@ This repository includes the following Jupyter Notebooks which showcase the impl
 * [GeoSPARQL Ext Functions](GeoSPARQLExt.ipynb)
 
 The query functions in these Jupyter Notebooks are almost exclusively operating on WKT Literals.
-For a more comprehensive test please refer to the Python test classes in the [tests folder](tests)
+For a more comprehensive test please refer to the Python test classes in the [tests folder](tests).
+
+While the Jupyter Notebooks are automatically rendered in Github, not all features of the Jupyter Notebooks are available in the GitHub rendering (e.g. Leaflet Map Views).
+To make use of these visualizations, please clone the repository and execute the Jupyter Notebook in your preferred Jupyter Notebook environment.
  
 ### Literal Types
 
