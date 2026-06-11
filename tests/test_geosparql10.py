@@ -37,6 +37,27 @@ print(scombinations)
 
 class TestGeoSPARQL10:
 
+    def test_boundary(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?boundary
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND (geof:boundary(?aLiteral) as ?boundary)
+            }
+            """, combinations, config, g)
+        expresult = shapely.from_wkt("LINESTRING (-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1)")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["boundary"])[0], expresult)
+
     def test_buffer(self):
         resultlist = TestUtils.queryExecution(
             """
@@ -80,49 +101,6 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["chull"])[0], expresult)
 
-    def test_boundary(self):
-        resultlist = TestUtils.queryExecution(
-            """
-            PREFIX my: <http://example.org/ApplicationSchema#>
-            PREFIX geo: <"""+str(GEO)+""">
-            PREFIX geof: <"""+str(GEOF)+""">
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-            SELECT ?boundary
-            WHERE {
-              my:A geo:hasDefaultGeometry ?aGeom .
-              ?aGeom %%literalrel1%% ?aLiteral .
-              BIND (geof:boundary(?aLiteral) as ?boundary)
-            }
-            """, combinations, config, g)
-        expresult = shapely.from_wkt("LINESTRING (-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1)")
-        for res in resultlist:
-            result = res[0]
-            print("Testing with " + str(res[1]))
-            assert len(result) == 1
-            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["boundary"])[0], expresult)
-
-    def test_distance(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT ?distance
-        WHERE {
-          my:C geo:hasDefaultGeometry ?cGeom .
-          ?cGeom %%literalrel1%% ?cLiteral .
-          my:F geo:hasDefaultGeometry ?fGeom .
-          ?fGeom %%literalrel2%% ?fLiteral .
-          BIND (geof:distance(?cLiteral, ?fLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?distance)
-        }
-        """,combinations,config, g)
-        for res in resultlist:
-            result = res[0]
-            print("Testing with " + str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["distance"]) == "0.20000000000000284"
-    
     def test_difference(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -145,52 +123,29 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["difference"])[0],expresult,tolerance=eqtolerance)
-    
-    def test_envelope(self):
+
+    def test_distance(self):
         resultlist = TestUtils.queryExecution(
         """
         PREFIX my: <http://example.org/ApplicationSchema#>
         PREFIX geo: <"""+str(GEO)+""">
         PREFIX geof: <"""+str(GEOF)+""">
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT ?envelope
+        SELECT ?distance
         WHERE {
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel1%% ?aLiteral .
-          BIND (geof:envelope(?aLiteral) as ?envelope)
+          my:C geo:hasDefaultGeometry ?cGeom .
+          ?cGeom %%literalrel1%% ?cLiteral .
+          my:F geo:hasDefaultGeometry ?fGeom .
+          ?fGeom %%literalrel2%% ?fLiteral .
+          BIND (geof:distance(?cLiteral, ?fLiteral,"http://www.opengis.net/def/uom/OGC/1.0/meter"^^xsd:anyURI) as ?distance)
         }
-        """,combinations,config,g)
-        expresult=shapely.from_wkt("POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))")
+        """,combinations,config, g)
         for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
+            result = res[0]
+            print("Testing with " + str(res[1]))
             assert len(result) == 1
-            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["envelope"])[0], expresult)
-    
-    def test_ehEquals(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?ehEquals) as ?equals) (xsd:boolean(?ehEquals2) as ?equals2)
-        WHERE {
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel1%% ?aLiteral .
-          my:B geo:hasDefaultGeometry ?bGeom .
-          ?bGeom %%literalrel2%% ?bLiteral .
-          BIND (geof:ehEquals(?aLiteral, ?aLiteral) as ?ehEquals)
-          BIND (geof:ehEquals(?aLiteral, ?bLiteral) as ?ehEquals2)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["equals"]) == "true"
-            assert str(result[0]["equals2"]) == "false"
-    
+            assert str(result[0]["distance"]) == "0.20000000000000284"
+
     
     def test_ehContains(self):
         resultlist=TestUtils.queryExecution(
@@ -280,7 +235,31 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert str(result[0]["disjoint"]) == "false"
             assert str(result[0]["disjoint2"]) == "true"
-    
+
+    def test_ehEquals(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?ehEquals) as ?equals) (xsd:boolean(?ehEquals2) as ?equals2)
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          my:B geo:hasDefaultGeometry ?bGeom .
+          ?bGeom %%literalrel2%% ?bLiteral .
+          BIND (geof:ehEquals(?aLiteral, ?aLiteral) as ?ehEquals)
+          BIND (geof:ehEquals(?aLiteral, ?bLiteral) as ?ehEquals2)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["equals"]) == "true"
+            assert str(result[0]["equals2"]) == "false"
+
     def test_ehInside(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -346,7 +325,28 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["overlap"]) == "true"
-    
+
+    def test_envelope(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT ?envelope
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          BIND (geof:envelope(?aLiteral) as ?envelope)
+        }
+        """,combinations,config,g)
+        expresult=shapely.from_wkt("POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))")
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["envelope"])[0], expresult)
+
     def test_geometryType(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -407,52 +407,6 @@ class TestGeoSPARQL10:
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["intersection"])[0],expresult,tolerance=eqtolerance)
 
 
-    def test_rcc8eq(self):
-        resultlist = TestUtils.queryExecution(
-            """
-            PREFIX my: <http://example.org/ApplicationSchema#>
-            PREFIX geo: <"""+str(GEO)+""">
-            PREFIX geof: <"""+str(GEOF)+""">
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-            SELECT (xsd:boolean(?rcc8eq) as ?equals) (xsd:boolean(?rcc8eq2) as ?equals2)
-            WHERE {
-              my:A geo:hasDefaultGeometry ?aGeom .
-              ?aGeom %%literalrel1%% ?aLiteral .
-              my:B geo:hasDefaultGeometry ?bGeom .
-              ?bGeom %%literalrel2%% ?bLiteral .
-              BIND (geof:rcc8eq(?aLiteral, ?aLiteral) as ?rcc8eq)
-              BIND (geof:rcc8eq(?aLiteral, ?bLiteral) as ?rcc8eq2)
-            }
-            """, combinations, config, g)
-        for res in resultlist:
-            result = res[0]
-            print("Testing with " + str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["equals"]) == "true"
-            assert str(result[0]["equals2"]) == "false"
-
-    def test_rcc8ec(self):
-        resultlist = TestUtils.queryExecution(
-            """
-            PREFIX my: <http://example.org/ApplicationSchema#>
-            PREFIX geo: <"""+str(GEO)+""">
-            PREFIX geof: <"""+str(GEOF)+""">
-            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-            SELECT (xsd:boolean(?sfTouches) as ?touches)
-            WHERE {
-              my:A geo:hasDefaultGeometry ?aGeom .
-              ?aGeom %%literalrel1%% ?aLiteral .
-              my:C geo:hasDefaultGeometry ?cGeom .
-              ?cGeom %%literalrel2%% ?cLiteral .
-              BIND (geof:rcc8ec(?aLiteral, ?cLiteral) as ?sfTouches)
-            }
-            """, combinations,config, g)
-        for res in resultlist:
-            result = res[0]
-            print("Testing with " + str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["touches"]) == "true"
-
     def test_rcc8dc(self):
         resultlist = TestUtils.queryExecution(
             """
@@ -476,6 +430,52 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert str(result[0]["disjoint"]) == "false"
             assert str(result[0]["disjoint2"]) == "true"
+
+    def test_rcc8ec(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?sfTouches) as ?touches)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              my:C geo:hasDefaultGeometry ?cGeom .
+              ?cGeom %%literalrel2%% ?cLiteral .
+              BIND (geof:rcc8ec(?aLiteral, ?cLiteral) as ?sfTouches)
+            }
+            """, combinations,config, g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["touches"]) == "true"
+
+    def test_rcc8eq(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT (xsd:boolean(?rcc8eq) as ?equals) (xsd:boolean(?rcc8eq2) as ?equals2)
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              my:B geo:hasDefaultGeometry ?bGeom .
+              ?bGeom %%literalrel2%% ?bLiteral .
+              BIND (geof:rcc8eq(?aLiteral, ?aLiteral) as ?rcc8eq)
+              BIND (geof:rcc8eq(?aLiteral, ?bLiteral) as ?rcc8eq2)
+            }
+            """, combinations, config, g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["equals"]) == "true"
+            assert str(result[0]["equals2"]) == "false"
 
     def test_rcc8ntpp(self):
         resultlist = TestUtils.queryExecution(
@@ -616,28 +616,6 @@ class TestGeoSPARQL10:
             assert str(result[0]["relates"]) == "true"
             assert str(result[0]["relates2"]) == "false"
 
-    def test_sfCrosses(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?sfCrosses) as ?crosses)
-        WHERE {
-          my:E geo:hasDefaultGeometry ?eGeom .
-          ?eGeom %%literalrel1%% ?eLiteral .
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel2%% ?aLiteral .
-          BIND (geof:sfCrosses(?eLiteral, ?aLiteral) as ?sfCrosses)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["crosses"]) == "true"
-
     def test_sfContains(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -659,6 +637,28 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["contains"]) == "true"
+
+    def test_sfCrosses(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfCrosses) as ?crosses)
+        WHERE {
+          my:E geo:hasDefaultGeometry ?eGeom .
+          ?eGeom %%literalrel1%% ?eLiteral .
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel2%% ?aLiteral .
+          BIND (geof:sfCrosses(?eLiteral, ?aLiteral) as ?sfCrosses)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["crosses"]) == "true"
 
 
     def test_sfDisjoint(self):
@@ -730,6 +730,27 @@ class TestGeoSPARQL10:
             assert len(result) == 1
             assert str(result[0]["intersects"]) == "true"
 
+    def test_sfOverlaps(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT (xsd:boolean(?sfOverlaps) as ?overlaps)
+        WHERE {
+          my:A geo:hasDefaultGeometry ?aGeom .
+          ?aGeom %%literalrel1%% ?aLiteral .
+          my:D geo:hasDefaultGeometry ?dGeom .
+          ?dGeom %%literalrel2%% ?dLiteral .
+          BIND (geof:sfOverlaps(?aLiteral, ?dLiteral) as ?sfOverlaps)
+        }
+        """,combinations,config,g)
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["overlaps"]) == "true"
 
     def test_sfTouches(self):
         resultlist = TestUtils.queryExecution(
@@ -774,28 +795,6 @@ class TestGeoSPARQL10:
             print("Testing with "+str(res[1]))
             assert len(result) == 1
             assert str(result[0]["within"]) == "true"
-
-    def test_sfOverlaps(self):
-        resultlist = TestUtils.queryExecution(
-        """
-        PREFIX my: <http://example.org/ApplicationSchema#>
-        PREFIX geo: <"""+str(GEO)+""">
-        PREFIX geof: <"""+str(GEOF)+""">
-        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-        SELECT (xsd:boolean(?sfOverlaps) as ?overlaps)
-        WHERE {
-          my:A geo:hasDefaultGeometry ?aGeom .
-          ?aGeom %%literalrel1%% ?aLiteral .
-          my:D geo:hasDefaultGeometry ?dGeom .
-          ?dGeom %%literalrel2%% ?dLiteral .
-          BIND (geof:sfOverlaps(?aLiteral, ?dLiteral) as ?sfOverlaps)
-        }
-        """,combinations,config,g)
-        for res in resultlist:
-            result=res[0]
-            print("Testing with "+str(res[1]))
-            assert len(result) == 1
-            assert str(result[0]["overlaps"]) == "true"
     
     def test_symDifference(self):
         resultlist = TestUtils.queryExecution(

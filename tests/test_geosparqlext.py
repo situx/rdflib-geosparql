@@ -134,7 +134,7 @@ class TestGeoSPARQLExt(TestGeoSPARQL11):
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
               ?aGeom %%literalrel1%% ?aLiteral .
-              BIND (geof:asJSONFG(?aLiteral) as ?gltf)
+              BIND (geof:asJSONFG(?aLiteral) as ?jsonfg)
             }
             """ ,combinations,config,g)
         expresult=shapely.from_wkt("<http://www.opengis.net/def/crs/OGC/1.3/CRS84> POLYGON ((-83.6 34.1, -83.2 34.1, -83.2 34.5, -83.6 34.5, -83.6 34.1))")
@@ -321,6 +321,27 @@ end_header
             assert str(result[0]["below"]) == "true"
             assert str(result[0]["notbelow"]) == "false"
 
+    def test_boundingDiagonal(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            SELECT ?bdiag
+            WHERE {
+              my:A geo:hasDefaultGeometry ?aGeom .
+              ?aGeom %%literalrel1%% ?aLiteral .
+              BIND (geof:boundingDiagonal(?aLiteral) as ?bdiag)
+            }
+            """,combinations,config,g)
+        expresult = shapely.from_wkt("""LINESTRING (-83.6 -83.2, 34.1 34.5)""")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["bdiag"])[0], expresult)
+
     def test_closestPoint(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -437,9 +458,9 @@ end_header
         SELECT ?farthestCoord
         WHERE {
           my:A my:hasPointGeometry ?aGeom .
-          ?aGeom geo:asWKT ?aLiteral .
+          ?aGeom %%literalrel1%% ?aLiteral .
           my:D geo:hasDefaultGeometry ?dGeom .
-          ?dGeom geo:asWKT ?dLiteral .
+          ?dGeom %%literalrel2%% ?dLiteral .
           BIND (geof:farthestCoordinate(?aLiteral, ?dLiteral) as ?farthestCoord)
         }
         """,combinations,config,g)
@@ -732,9 +753,9 @@ end_header
             SELECT ?longestLine
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
-              ?aGeom geo:asWKT ?aLiteral .
+              ?aGeom %%literalrel1%% ?aLiteral .
               my:D geo:hasDefaultGeometry ?dGeom .
-              ?dGeom geo:asWKT ?dLiteral .
+              ?dGeom %%literalrel2%% ?dLiteral .
               BIND (geof:longestLine(?aLiteral, ?dLiteral) as ?longestLine)
             }
             """ ,combinationsM,config,g)
@@ -1106,6 +1127,27 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["scale"])[0], expresult)
+
+    def test_sharedPaths(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            SELECT ?spaths
+            WHERE {
+              my:EExactGeom %%literalrel1%% ?literal .
+              my:EExactGeom %%literalrel2%% ?literal2 .
+              BIND(geof:sharedPaths(?literal,?literal2) AS ?spaths)
+            }
+            """ ,combinations,config,g)
+        expresult = shapely.from_wkt("LINESTRING (-83.2 34.5, 2.393 47.448)")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["spaths"])[0], expresult)
 
     def test_shortestLine(self):
         resultlist = TestUtils.queryExecution(

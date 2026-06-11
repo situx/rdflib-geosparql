@@ -982,7 +982,7 @@ def boundary(a: Literal) -> Literal:
 def boundingDiagonal(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     thebounds=thegeom.bounds
-    return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([[thebounds[0],thebounds[2]],[thebounds[1],thebounds[3]]]), a.datatype, thegeomsrs)
+    return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([[thebounds[0],thebounds[1]],[thebounds[2],thebounds[3]]]), a.datatype, thegeomsrs)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
