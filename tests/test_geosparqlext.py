@@ -512,6 +512,26 @@ end_header
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["force2D"])[0],expresult,tolerance=eqtolerance)
 
+    def test_force3D(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX geof: <"""+str(GEOF)+""">
+        SELECT ?force3D
+        WHERE {
+          my:NExactGeom %%literalrel1%% ?literal .
+          BIND(geof:force3D(?literal,"5.0"^^xsd:double) AS ?force3D)
+        }
+        """,combinations,config,g)
+        expresult=shapely.from_wkt("POLYGON Z((-77.089005 38.913574 5.0, -77.029953 38.913574 5.0, -77.029953 38.886321 5.0, -77.089005 38.886321 5.0, -77.089005 38.913574 5.0))")
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["force3D"])[0],expresult,tolerance=eqtolerance)
+
 
     def test_haussdorffdistance(self):
         resultlist = TestUtils.queryExecution(
@@ -794,9 +814,9 @@ end_header
             SELECT ?maxDistance
             WHERE {
               my:A geo:hasDefaultGeometry ?aGeom .
-              ?aGeom geo:asWKT ?aLiteral .
+              ?aGeom %%literalrel1%%  ?aLiteral .
               my:D geo:hasDefaultGeometry ?dGeom .
-              ?dGeom geo:asWKT ?dLiteral .
+              ?dGeom %%literalrel2%%  ?dLiteral .
               BIND (geof:maxDistance(?aLiteral, ?dLiteral) as ?maxDistance)
             }
             """ ,combinationsM,config,g)

@@ -582,8 +582,8 @@ class LiteralUtils:
     #  @returns A geometry literal in the required literal type and SRS
     @staticmethod
     def processGeomToLiteral(geom, literaltype, thegeomsrs="") -> Literal:
-        print("GEOMTOLIT: "+str(geom))
-        print(str(type(geom)))
+        #print("GEOMTOLIT: "+str(geom))
+        #print(str(type(geom)))
         ltype = str(literaltype)
         if ltype == WKTLiteral:
             if thegeomsrs == "":
@@ -711,7 +711,7 @@ class Handling3D:
         flinf = float("inf")
         minZ = flinf
         for c in clist:
-            print(c)
+            #print(c)
             if c[2] != nan and minZ > c[2]:
                 minZ = c[2]
         if minZ == flinf:
@@ -1227,11 +1227,9 @@ def exteriorRing(a: Literal) -> Literal:
 #  @param b The geometry to calculaet the farthest coordinate on.
 #  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
 def farthestCoordinate(a: Literal, b: Literal) -> Literal:
-    print("FARTHEST COORDINATE")
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     if geoms[0] is not None and geoms[0].geom_type!="Point":
         raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
-    print(geoms[0])
     is3D=False
     if geoms[0].has_z and geoms[1].has_z:
         clist = shapely.get_coordinates(geoms[1], include_z=True).tolist()
@@ -1287,6 +1285,27 @@ def frechetDistance(a: Literal, b: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.frechet_distance(geoms[0], geoms[1]), datatype=XSD.double)
 
+def fullyWithinDistance(a: Literal, b: Literal, distance: Literal) -> Literal:
+    if isinstance(distance, Literal) and distance.datatype == XSD.double:
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+        is3D=False
+        if geoms[0].has_z and geoms[1].has_z:
+            g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
+            g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
+            is3D=True
+        else:
+            g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
+            g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+        thedistance=float(distance)
+        maxdistance=float("-inf")
+        for p1 in g1list:
+            for p2 in g2list:
+                dist=Handling3D.distanceWrapper(shapely.geometry.Point(p1),shapely.geometry.Point(p2),is3D)
+                if dist>maxdistance:
+                    maxdistance=dist
+        return Literal(maxdistance<=thedistance,datatype=XSD.boolean)
+
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryN">geof:geometryN</a>: Returns the nth geometry of a GeometryCollection if it exists
 #  @param a The geometry literal
 #  @param n The index of the GeometryCollection to retrieve
@@ -1294,8 +1313,6 @@ def frechetDistance(a: Literal, b: Literal) -> Literal:
 def geometryN(a: Literal, n: Literal) -> Literal:
     if isinstance(a, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-        print(thegeom)
-        print(shapely.get_geometry(thegeom, int(str(n))))
         return LiteralUtils.processGeomToLiteral(shapely.get_geometry(thegeom, int(str(n))), a.datatype, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryType">geof:geometryType</a>: Retrieves the geometry type of a geometry literal.
@@ -1428,8 +1445,6 @@ def isClosed(a: Literal) -> Literal:
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is closed
 def isEmpty(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    print(thegeom)
-    print(shapely.is_empty(thegeom))
     return Literal(shapely.is_empty(thegeom), datatype=XSD.boolean)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/isMeasured">geof:isMeasured</a>: Calculates whether a geometry literal has measurement coordinates.
@@ -1462,8 +1477,6 @@ def isRing(a: Literal) -> Literal:
 #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the geometry is simple
 def isSimple(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    print(thegeom.is_simple)
-    print("The Lit: " + str(Literal(thegeom.is_simple, datatype=XSD.boolean)))
     return Literal(thegeom.is_simple, datatype=XSD.boolean)
 
 ## Calculates whether a geometry is a triangle.
