@@ -7,14 +7,6 @@ permissions:
 
 jobs:
 
-  dependency-review:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Checkout Repository'
-        uses: actions/checkout@v6
-      - name: 'Dependency Review'
-        uses: actions/dependency-review-action@v5
-
   build:
 
     runs-on: ubuntu-latest
