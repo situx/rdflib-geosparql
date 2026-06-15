@@ -389,7 +389,7 @@ class LiteralUtils:
                     geo = Transformers.transformToSRS(geo, srsuri, str(normsrs))
                     srsuri = normsrs
                 if create3D:
-                    return (LiteralUtils.createGeometry3D(geo), srsuri)
+                    return LiteralUtils.createGeometry3D(geo), srsuri
                 return (geo, srsuri)
             else:
                 geo = shapely.from_wkt(str(lstring))
@@ -1061,6 +1061,7 @@ def centroid(a: Literal) -> Literal:
 #  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
 def closestPoint(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    print(geoms)
     is3D=False
     if geoms[0].has_z and geoms[1].has_z:
         g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
@@ -1070,6 +1071,7 @@ def closestPoint(a: Literal, b: Literal) -> Literal:
         g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
         g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
     mindistance=float("inf")
+    print("DISTANCECALC")
     closest=None
     for p1 in g1list:
         for p2 in g2list:
@@ -1078,6 +1080,7 @@ def closestPoint(a: Literal, b: Literal) -> Literal:
             if dist<mindistance:
                 mindistance=dist
                 closest=cp
+    print("CLOSEST: "+str(closest))
     if closest is not None:
         return LiteralUtils.processGeomToLiteral(closest,a.datatype,"")
 
@@ -1419,6 +1422,8 @@ def inside(a: Literal, b: Literal) -> Literal:
 #  @returns The interpolated point
 def interpolatePoint(a: Literal, d: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    print(thegeom)
+    print(d.value)
     return LiteralUtils.processGeomToLiteral(shapely.line_interpolate_point(thegeom,float(str(d.value))), a.datatype)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/intersection">geof:intersection</a>: Calculates the intersection of two geometry literals.
@@ -2327,9 +2332,10 @@ geosparql13 = {
     URIRef(GEOFEXT + "forceCW"): forceCW,
     URIRef(GEOFEXT + "forceCCW"): forceCCW,
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
+    URIRef(GEOFEXT + "fullyWithinDistance"): fullyWithinDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
     URIRef(GEOFEXT + "hausdorffDistance"): hausdorffDistance,
-    URIRef(GEOFEXT + "infrontof"): inFrontOf,
+    URIRef(GEOFEXT + "inFrontOf"): inFrontOf,
     URIRef(GEOFEXT + "interpolatePoint"): interpolatePoint,
     URIRef(GEOFEXT + "intersection3D"): intersection3D,
     URIRef(GEOFEXT + "intersects3D"): intersects3D,
@@ -2410,15 +2416,15 @@ result = g.query(
     """
 PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
-PREFIX geof: <"""+str(GEOF)+""">
-PREFIX geofext: <"""+str(GEOFEXT)+""">
+PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?aLiteral ?centroid
+SELECT ?aLiteral ?dLiteral ?cPoint
 WHERE {
-  my:A geo:hasDefaultGeometry ?aGeom .
+  my:A my:hasGeometry ?aGeom .
   ?aGeom geo:asWKT ?aLiteral .
-  BIND("Polygon((-83.6 34.1 5.0, -83.2 34.1 5.0, -83.2 34.5 5.0, -83.6 34.5 5.0, -83.6 34.1 5.0))"^^geo:wktLiteral as ?aLit3D)
-  BIND (geof:centroid(?aLit3D) as ?centroid)
+  my:D geo:hasGeometry ?dGeom .
+  ?dGeom geo:asWKT ?dLiteral .
+  BIND (geof:closestPoint(?aLiteral, ?dLiteral) as ?cPoint)
 }
 """
 )

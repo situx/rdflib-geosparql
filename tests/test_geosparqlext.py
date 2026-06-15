@@ -555,6 +555,27 @@ end_header
             assert len(result) == 1
             assert str(result[0]["hdistance"]) == "0.41231056256177195"
 
+    def test_interpolatePoint(self):
+        resultlist = TestUtils.queryExecution(
+        """
+        PREFIX my: <http://example.org/ApplicationSchema#>
+        PREFIX geo: <"""+str(GEO)+""">
+        PREFIX geof: <"""+str(GEOF)+""">
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        SELECT ?interpolated
+        WHERE {
+          my:E geo:hasDefaultGeometry ?eGeom .
+          ?eGeom %%literalrel1%% ?eLiteral .
+          BIND (geof:interpolatePoint(?eLiteral, "2"^^xsd:double) as ?interpolated)
+        }
+        """,combinations,config,g)
+        expresult = shapely.from_wkt("POINT(-83.3 34.3)")
+        for res in resultlist:
+            result=res[0]
+            print("Testing with "+str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["interpolated"])[0],expresult)
+
     def test_intersects3D(self):
         resultlist = TestUtils.queryExecution(
         """
@@ -796,6 +817,24 @@ end_header
             WHERE {
               my:PPointGeom %%literalrel1%% ?literal .
               BIND(geof:M(?literal) AS ?m)
+            }
+            """ ,combinationsM,config,g)
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert str(result[0]["m"]) == "5.0"
+
+    def test_makeValid(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX geof: <"""+str(GEOF)+""">
+            SELECT ?m
+            WHERE {
+              my:PPointGeom %%literalrel1%% ?literal .
+              BIND(geof:makeValid(?literal) AS ?m)
             }
             """ ,combinationsM,config,g)
         for res in resultlist:
