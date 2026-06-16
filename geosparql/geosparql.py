@@ -932,7 +932,16 @@ class SerializationFunctions:
 
 def range_overlap(start1, end1, start2, end2):
     """how much does the range (start1, end1) overlap with (start2, end2)"""
-    return max(max((end2-start1), 0) - max((end2-end1), 0) - max((start2-start1), 0), 0)
+    #print("Start1: "+str(start1)+" End1: "+str(end1)+"Start2: "+str(start2)+" End2: "+str(end2))
+    if start1==start2 and end1==end2:
+        return 100
+    if start1==end1:
+        end1=start1+0.1
+    if start2==end2:
+        end2=start2+0.1
+    res=max(max((end2-start1), 0) - max((end2-end1), 0) - max((start2-start1), 0), 0)
+    #print(res)
+    return res
 
 ## Calculates whether the first geometry is above the second geometry.
 #  @param a The first geometry literal
@@ -948,18 +957,22 @@ def above(a: Literal, b: Literal) -> Literal:
             rox = range_overlap(geom1bounds[0], geom1bounds[2], geom2bounds[0], geom2bounds[2])
             roz = range_overlap(Handling3D.minZ(geoms[0]), Handling3D.maxZ(geoms[0]), Handling3D.minZ(geoms[1]),
                                 Handling3D.maxZ(geoms[1]))
-            return Literal(rox > 0 and roz > 0 and geom1bounds[3] > geom2bounds[1], datatype=XSD.boolean)
+            #print("ROX: "+str(rox))
+            #print("ROZ: "+str(roz))
+            #geom1bounds[3] > geom2bounds[1]
+            return Literal(rox > 0 and roz > 0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
         else:
             #geom[0].maxY<geom[1].minY
             geom1bounds=shapely.total_bounds(geoms[0])
             geom2bounds=shapely.total_bounds(geoms[1])
             ro=range_overlap(geom1bounds[0],geom1bounds[2],geom2bounds[0],geom2bounds[2])
+            #print("ROX: " + str(ro))
             #print(geom1bounds)
             #print(geom2bounds)
             #print(ro)
             #print(str(geom1bounds[3])+" < "+str(geom2bounds[1])+" = "+str(geom1bounds[3]<geom2bounds[1]))
             #print("GEOM1 ABOVE GEOM2? "+str(ro>0 and geom1bounds[3]<geom2bounds[1]))
-            return Literal(ro>0 and geom1bounds[3]<geom2bounds[1], datatype=XSD.boolean)
+            return Literal(ro>0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
 
 ## Calculates whether the first 3D geometry is above the 3D second geometry.
 #  @param a The first geometry literal
@@ -975,6 +988,41 @@ def above3D(a: Literal, b: Literal) -> Literal:
         roz=range_overlap(Handling3D.minZ(geoms[0]),Handling3D.maxZ(geoms[0]),Handling3D.minZ(geoms[1]),Handling3D.maxZ(geoms[1]))
         return Literal(rox>0 and roz>0 and geom1bounds[3]>geom2bounds[1], datatype=XSD.boolean)
     raise ValueError("The provided input geometries were either not valid or not 3D")
+
+## Adds a coordinate at the given index to the geometry
+#  @param a The geometry literal
+#  @param b The coordindate to add
+#  @param poinindex The index at which the coordinate should be added
+#  @returns The geometry with the added coordinate in the CRS and literal format of the input geometry
+def addPoint(a: Literal, b:Literal, pointindex: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    theindex=int(pointindex.value)
+    if geoms[1].geom_type == "Point":
+        if geoms[0].geom_type == "Point":
+            if theindex==0:
+                coords = list(geoms[0].coords)
+                coords.insert(theindex,geoms[1].coords[0])
+                return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString(coords), a.datatype)
+            raise ValueError("Selected to remove a coordinate from a Point geometry with index greater 0")
+        if geoms[0].geom_type == "LineString":
+            coords=list(geoms[0].coords)
+            coords.insert(theindex,geoms[1].coords[0])
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString(coords), a.datatype)
+        if geoms[0].geom_type == "Polygon":
+            coords = list(geoms[0].exterior.coords)
+            coords.insert(theindex,geoms[1].coords[0])
+            if coords[0] != coords[-1]:
+                coords[-1] = coords[0]
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.Polygon(coords), a.datatype)
+    raise ValueError("This function is only support for Point, LineString and Polygon geometries")
+
+## Appends a coordinate to a given geometry
+#  @param a The geometry literal
+#  @param b The point to append
+#  @returns The geometry without repeated points in the CRS and literal format of the input geometry
+def appendPoint(a: Literal, b:Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return addPoint(a,b,Literal(shapely.get_num_points(thegeom)-1,datatype=XSD.integer))
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/area">geof:area</a>: Calculates the area of a 2D geometry provided as a geometry literal .
 #  @param a The geometry literal.
@@ -1112,6 +1160,13 @@ def centroid(a: Literal) -> Literal:
     if Handling3D.is3D(thegeom):
         return LiteralUtils.processGeomToLiteral(Handling3D.centroid3D(thegeom),a.datatype, thegeomsrs)
     return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
+
+
+def clipByRect(a: Literal, b:Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    bounds=geoms[1].bounds
+    clipped=shapely.clip_by_rect(geoms[0],bounds[0],bounds[1],bounds[2],bounds[3])
+    return LiteralUtils.processGeomToLiteral(clipped, a.datatype, "")
 
 
 ## Retrieves the point on the second geometry parameter which is closest to the first geometry
@@ -2013,6 +2068,30 @@ def relate(a: Literal, b: Literal, matrix: Literal) -> Literal:
     if geoms[0] is not None and geoms[1] is not None:
         return Literal(shapely.relate_pattern(geoms[0], geoms[1], str(matrix)), datatype=XSD.boolean)
 
+## Removes the coordinate at the givein index from the
+#  @param a The geometry literal
+#  @returns The geometry without repeated points in the CRS and literal format of the input geometry
+def removePoint(a: Literal, pointIndex: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    theindex=int(pointIndex.value)
+    if thegeom.geom_type == "Point":
+        if theindex==0:
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.Point(), a.datatype)
+        raise ValueError("Selected to remove a coordinate from a Point geometry with index greater 0")
+    if thegeom.geom_type == "LineString":
+        coords=list(thegeom.coords)
+        if theindex<len(coords):
+            coords.pop(theindex)
+        return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString(coords), a.datatype)
+    if thegeom.geom_type == "Polygon":
+        coords = list(thegeom.exterior.coords)
+        if theindex<len(coords):
+            coords.pop(theindex)
+        if coords[0] != coords[-1]:
+            coords[-1] = coords[0]
+        return LiteralUtils.processGeomToLiteral(shapely.geometry.Polygon(coords), a.datatype)
+    raise ValueError("This function is only support for Point, LineString and Polygon geometries")
+
 ## Creates a geometry without repeated points.
 #  @param a The geometry literal
 #  @returns The geometry without repeated points in the CRS and literal format of the input geometry
@@ -2090,6 +2169,31 @@ def scale(a: Literal, scaleX: Literal, scaleY: Literal, scaleZ: Literal) -> Lite
         shapely.affinity.scale(thegeom, xfact=float(scaleX.value), yfact=float(scaleY.value),
                                zfact=float(scaleZ.value)), a.datatype, thegeomsrs)
 
+## Sets the coordinate at the given index with the given point
+#  @param a The geometry literal
+#  @param b The coordinate to replace
+#  @returns The geometry with the replace coordiante in the CRS and literal format of the input geometry
+def setPoint(a: Literal, b:Literal, pointindex: Literal) -> Literal:
+    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    theindex=int(pointindex.value)
+    if geoms[1].geom_type == "Point":
+        if geoms[0].geom_type == "Point":
+            if theindex==0:
+                coords = list(geoms[0].coords)
+                coords[theindex]=geoms[1].coords[0]
+                return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString(coords), a.datatype)
+            raise ValueError("Selected to remove a coordinate from a Point geometry with index greater 0")
+        if geoms[0].geom_type == "LineString":
+            coords=list(geoms[0].coords)
+            coords[theindex]=geoms[1].coords[0]
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString(coords), a.datatype)
+        if geoms[0].geom_type == "Polygon":
+            coords = list(geoms[0].exterior.coords)
+            coords[theindex]=geoms[1].coords[0]
+            if coords[0] != coords[-1]:
+                coords[-1] = coords[0]
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.Polygon(coords), a.datatype)
+    raise ValueError("This function is only support for Point, LineString and Polygon geometries")
 
 def sharedPaths(a: Literal, b: Literal) -> Literal:
     geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
@@ -2374,6 +2478,8 @@ geosparql11 = {
 geosparql13 = {
     URIRef(GEOFEXT + "above"): above,
     URIRef(GEOFEXT + "above3D"): above3D,
+    URIRef(GEOFEXT + "addPoint"): addPoint,
+    URIRef(GEOFEXT + "appendPoint"): appendPoint,
     URIRef(GEOFEXT + "asGeocode"): SerializationFunctions.asGeocode,
     URIRef(GEOFEXT + "asGeoYAML"): SerializationFunctions.asGeoYAML,
     URIRef(GEOFEXT + "asGLTF"): SerializationFunctions.asGLTF,
@@ -2389,6 +2495,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "behind"): behind,
     URIRef(GEOFEXT + "boundingDiagonal"): boundingDiagonal,
     URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
+    URIRef(GEOFEXT + "clipByRect"): clipByRect,
     URIRef(GEOFEXT + "closestPoint"): closestPoint,
     URIRef(GEOFEXT + "constrainedDelaunay"): constrainedDelaunay,
     URIRef(GEOFEXT + "delaunayTriangles"): delaunayTriangles,
@@ -2436,6 +2543,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "patchN"): patchN,
     URIRef(GEOFEXT + "pointN"): pointN,
     URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
+    URIRef(GEOFEXT + "removePoint"): removePoint,
     URIRef(GEOFEXT + "removeRepeatedPoints"): removeRepeatedPoints,
     URIRef(GEOFEXT + "reverse"): reverse,
     URIRef(GEOFEXT + "rightOf"): rightOf,
@@ -2443,6 +2551,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "rotate"): rotate,
     URIRef(GEOFEXT + "scale"): scale,
     URIRef(GEOFEXT + "selfIntersections"): selfIntersections,
+    URIRef(GEOFEXT + "setPoint"): setPoint,
     URIRef(GEOFEXT + "sharedPaths"): sharedPaths,
     URIRef(GEOFEXT + "shortestLine"): shortestLine,
     URIRef(GEOFEXT + "simplify"): simplify,
