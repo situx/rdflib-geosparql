@@ -1,8 +1,7 @@
 import json
 import os
-import math
 from io import BytesIO, TextIOWrapper
-from math import nan, pi, sqrt, degrees, atan2
+import math
 from typing import Any
 
 import fastkml.geometry
@@ -10,7 +9,6 @@ import h3
 import collections
 import yaml
 import shapelysmooth
-import pint
 import pygeohash
 import pygml
 import shapely
@@ -20,11 +18,9 @@ from lxml import etree
 from openlocationcode import openlocationcode
 from pint import UnitRegistry
 from pygml.v32 import encode_v32
-from pyproj import CRS
-from pyproj import Transformer
+from pyproj import CRS, Transformer
 from rdflib import Literal, XSD, Graph, URIRef, term
 from rdflib.plugins.sparql.operators import register_custom_function
-from shapely.io import to_geojson
 
 
 GEOF = "http://www.opengis.net/def/function/geosparql/"
@@ -66,7 +62,8 @@ class Transformers:
     #The geocodes supported in this implementation identified by URI
     supported_geocodes = {"http://opengis.net/ont/geocode/GeoURI",
                           "http://opengis.net/ont/geocode/OpenLocationCode",
-                          "http://opengis.net/ont/geocode/GeoHash-36"
+                          "http://opengis.net/ont/geocode/GeoHash-36",
+                          "http://opengis.net/ont/geocode/GeoHash"
                           }
 
     #The DGGS supported in this implementation identified by URIs
@@ -119,7 +116,7 @@ class Transformers:
                 "," + str(geom.centroid.z) if geom.has_z else "")
         elif geocodeuri == "http://opengis.net/ont/geocode/OpenLocationCode":
             thecode = openlocationcode.encode(geom.centroid.x, geom.centroid.y)
-        elif geocodeuri == "http://opengis.net/ont/geocode/GeoHash-36":
+        elif geocodeuri == "http://opengis.net/ont/geocode/GeoHash-36" or geocodeuri == "http://opengis.net/ont/geocode/GeoHash":
             thecode = pygeohash.encode(latitude=geom.x, longitude=geom.y)
         return "<" + str(geocodeuri) + "> " + str(thecode)
 
@@ -604,13 +601,13 @@ class LiteralUtils:
             else:
                 return Literal("<" + str(thegeomsrs) + "> " + str(geom.wkt), datatype=literaltype)
         elif ltype == GEOJSONLiteral:
-            return Literal(str(to_geojson(geom)), datatype=literaltype)
+            return Literal(str(shapely.io.to_geojson(geom)), datatype=literaltype)
         elif ltype == GEOYAMLLiteral:
-            return Literal(str(yaml.dump(json.loads(to_geojson(geom)))), datatype=literaltype)
+            return Literal(str(yaml.dump(json.loads(shapely.io.to_geojson(geom)))), datatype=literaltype)
         elif ltype == GMLLiteral:
-            return Literal(etree.tostring(encode_v32(json.loads(to_geojson(geom)), "ID"),encoding="unicode"), datatype=literaltype)
+            return Literal(etree.tostring(encode_v32(json.loads(shapely.io.to_geojson(geom)), "ID"),encoding="unicode"), datatype=literaltype)
         elif ltype == JSONFGLiteral:
-            thegeofg=json.loads(to_geojson(geom))
+            thegeofg=json.loads(shapely.io.to_geojson(geom))
             thegeofg["coordRefSys"] = thegeomsrs
             thegeofg["conformsTo"] = ["http://www.opengis.net/spec/json-fg-1/1.0/conf/core",
                                     "http://www.opengis.net/spec/json-fg-1/1.0/conf/types-schemas"]
@@ -718,6 +715,40 @@ class Handling3D:
         return shapely.geometry.Point([centroid2d.x,centroid2d.y,zadded/len(g1list)])
 
     @staticmethod
+    def geometricMedian(geom):
+        if Handling3D.is3D(geom):
+            points=shapely.get_coordinates(geom, include_z=True).tolist()
+        else:
+            points = shapely.get_coordinates(geom, include_z=False).tolist()
+        dim = len(points[0])
+        tol = 1e-9
+        max_iter = 1000
+        current = [sum(p[i] for p in points) / len(points) for i in range(dim)]
+        for _ in range(max_iter):
+            numerator = [0.0] * dim
+            denominator = 0.0
+            #print(points)
+            for point in points:
+                #print(point)
+                dist = math.sqrt(sum((point[i] - current[i]) ** 2 for i in range(dim)))
+                # Handle coincidence with a data point
+                if dist < tol:
+                    return shapely.geometry.Point(point[0],point[1])
+                weight = 1.0 / dist
+                for i in range(dim):
+                    numerator[i] += weight * point[i]
+                denominator += weight
+            new_point = [x / denominator for x in numerator]
+            movement = math.sqrt(sum((new_point[i] - current[i]) ** 2 for i in range(dim)))
+            if movement < tol:
+                return shapely.geometry.Point(new_point[0],new_point[1])
+            current = new_point
+        if dim==2:
+            return shapely.geometry.Point(current[0], current[1])
+        else:
+            return shapely.geometry.Point(current[0], current[1], current[2])
+
+    @staticmethod
     def distanceWrapper(pt1,pt2,is3D):
         if is3D:
             return math.sqrt(((pt2.x-pt1.x)**2)+((pt2.y-pt1.y)**2)+((pt2.z-pt1.z)**2))
@@ -764,7 +795,7 @@ class Handling3D:
         minZ = flinf
         for c in clist:
             #print(c)
-            if c[2] != nan and minZ > c[2]:
+            if c[2] != math.nan and minZ > c[2]:
                 minZ = c[2]
         if minZ == flinf:
             minZ = "NaN"
@@ -776,7 +807,7 @@ class Handling3D:
         flinf = -float("inf")
         maxZ = flinf
         for c in clist:
-            if c[2] != nan and maxZ < c[2]:
+            if c[2] != math.nan and maxZ < c[2]:
                 maxZ = c[2]
         if maxZ == flinf:
             maxZ = "NaN"
@@ -1016,6 +1047,13 @@ def addPoint(a: Literal, b:Literal, pointindex: Literal) -> Literal:
             return LiteralUtils.processGeomToLiteral(shapely.geometry.Polygon(coords), a.datatype)
     raise ValueError("This function is only support for Point, LineString and Polygon geometries")
 
+def affineTransformation(a: Literal, matrix: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    splitted=str(matrix).replace("[","").replace("]","").split(" ")
+    if len(splitted)==6 or len(splitted)==12:
+        return Literal(shapely.affinity.affine_transform(thegeom, [float(i) for i in splitted]), datatype=XSD.double)
+    raise ValueError("The transformation matrix did not meet the expected format  [a, b, d, e, xoff, yoff] or [a, b, c, d, e, f, g, h, i, xoff, yoff, zoff]")
+
 ## Appends a coordinate to a given geometry
 #  @param a The geometry literal
 #  @param b The point to append
@@ -1049,7 +1087,7 @@ def azimuth(a: Literal) -> Literal:
     segments = [shapely.geometry.LineString([a, b]) for a, b in zip(coords, coords[1:])]  # Create the four side lines.
     longest_segment = max(segments, key=lambda x: x.length)
     p1, p2 = [c for c in longest_segment.coords]  # List the start and end coordinates of it
-    azimuthangle = degrees(atan2(p2[1] - p1[1], p2[0] - p1[0]))
+    azimuthangle = math.degrees(math.atan2(p2[1] - p1[1], p2[0] - p1[0]))
     return Literal(azimuthangle, datatype=XSD.double)
 
 
@@ -1174,21 +1212,18 @@ def clipByRect(a: Literal, b:Literal) -> Literal:
 #  @param b The second geometry literal
 #  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
 def closestPoint(a: Literal, b: Literal) -> Literal:
+    print(a)
+    print(b)
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
     print(geoms)
-    is3D=False
-    if geoms[0].has_z and geoms[1].has_z:
-        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
-        is3D = True
-    else:
-        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
     mindistance=float("inf")
     closest=None
     for p1 in g1list:
+        cp = shapely.geometry.Point(p1)
         for p2 in g2list:
-            cp = shapely.geometry.Point(p1)
             dist = Handling3D.distanceWrapper(cp, shapely.geometry.Point(p2),is3D)
             if dist<mindistance:
                 mindistance=dist
@@ -1241,7 +1276,7 @@ def compactnessRatio(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
     p = thegeom.length
     a = thegeom.area
-    return Literal(str(1 / (p / (2 * pi * sqrt(a / pi)))), datatype=XSD.double)
+    return Literal(str(1 / (p / (2 * math.pi * math.sqrt(a / math.pi)))), datatype=XSD.double)
 
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/ehCovers">geof:ehCovers</a> <a target="_blank" href="http://www.opengis.net/def/function/geosparql/rcc8tppi">geof:rcc8tppi</a>: Calculates whether the first geometry covers the second geometry.
@@ -1386,26 +1421,29 @@ def exteriorRing(a: Literal) -> Literal:
 
 ## Retrieves the farthest coordinate on a geometry to a given point
 #  @param a The given point
-#  @param b The geometry to calculaet the farthest coordinate on.
+#  @param b The geometry to calculate the farthest coordinate on.
 #  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
 def farthestCoordinate(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+    print(geoms)
     if geoms[0] is not None and geoms[0].geom_type!="Point":
         raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
-    is3D=False
-    if geoms[0].has_z and geoms[1].has_z:
-        clist = shapely.get_coordinates(geoms[1], include_z=True).tolist()
-        is3D=True
-    else:
-        clist = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
     maxdistance=float("-inf")
     farthest=None
-    for p in clist:
-        cp=shapely.geometry.Point(p)
-        dist=Handling3D.distanceWrapper(geoms[0],cp,is3D)
-        if dist>maxdistance:
-            maxdistance=dist
-            farthest=cp
+    print(g1list)
+    print(g2list)
+    for p1 in g1list:
+        p1p=shapely.geometry.Point(p1)
+        for p2 in g2list:
+            cp=shapely.geometry.Point(p2)
+            dist=Handling3D.distanceWrapper(p1p,cp,is3D)
+            if dist>maxdistance:
+                maxdistance=dist
+                farthest = cp
+    print("FARTHEST:", farthest)
     if farthest is not None:
         return LiteralUtils.processGeomToLiteral(farthest,a.datatype,"")
 
@@ -1453,14 +1491,9 @@ def frechetDistance(a: Literal, b: Literal) -> Literal:
 def fullyWithinDistance(a: Literal, b: Literal, distance: Literal) -> Literal:
     if isinstance(distance, Literal) and distance.datatype == XSD.double:
         geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-        is3D=False
-        if geoms[0].has_z and geoms[1].has_z:
-            g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
-            g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
-            is3D=True
-        else:
-            g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
-            g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+        is3D = Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+        g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
         thedistance=float(distance)
         maxdistance=float("-inf")
         for p1 in g1list:
@@ -1479,6 +1512,11 @@ def geometryN(a: Literal, n: Literal) -> Literal:
     if isinstance(a, Literal) and isinstance(n, Literal) and n.datatype == XSD.integer:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(shapely.get_geometry(thegeom, int(str(n))), a.datatype, thegeomsrs)
+
+def geometricMedian(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    #print("MEDIAN: "+str(Handling3D.geometricMedian(thegeom),))
+    return LiteralUtils.processGeomToLiteral(Handling3D.geometricMedian(thegeom), a.datatype, thegeomsrs)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryType">geof:geometryType</a>: Retrieves the geometry type of a geometry literal.
 #  @param a The geometry literal
@@ -1742,21 +1780,17 @@ def length(a: Literal,unit: Literal) -> Literal:
 def longestLine(a: Literal, b: Literal) -> Literal:
     print("LONGESTLINE")
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    is3D=False
-    if geoms[0].has_z and geoms[1].has_z:
-        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
-        is3D=True
-    else:
-        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
     maxdistance=float("-inf")
     fpoint1=None
     fpoint2=None
     for p1 in g1list:
+        p1p=shapely.geometry.Point(p1)
         for p2 in g2list:
-            dist = Handling3D.distanceWrapper(shapely.geometry.Point(p1), shapely.geometry.Point(p2),is3D)
-            print(dist)
+            dist = Handling3D.distanceWrapper(p1p, shapely.geometry.Point(p2),is3D)
+            #print(dist)
             if dist>maxdistance:
                 maxdistance=dist
                 fpoint1=p1
@@ -1780,11 +1814,11 @@ def makeValid(a: Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(shapely.make_valid(thegeom), a.datatype)
 
 
-def matrixTransform(a: Literal, matrix) -> Literal:
+def maximumInscribedCircle(a: Literal) -> Literal:
     thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    shapely.affinity.affine_transform(thegeom, [])
-    if thegeom.geom_type == "Point":
-        return Literal(shapely.get_m(thegeom), datatype=XSD.double)
+    circdata=shapely.maximum_inscribed_circle(thegeom)
+    thecircle=shapely.Point(shapely.get_coordinates(circdata)[0]).buffer(circdata.length)
+    return LiteralUtils.processGeomToLiteral(thecircle, a.datatype)
 
 ## Retrieves the maximum distance between two geometries
 #  @param a The first geometry literal.
@@ -1792,18 +1826,14 @@ def matrixTransform(a: Literal, matrix) -> Literal:
 #  @returns The maximum distance as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
 def maxDistance(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    is3D=False
-    if geoms[0].has_z and geoms[1].has_z:
-        g1list = shapely.get_coordinates(geoms[0], include_z=True).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=True).tolist()
-        is3D=True
-    else:
-        g1list = shapely.get_coordinates(geoms[0], include_z=False).tolist()
-        g2list = shapely.get_coordinates(geoms[1], include_z=False).tolist()
+    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
     maxdistance=float("-inf")
     for p1 in g1list:
+        p1p=shapely.geometry.Point(p1)
         for p2 in g2list:
-            dist=Handling3D.distanceWrapper(shapely.geometry.Point(p1),shapely.geometry.Point(p2),is3D)
+            dist=Handling3D.distanceWrapper(p1p,shapely.geometry.Point(p2),is3D)
             if dist>maxdistance:
                 maxdistance=dist
     return Literal(str(maxdistance), datatype=XSD.double)
@@ -1817,7 +1847,7 @@ def maxM(a: Literal) -> Literal:
     flinf = -float("inf")
     maxM = flinf
     for c in clist:
-        if c[2] != nan and maxM < c[2]:
+        if c[2] != math.nan and maxM < c[2]:
             maxM = c[2]
     if maxM == flinf:
         maxM = "NaN"
@@ -1930,7 +1960,7 @@ def minM(a: Literal) -> Literal:
     flinf = float("inf")
     minM = flinf
     for c in clist:
-        if c[2] != nan and minM > c[2]:
+        if c[2] != math.nan and minM > c[2]:
             minM = c[2]
     if minM == flinf:
         minM = "NaN"
@@ -2057,6 +2087,11 @@ def perimeter(a: Literal, unit: Literal) -> Literal:
     if SRSUtils.uniturisToUnit[unit.value]!="meter":
         theperimeter=SRSUtils.convertMetricToUnit(theperimeter,"http://qudt.org/vocab/unit/M",unit.value)
     return Literal(theperimeter, datatype=XSD.double)
+
+
+def reducePrecision(a: Literal, gridsize: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.set_precision(thegeom,float(gridsize.value)), a.datatype)
 
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/relate">geof:relate</a>: Calculates whether two input geometries conform to a given DE-9IM pattern.
 #  @param a The first geometry literal
@@ -2344,6 +2379,16 @@ def union3D(a: Literal, b: Literal) -> Literal:
         print(trimesh.boolean.boolean_manifold(geoms, "intersection"))
         return Literal(trimesh.boolean.union(geoms), datatype=XSD.boolean)
 
+def voronoiLines(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    if thegeom is not None:
+        return LiteralUtils.processGeomToLiteral(shapely.voronoi_polygons(thegeom, only_edges=True),a.datatype)
+
+def voronoiPolygons(a: Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    if thegeom is not None:
+        return LiteralUtils.processGeomToLiteral(shapely.voronoi_polygons(thegeom),a.datatype)
+
 ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/sfWithin">geof:sfWithin</a>: Calculates whether the first geometry is within the second geometry.
 #  @param a The first geometry literal
 #  @param b The second geometry literal
@@ -2479,6 +2524,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "above"): above,
     URIRef(GEOFEXT + "above3D"): above3D,
     URIRef(GEOFEXT + "addPoint"): addPoint,
+    URIRef(GEOFEXT + "affineTransformation"): affineTransformation,
     URIRef(GEOFEXT + "appendPoint"): appendPoint,
     URIRef(GEOFEXT + "asGeocode"): SerializationFunctions.asGeocode,
     URIRef(GEOFEXT + "asGeoYAML"): SerializationFunctions.asGeoYAML,
@@ -2510,6 +2556,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "frechetDistance"): frechetDistance,
     URIRef(GEOFEXT + "fullyWithinDistance"): fullyWithinDistance,
     URIRef(GEOFEXT + "flipXY"): flipXY,
+    URIRef(GEOFEXT + "geometricMedian"): geometricMedian,
     URIRef(GEOFEXT + "hausdorffDistance"): hausdorffDistance,
     URIRef(GEOFEXT + "inFrontOf"): inFrontOf,
     URIRef(GEOFEXT + "interpolatePoint"): interpolatePoint,
@@ -2528,6 +2575,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "longestLine"): longestLine,
     URIRef(GEOFEXT + "makeValid"): makeValid,
     URIRef(GEOFEXT + "maxDistance"): maxDistance,
+    URIRef(GEOFEXT + "maximumInscribedCircle"): maximumInscribedCircle,
     URIRef(GEOFEXT + "maxM"): maxM,
     URIRef(GEOFEXT + "M"): m,
     URIRef(GEOFEXT + "metricWithinDistance"): metricWithinDistance,
@@ -2543,6 +2591,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "patchN"): patchN,
     URIRef(GEOFEXT + "pointN"): pointN,
     URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
+    URIRef(GEOFEXT + "reducePrecision"): reducePrecision,
     URIRef(GEOFEXT + "removePoint"): removePoint,
     URIRef(GEOFEXT + "removeRepeatedPoints"): removeRepeatedPoints,
     URIRef(GEOFEXT + "reverse"): reverse,
@@ -2560,6 +2609,8 @@ geosparql13 = {
     URIRef(GEOFEXT + "startPoint"): startPoint,
     URIRef(GEOFEXT + "transformCRS84"): transformCRS84,
     URIRef(GEOFEXT + "translate"): translate,
+    URIRef(GEOFEXT + "voronoiLines"): voronoiLines,
+    URIRef(GEOFEXT + "voronoiPolygons"): voronoiPolygons,
     URIRef(GEOFEXT + "withinDistance"): withinDistance,
     URIRef(GEOFEXT + "X"): x,
     URIRef(GEOFEXT + "Y"): y,
