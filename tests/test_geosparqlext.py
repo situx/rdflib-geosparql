@@ -351,7 +351,7 @@ end_header
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         SELECT ?cPoint
         WHERE {
-          my:A my:hasPointGeometry ?aGeom .
+          my:A geo:hasPointGeometry ?aGeom .
           ?aGeom %%literalrel1%% ?aLiteral .
           my:D geo:hasDefaultGeometry ?dGeom .
           ?dGeom %%literalrel2%% ?dLiteral .
@@ -457,7 +457,7 @@ end_header
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         SELECT ?farthestCoord
         WHERE {
-          my:A my:hasPointGeometry ?aGeom .
+          my:A geo:hasPointGeometry ?aGeom .
           ?aGeom %%literalrel1%% ?aLiteral .
           my:D geo:hasDefaultGeometry ?dGeom .
           ?dGeom %%literalrel2%% ?dLiteral .
@@ -1186,6 +1186,37 @@ end_header
             print("Testing with " + str(res[1]))
             assert len(result) == 1
             assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["scale"])[0], expresult)
+
+    def test_SelfIntersections(self):
+        resultlist = TestUtils.queryExecution(
+            """
+            PREFIX my: <http://example.org/ApplicationSchema#>
+            PREFIX geo: <"""+str(GEO)+""">
+            PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+            PREFIX geof: <"""+str(GEOFEXT)+""">
+            SELECT ?geom1 ?geom2 ?si1 ?si2
+            WHERE {
+              my:AExactGeom geo:asWKT ?geom1 .
+              BIND("POLYGON((0 0, 2 2, 0 2, 2 0, 0 0))"^^geo:wktLiteral AS ?geom2)
+              BIND(geof:selfIntersections(?geom1) AS ?si1)
+              BIND(geof:selfIntersections(?geom2) AS ?si2)
+            }
+            """ ,combinations,config,g)
+        expresult = shapely.from_wkt("LINESTRING (-83.2 34.5, 2.393 47.448)")
+        for res in resultlist:
+            result = res[0]
+            print("Testing with " + str(res[1]))
+            assert len(result) == 1
+            assert_geometries_equal(LiteralUtils.processLiteralTypeToGeom(result[0]["si1"])[0], expresult)
+        """
+        SELECT ?geom1 ?geom2 ?si1 ?si2
+WHERE {
+  my:AExactGeom geo:asWKT ?geom1 .
+  BIND("POLYGON((0 0, 2 2, 0 2, 2 0, 0 0))"^^geo:wktLiteral AS ?geom2)
+  BIND(geof:selfIntersections(?geom1) AS ?si1)
+  BIND(geof:selfIntersections(?geom2) AS ?si2)
+}
+        """
 
     def test_sharedPaths(self):
         resultlist = TestUtils.queryExecution(
