@@ -3,9 +3,11 @@ rhealpix-sf
 shapely
 fastkml
 pygml
+gpxpy
 pint
 pyproj
 lxml
+shapelysmooth
 trimesh
 manifold3d
 triangle
