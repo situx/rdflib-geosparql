@@ -11,6 +11,7 @@ import shapelysmooth
 import pygeohash
 import pygml
 import shapely
+import shapely.ops
 import trimesh
 from fastkml import kml
 from lxml import etree
@@ -867,6 +868,14 @@ class GeometryAccessors:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
 
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
+    #  @param a The geometry literal
+    #  @returns The bounding circle as a geometry literal in the CRS and literal format of the input geometry
+    @staticmethod
+    def boundingCircle(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
+
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>: Calculates the centroid of a geometry literal.
     #  @param a The geometry literal
     #  @returns The centroid as a geometry literal in the CRS of the input geometry
@@ -887,6 +896,7 @@ class GeometryAccessors:
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>: Calculates the concave hull of a geometry literal.
     #  @param a The geometry literal
     #  @returns The concave hull as a geometry literal in the format and CRS of the input geometry
+    @staticmethod
     def concaveHull(a: Literal) -> Literal:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
@@ -894,6 +904,7 @@ class GeometryAccessors:
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>: Calculates the convex hull of a geometry literal.
     #  @param a The geometry literal
     #  @returns The convex hull as a geometry literal in the CRS of the input geometry
+    @staticmethod
     def convexHull(a: Literal) -> Literal:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
@@ -914,6 +925,16 @@ class GeometryAccessors:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(shapely.Point(shapely.get_coordinates(thegeom)[-1]), a.datatype,
                                                  thegeomsrs)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/envelope">geof:envelope</a>: Calculates a bounding box around the given geometry
+    #  @param a The geometry literal
+    #  @returns The envelope of the given geometry as a geometry literal of the same type and CRS as the input geometry
+    @staticmethod
+    def envelope(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        if Handling3D.is3D(thegeom):
+            return LiteralUtils.processGeomToLiteral(Handling3D.bbox3D(thegeom), a.datatype, thegeomsrs)
+        return LiteralUtils.processGeomToLiteral(thegeom.envelope, a.datatype, thegeomsrs)
 
     ## Extracts an exerior ring from a geometry if it exists
     #  @param a The geometry literal
@@ -1294,6 +1315,28 @@ class GeometryMeasurements:
         azimuthangle = math.degrees(math.atan2(p2[1] - p1[1], p2[0] - p1[0]))
         return Literal(azimuthangle, datatype=XSD.double)
 
+    ## Retrieves the point on the second geometry parameter which is closest to the first geometry
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
+    @staticmethod
+    def closestPoint(a: Literal, b: Literal) -> Literal:
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+        is3D = Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+        g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
+        mindistance = float("inf")
+        closest = None
+        for p1 in g1list:
+            cp = shapely.geometry.Point(p1)
+            for p2 in g2list:
+                dist = Handling3D.distanceWrapper(cp, shapely.geometry.Point(p2), is3D)
+                if dist < mindistance:
+                    mindistance = dist
+                    closest = cp
+        if closest is not None:
+            return LiteralUtils.processGeomToLiteral(closest, a.datatype, "")
+
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/distance">geof:distance</a>: Retrieves the distance between two geometries.
     #  @param a The first geometry literal
     #  @param b The second geometry literal
@@ -1319,6 +1362,32 @@ class GeometryMeasurements:
             return Literal(Handling3D.distance3D(geoms[0], geoms[1]), datatype=XSD.double)
         raise ValueError(
             "Invalid parameters, e.g. invalid geometry literals were provided for function geof:distance3D")
+
+    ## Retrieves the farthest coordinate on a geometry to a given point
+    #  @param a The given point
+    #  @param b The geometry to calculate the farthest coordinate on.
+    #  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
+    @staticmethod
+    def farthestCoordinate(a: Literal, b: Literal) -> Literal:
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+        if geoms[0] is not None and geoms[0].geom_type != "Point":
+            raise ValueError(
+                "The first parameter of the function geof:farthestCoordinate should represent a point geometry")
+        is3D = Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+        g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
+        maxdistance = float("-inf")
+        farthest = None
+        for p1 in g1list:
+            p1p = shapely.geometry.Point(p1)
+            for p2 in g2list:
+                cp = shapely.geometry.Point(p2)
+                dist = Handling3D.distanceWrapper(p1p, cp, is3D)
+                if dist > maxdistance:
+                    maxdistance = dist
+                    farthest = cp
+        if farthest is not None:
+            return LiteralUtils.processGeomToLiteral(farthest, a.datatype, "")
 
     ## Calculates the FrechetDistance between two input geometries.
     #  @param a The first geometry literal
@@ -1358,6 +1427,32 @@ class GeometryMeasurements:
         if SRSUtils.uniturisToUnit[unit.value] != "meter":
             thelength = SRSUtils.convertMetricToUnit(thelength, "http://qudt.org/vocab/unit/M", unit.value)
         return Literal(thelength, datatype=XSD.double)
+
+    ## Retrieves the longest line between two geometries defined by the two points with maximum distance
+    #  @param a The first geometry literal.
+    #  @param b The first geometry literal.
+    #  @returns The longest line as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def longestLine(a: Literal, b: Literal) -> Literal:
+        print("LONGESTLINE")
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
+        is3D = Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
+        g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
+        g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
+        maxdistance = float("-inf")
+        fpoint1 = None
+        fpoint2 = None
+        for p1 in g1list:
+            p1p = shapely.geometry.Point(p1)
+            for p2 in g2list:
+                dist = Handling3D.distanceWrapper(p1p, shapely.geometry.Point(p2), is3D)
+                # print(dist)
+                if dist > maxdistance:
+                    maxdistance = dist
+                    fpoint1 = p1
+                    fpoint2 = p2
+        if fpoint1 is not None and fpoint2 is not None:
+            return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([fpoint1, fpoint2]), a.datatype)
 
     ## Retrieves the maximum distance between two geometries
     #  @param a The first geometry literal.
@@ -1415,6 +1510,22 @@ class GeometryMeasurements:
         normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
         return Literal(normgeom.length, datatype=XSD.double)
 
+    ## Calculates the radius of the minimum bounding circle around the input geometry.
+    #  @param a The geometry literal.
+    #  @returns The minimum bounding radius as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+    @staticmethod
+    def minimumBoundingRadius(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return Literal(shapely.minimum_bounding_radius(thegeom), datatype=XSD.double)
+
+    ## Calculates the minimum clearance of the input geometry.
+    #  @param a The geometry literal.
+    #  @returns The minimum clearance as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+    @staticmethod
+    def minimumClearance(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return Literal(shapely.minimum_clearance(thegeom), datatype=XSD.double)
+
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/perimeter">geof:perimeter</a>: Retrieves the perimeter length of a geometry.
     #  @param a The geometry literal
     #  @param units The unit of measurement of the length as a URI
@@ -1430,6 +1541,26 @@ class GeometryMeasurements:
         if SRSUtils.uniturisToUnit[unit.value] != "meter":
             theperimeter = SRSUtils.convertMetricToUnit(theperimeter, "http://qudt.org/vocab/unit/M", unit.value)
         return Literal(theperimeter, datatype=XSD.double)
+
+    ## Returns a point on the surface of the given geometry
+    #  @param a The geometry literal
+    #  @returns The surface point as a geometry literal of the same type and CRS as the input geometry
+    @staticmethod
+    def pointOnSurface(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        print(shapely.point_on_surface(thegeom))
+        return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
+
+    ## Retrieves the shortest line between two geometries defined by the two points with minimum distance
+    #  @param a The first geometry literal.
+    #  @param b The first geometry literal.
+    #  @returns The shortest line as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def shortestLine(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.shortest_line(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
 
 
 class GeometryModifiers:
@@ -1600,6 +1731,94 @@ class GeometryModifiers:
                 return LiteralUtils.processGeomToLiteral(shapely.geometry.Polygon(coords), a.datatype)
         raise ValueError("This function is only support for Point, LineString and Polygon geometries")
 
+
+
+class GeometryProcessing:
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/buffer">geof:buffer</a>: Calculates the buffer of a geometry literal with a given radius and a given unit.
+    #  @param a The geometry literal
+    #  @param radius The buffer radius
+    #  @param unit the radius unit
+    #  @returns The buffer as a geometry literal in the CRS and literal format of the input geometry
+    @staticmethod
+    def buffer(a: Literal, radius: Literal, unit: Literal = "") -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        if isinstance(radius, Literal) and radius.datatype == XSD.double:
+            return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/difference">geof:difference</a>: Calculates the difference of two geometry literals.
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The difference as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def difference(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        print(geomtps)
+        print(shapely.difference(geomtps[0][0], geomtps[1][0]))
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.difference(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
+    @staticmethod
+    def difference3D(a: Literal, b: Literal) -> Literal:
+        print("DIFF 3D")
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+        if geoms[0] is not None and geoms[1] is not None:
+            diff = geoms[0].difference(geoms[1])
+            bio = BytesIO()
+            diff.export(bio, file_type="ply", encoding='ascii')
+            res = bio.getvalue().decode("utf-8")
+            return LiteralUtils.processGeomToLiteral(diff, a.datatype)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/intersection">geof:intersection</a>: Calculates the intersection of two geometry literals.
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The intersection as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def intersection(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.intersection(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
+    @staticmethod
+    def intersection3D(a: Literal, b: Literal) -> Literal:
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+        print(geoms)
+        print(geoms[0].intersection(geoms[1]))
+        print(geoms[0].intersection(geoms[1]).volume)
+        if geoms[0] is not None and geoms[1] is not None:
+            return Literal(str(geoms[0].intersection(geoms[1])), datatype=XSD.string)
+
+    @staticmethod
+    def lineMerge(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(shapely.line_merge(thegeom), a.datatype, thegeomsrs)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricBuffer">geof:metricBuffer</a>: Calculates a buffer of a 2D geometry from a given radius.
+    #  @param a The geometry literal.
+    #  @param radius The radius of the buffer to create.
+    #  @returns The buffer as a geometry <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
+    def metricBuffer(a: Literal, radius: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
+        if isinstance(radius, Literal) and radius.datatype == XSD.double:
+            return LiteralUtils.processGeomToLiteral(shapely.buffer(normgeom, float(radius)), a.datatype, thegeomsrs)
+
+    ## Creates an offset line at a given distance and side from an input geometry .
+    #  @param a The geometry literal
+    #  @param d The distance
+    #  @returns The offset curve as a LineString in the CRS and literal format of the input geometry
+    @staticmethod
+    def offsetCurve(a: Literal, d: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(shapely.offset_curve(thegeom, float(str(d))), a.datatype)
+
+    @staticmethod
+    def sharedPaths(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.shared_paths(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
+
     ## Returns a simplfied version of the input geometry calculated with the Douglas Peucker simplification algoritm.
     #  @param a The geometry literal
     #  @param tolerance a tolerance value
@@ -1613,6 +1832,52 @@ class GeometryModifiers:
     def smooth(a: Literal, tolerance: Literal) -> Literal:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return LiteralUtils.processGeomToLiteral(shapelysmooth.chaikin_smooth(thegeom), a.datatype, thegeomsrs)
+
+    @staticmethod
+    def snap(a:Literal, b:Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        return LiteralUtils.processGeomToLiteral(shapely.ops.snap(geomtps[0][0],geomtps[1][0],0.01), a.datatype,
+                                                 geomtps[0][1])
+    @staticmethod
+    def split(a:Literal, b:Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        return LiteralUtils.processGeomToLiteral(shapely.ops.split(geomtps[0][0],geomtps[1][0]), a.datatype,
+                                                 geomtps[0][1])
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/symDifference">geof:symDifference</a>: Calculates the symmetric difference of two geometry literals.
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The symmetric difference as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def symDifference(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.symmetric_difference(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def union(a: Literal, b: Literal) -> Literal:
+        geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
+        if len(geomtps) > 1:
+            return LiteralUtils.processGeomToLiteral(shapely.union(geomtps[0][0], geomtps[1][0]), a.datatype,
+                                                     geomtps[0][1])
+        raise ValueError("Invalid parameters were provided for function geof:union")
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
+    #  @param a The first geometry literal
+    #  @param b The second geometry literal
+    #  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
+    @staticmethod
+    def union3D(a: Literal, b: Literal) -> Literal:
+        geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
+        if geoms[0] is not None and geoms[1] is not None:
+            print(trimesh.boolean.boolean_manifold(geoms, "intersection"))
+            return Literal(trimesh.boolean.union(geoms), datatype=XSD.boolean)
+
 
 class GeometryTransformations:
 
@@ -1735,7 +2000,7 @@ class GeometryTransformations:
             return LiteralUtils.processGeomToLiteral(shapely.voronoi_polygons(thegeom),a.datatype)
 
 
-class RelationFunctions:
+class GeometryRelations:
 
     ## Calculates whether the first geometry is above the second geometry.
     #  @param a The first geometry literal
@@ -1763,6 +2028,7 @@ class RelationFunctions:
     #  @param a The first geometry literal
     #  @param b The second geometry literal
     #  @returns A <a target="_blank" href="http://www.w3.org/2001/XMLSchema#boolean">xsd:boolean</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a> indicating whether the first geometry is behind the second geometry
+    @staticmethod
     def behind(a: Literal, b: Literal) -> Literal:
         geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
         if geoms[0] is not None and geoms[1] is not None and Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1]):
@@ -2341,22 +2607,7 @@ def boundingDiagonal(a: Literal) -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([[thebounds[0],thebounds[1]],[thebounds[2],thebounds[3]]]), a.datatype, thegeomsrs)
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundingCircle">geof:boundingCircle</a>: Calculates the minimum bounding circle of a geometry literal.
-#  @param a The geometry literal
-#  @returns The bounding circle as a geometry literal in the CRS and literal format of the input geometry
-def boundingCircle(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(shapely.minimum_bounding_circle(thegeom), a.datatype, thegeomsrs)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/buffer">geof:buffer</a>: Calculates the buffer of a geometry literal with a given radius and a given unit.
-#  @param a The geometry literal
-#  @param radius The buffer radius
-#  @param unit the radius unit
-#  @returns The buffer as a geometry literal in the CRS and literal format of the input geometry
-def buffer(a: Literal, radius: Literal, unit: Literal="") -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    if isinstance(radius, Literal) and radius.datatype == XSD.double:
-        return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
 
 
 
@@ -2369,26 +2620,6 @@ def clipByRect(a: Literal, b:Literal) -> Literal:
     return LiteralUtils.processGeomToLiteral(clipped, a.datatype, "")
 
 
-## Retrieves the point on the second geometry parameter which is closest to the first geometry
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
-def closestPoint(a: Literal, b: Literal) -> Literal:
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
-    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
-    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
-    mindistance=float("inf")
-    closest=None
-    for p1 in g1list:
-        cp = shapely.geometry.Point(p1)
-        for p2 in g2list:
-            dist = Handling3D.distanceWrapper(cp, shapely.geometry.Point(p2),is3D)
-            if dist<mindistance:
-                mindistance=dist
-                closest=cp
-    if closest is not None:
-        return LiteralUtils.processGeomToLiteral(closest,a.datatype,"")
 
 
 
@@ -2399,65 +2630,17 @@ def closestPoint(a: Literal, b: Literal) -> Literal:
 
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/difference">geof:difference</a>: Calculates the difference of two geometry literals.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The difference as a geometry literal in the CRS and literal format of the first input geometry
-def difference(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    print(geomtps)
-    print(shapely.difference(geomtps[0][0], geomtps[1][0]))
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.difference(geomtps[0][0], geomtps[1][0]), a.datatype,
-                                                 geomtps[0][1])
-
-def difference3D(a: Literal, b: Literal) -> Literal:
-    print("DIFF 3D")
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
-    if geoms[0] is not None and geoms[1] is not None:
-        diff=geoms[0].difference(geoms[1])
-        bio = BytesIO()
-        diff.export(bio, file_type="ply", encoding='ascii')
-        res = bio.getvalue().decode("utf-8")
-        return LiteralUtils.processGeomToLiteral(diff,a.datatype)
-
-
-
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/envelope">geof:envelope</a>: Calculates a bounding box around the given geometry
-#  @param a The geometry literal
-#  @returns The envelope of the given geometry as a geometry literal of the same type and CRS as the input geometry
-def envelope(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    if Handling3D.is3D(thegeom):
-        return LiteralUtils.processGeomToLiteral(Handling3D.bbox3D(thegeom), a.datatype, thegeomsrs)
-    return LiteralUtils.processGeomToLiteral(thegeom.envelope, a.datatype, thegeomsrs)
 
 
 
 
-## Retrieves the farthest coordinate on a geometry to a given point
-#  @param a The given point
-#  @param b The geometry to calculate the farthest coordinate on.
-#  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
-def farthestCoordinate(a: Literal, b: Literal) -> Literal:
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    if geoms[0] is not None and geoms[0].geom_type!="Point":
-        raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
-    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
-    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
-    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
-    maxdistance=float("-inf")
-    farthest=None
-    for p1 in g1list:
-        p1p=shapely.geometry.Point(p1)
-        for p2 in g2list:
-            cp=shapely.geometry.Point(p2)
-            dist=Handling3D.distanceWrapper(p1p,cp,is3D)
-            if dist>maxdistance:
-                maxdistance=dist
-                farthest = cp
-    if farthest is not None:
-        return LiteralUtils.processGeomToLiteral(farthest,a.datatype,"")
+
+
+
+
+
+
+
 
 
 
@@ -2474,53 +2657,12 @@ def interpolatePoint(a: Literal, d: Literal) -> Literal:
     print(d.value)
     return LiteralUtils.processGeomToLiteral(shapely.line_interpolate_point(thegeom,float(str(d.value))), a.datatype)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/intersection">geof:intersection</a>: Calculates the intersection of two geometry literals.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The intersection as a geometry literal in the CRS and literal format of the first input geometry
-def intersection(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.intersection(geomtps[0][0], geomtps[1][0]), a.datatype,geomtps[0][1])
 
 
-def intersection3D(a: Literal, b: Literal) -> Literal:
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
-    print(geoms)
-    print(geoms[0].intersection(geoms[1]))
-    print(geoms[0].intersection(geoms[1]).volume)
-    if geoms[0] is not None and geoms[1] is not None:
-        return Literal(str(geoms[0].intersection(geoms[1])), datatype=XSD.string)
 
 
-def lineMerge(a:Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(shapely.line_merge(thegeom), a.datatype, thegeomsrs)
 
-## Retrieves the longest line between two geometries defined by the two points with maximum distance
-#  @param a The first geometry literal.
-#  @param b The first geometry literal.
-#  @returns The longest line as a geometry literal in the CRS and literal format of the first input geometry
-def longestLine(a: Literal, b: Literal) -> Literal:
-    print("LONGESTLINE")
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
-    g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
-    g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
-    maxdistance=float("-inf")
-    fpoint1=None
-    fpoint2=None
-    for p1 in g1list:
-        p1p=shapely.geometry.Point(p1)
-        for p2 in g2list:
-            dist = Handling3D.distanceWrapper(p1p, shapely.geometry.Point(p2),is3D)
-            #print(dist)
-            if dist>maxdistance:
-                maxdistance=dist
-                fpoint1=p1
-                fpoint2=p2
-    if fpoint1 is not None and fpoint2 is not None:
-        return LiteralUtils.processGeomToLiteral(shapely.geometry.LineString([fpoint1,fpoint2]),a.datatype)
+
 
 
 
@@ -2536,32 +2678,13 @@ def maximumInscribedCircle(a: Literal) -> Literal:
 
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/metricBuffer">geof:metricBuffer</a>: Calculates a buffer of a 2D geometry from a given radius.
-#  @param a The geometry literal.
-#  @param radius The radius of the buffer to create.
-#  @returns The buffer as a geometry <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def metricBuffer(a: Literal, radius: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    normgeom = Transformers.transformToSRS(thegeom, thegeomsrs, 3857)
-    if isinstance(radius, Literal) and radius.datatype == XSD.double:
-        return LiteralUtils.processGeomToLiteral(shapely.buffer(normgeom, float(radius)), a.datatype, thegeomsrs)
 
 
 
 
-## Calculates the radius of the minimum bounding circle around the input geometry.
-#  @param a The geometry literal.
-#  @returns The minimum bounding radius as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def minimumBoundingRadius(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return Literal(shapely.minimum_bounding_radius(thegeom), datatype=XSD.double)
 
-## Calculates the minimum clearance of the input geometry.
-#  @param a The geometry literal.
-#  @returns The minimum clearance as <a target="_blank" href="http://www.w3.org/2001/XMLSchema#double">xsd:double</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
-def minimumClearance(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return Literal(shapely.minimum_clearance(thegeom), datatype=XSD.double)
+
+
 
 ## Retrieves the minimum clearance line of a geometry
 #  @param a The first geometry literal.
@@ -2571,44 +2694,18 @@ def minimumClearanceLine(a: Literal) -> Literal:
     # print(shapely.minimum_clearance_line(thegeom))
     return LiteralUtils.processGeomToLiteral(shapely.minimum_clearance_line(thegeom), a.datatype)
 
-## Creates an offset line at a given distance and side from an input geometry .
-#  @param a The geometry literal
-#  @param d The distance
-#  @returns The offset curve as a LineString in the CRS and literal format of the input geometry
-def offsetCurve(a: Literal,d: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(shapely.offset_curve(thegeom,float(str(d))), a.datatype)
-
-
-
-## Returns a point on the surface of the given geometry
-#  @param a The geometry literal
-#  @returns The surface point as a geometry literal of the same type and CRS as the input geometry
-def pointOnSurface(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    print(shapely.point_on_surface(thegeom))
-    return LiteralUtils.processGeomToLiteral(shapely.point_on_surface(thegeom), a.datatype, thegeomsrs)
 
 
 
 
 
 
-def sharedPaths(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.shared_paths(geomtps[0][0], geomtps[1][0]), a.datatype,
-                                                 geomtps[0][1])
 
-## Retrieves the shortest line between two geometries defined by the two points with minimum distance
-#  @param a The first geometry literal.
-#  @param b The first geometry literal.
-#  @returns The shortest line as a geometry literal in the CRS and literal format of the first input geometry
-def shortestLine(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.shortest_line(geomtps[0][0], geomtps[1][0]), a.datatype,
-                                                 geomtps[0][1])
+
+
+
+
+
 
 
 
@@ -2629,81 +2726,44 @@ def selfIntersections(a: Literal) -> Literal:
             intersections.append(inter)
     return LiteralUtils.processGeomToLiteral(shapely.geometry.MultiPoint(intersections),a.datatype)
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/symDifference">geof:symDifference</a>: Calculates the symmetric difference of two geometry literals.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The symmetric difference as a geometry literal in the CRS and literal format of the first input geometry
-def symDifference(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.symmetric_difference(geomtps[0][0], geomtps[1][0]), a.datatype,
-                                                 geomtps[0][1])
-
-
-
-
-
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
-def union(a: Literal, b: Literal) -> Literal:
-    geomtps = LiteralUtils.processLiteralsToGeom([a, b], normalize=True)
-    if len(geomtps) > 1:
-        return LiteralUtils.processGeomToLiteral(shapely.union(geomtps[0][0], geomtps[1][0]), a.datatype, geomtps[0][1])
-    raise ValueError("Invalid parameters were provided for function geof:union")
-
-
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/union">geof:union</a>: Calculates the union of two geometry literals.
-#  @param a The first geometry literal
-#  @param b The second geometry literal
-#  @returns The union as a geometry literal in the CRS and literal format of the first input geometry
-def union3D(a: Literal, b: Literal) -> Literal:
-    geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True, create3D=True)))[0]
-    if geoms[0] is not None and geoms[1] is not None:
-        print(trimesh.boolean.boolean_manifold(geoms, "intersection"))
-        return Literal(trimesh.boolean.union(geoms), datatype=XSD.boolean)
-
-
-
 
 geosparql10 = {
     URIRef(GEOF + "boundary"): GeometryAccessors.boundary,
-    URIRef(GEOF + "buffer"): buffer,
+    URIRef(GEOF + "buffer"): GeometryProcessing.buffer,
     URIRef(GEOF + "convexHull"): GeometryAccessors.convexHull,
-    URIRef(GEOF + "difference"): difference,
+    URIRef(GEOF + "difference"): GeometryProcessing.difference,
     URIRef(GEOF + "distance"): GeometryMeasurements.distance,
-    URIRef(GEOF + "ehContains"): RelationFunctions.contains,
-    URIRef(GEOF + "ehCoveredBy"): RelationFunctions.coveredBy,
-    URIRef(GEOF + "ehCovers"): RelationFunctions.covers,
-    URIRef(GEOF + "ehDisjoint"): RelationFunctions.disjoint,
-    URIRef(GEOF + "ehEquals"): RelationFunctions.equals,
-    URIRef(GEOF + "ehInside"): RelationFunctions.inside,
-    URIRef(GEOF + "ehMeet"): RelationFunctions.touches,
-    URIRef(GEOF + "ehOverlap"): RelationFunctions.overlaps,
-    URIRef(GEOF + "envelope"): envelope,
+    URIRef(GEOF + "ehContains"): GeometryRelations.contains,
+    URIRef(GEOF + "ehCoveredBy"): GeometryRelations.coveredBy,
+    URIRef(GEOF + "ehCovers"): GeometryRelations.covers,
+    URIRef(GEOF + "ehDisjoint"): GeometryRelations.disjoint,
+    URIRef(GEOF + "ehEquals"): GeometryRelations.equals,
+    URIRef(GEOF + "ehInside"): GeometryRelations.inside,
+    URIRef(GEOF + "ehMeet"): GeometryRelations.touches,
+    URIRef(GEOF + "ehOverlap"): GeometryRelations.overlaps,
+    URIRef(GEOF + "envelope"): GeometryAccessors.envelope,
     URIRef(GEOF + "geometryType"): GeometryAccessors.geometryType,
     URIRef(GEOF + "getSRID"): GeometryAccessors.getSRID,
-    URIRef(GEOF + "intersection"): intersection,
-    URIRef(GEOF + "rcc8dc"): RelationFunctions.disjoint,
-    URIRef(GEOF + "rcc8ec"): RelationFunctions.touches,
-    URIRef(GEOF + "rcc8eq"): RelationFunctions.equals,
-    URIRef(GEOF + "rcc8ntpp"): RelationFunctions.inside,
-    URIRef(GEOF + "rcc8ntppi"): RelationFunctions.contains,
-    URIRef(GEOF + "rcc8po"): RelationFunctions.overlaps,
-    URIRef(GEOF + "rcc8tpp"): RelationFunctions.coveredBy,
-    URIRef(GEOF + "rcc8tppi"): RelationFunctions.covers,
-    URIRef(GEOF + "relate"): RelationFunctions.relate,
-    URIRef(GEOF + "sfContains"): RelationFunctions.contains,
-    URIRef(GEOF + "sfCrosses"): RelationFunctions.crosses,
-    URIRef(GEOF + "sfDisjoint"): RelationFunctions.disjoint,
-    URIRef(GEOF + "sfEquals"): RelationFunctions.equals,
-    URIRef(GEOF + "sfIntersects"): RelationFunctions.intersects,
-    URIRef(GEOF + "sfOverlaps"): RelationFunctions.overlaps,
-    URIRef(GEOF + "sfTouches"): RelationFunctions.touches,
-    URIRef(GEOF + "sfWithin"): RelationFunctions.within,
-    URIRef(GEOF + "symDifference"): symDifference,
-    URIRef(GEOF + "union"): union,
+    URIRef(GEOF + "intersection"): GeometryProcessing.intersection,
+    URIRef(GEOF + "rcc8dc"): GeometryRelations.disjoint,
+    URIRef(GEOF + "rcc8ec"): GeometryRelations.touches,
+    URIRef(GEOF + "rcc8eq"): GeometryRelations.equals,
+    URIRef(GEOF + "rcc8ntpp"): GeometryRelations.inside,
+    URIRef(GEOF + "rcc8ntppi"): GeometryRelations.contains,
+    URIRef(GEOF + "rcc8po"): GeometryRelations.overlaps,
+    URIRef(GEOF + "rcc8tpp"): GeometryRelations.coveredBy,
+    URIRef(GEOF + "rcc8tppi"): GeometryRelations.covers,
+    URIRef(GEOF + "relate"): GeometryRelations.relate,
+    URIRef(GEOF + "sfContains"): GeometryRelations.contains,
+    URIRef(GEOF + "sfCrosses"): GeometryRelations.crosses,
+    URIRef(GEOF + "sfDisjoint"): GeometryRelations.disjoint,
+    URIRef(GEOF + "sfEquals"): GeometryRelations.equals,
+    URIRef(GEOF + "sfIntersects"): GeometryRelations.intersects,
+    URIRef(GEOF + "sfOverlaps"): GeometryRelations.overlaps,
+    URIRef(GEOF + "sfTouches"): GeometryRelations.touches,
+    URIRef(GEOF + "sfWithin"): GeometryRelations.within,
+    URIRef(GEOF + "symDifference"): GeometryProcessing.symDifference,
+    URIRef(GEOF + "union"): GeometryProcessing.union,
 }
 
 geosparql11 = {
@@ -2714,7 +2774,7 @@ geosparql11 = {
     URIRef(GEOF + "asKML"): SerializationFunctions.asKML,
     URIRef(GEOF + "asWKB"): SerializationFunctions.asWKB,
     URIRef(GEOF + "asWKT"): SerializationFunctions.asWKT,
-    URIRef(GEOF + "boundingCircle"): boundingCircle,
+    URIRef(GEOF + "boundingCircle"): GeometryAccessors.boundingCircle,
     URIRef(GEOF + "centroid"): GeometryAccessors.centroid,
     URIRef(GEOF + "concaveHull"): GeometryAccessors.concaveHull,
     URIRef(GEOF + "coordinateDimension"): GeometryAccessors.coordinateDimension,
@@ -2728,7 +2788,7 @@ geosparql11 = {
     URIRef(GEOF + "maxY"): GeometryAccessors.maxY,
     URIRef(GEOF + "maxZ"): GeometryAccessors.maxZ,
     URIRef(GEOF + "metricArea"): GeometryMeasurements.metricArea,
-    URIRef(GEOF + "metricBuffer"): metricBuffer,
+    URIRef(GEOF + "metricBuffer"): GeometryProcessing.metricBuffer,
     URIRef(GEOF + "metricDistance"): GeometryMeasurements.metricDistance,
     URIRef(GEOF + "metricLength"): GeometryMeasurements.metricLength,
     URIRef(GEOF + "metricPerimeter"): GeometryMeasurements.metricPerimeter,
@@ -2743,8 +2803,8 @@ geosparql11 = {
 }
 
 geosparql13 = {
-    URIRef(GEOFEXT + "above"): RelationFunctions.above,
-    URIRef(GEOFEXT + "above3D"): RelationFunctions.above3D,
+    URIRef(GEOFEXT + "above"): GeometryRelations.above,
+    URIRef(GEOFEXT + "above3D"): GeometryRelations.above3D,
     URIRef(GEOFEXT + "addPoint"): GeometryModifiers.addPoint,
     URIRef(GEOFEXT + "affineTransformation"): GeometryTransformations.affineTransformation,
     URIRef(GEOFEXT + "appendPoint"): GeometryModifiers.appendPoint,
@@ -2759,33 +2819,33 @@ geosparql13 = {
     URIRef(GEOFEXT + "asWKB"): SerializationFunctions.asWKB,
     URIRef(GEOFEXT + "asXYZ"): SerializationFunctions.asXYZ,
     URIRef(GEOFEXT + "azimuth"): GeometryMeasurements.azimuth,
-    URIRef(GEOFEXT + "below"): RelationFunctions.below,
-    URIRef(GEOFEXT + "below3D"): RelationFunctions.below3D,
-    URIRef(GEOFEXT + "behind"): RelationFunctions.behind,
+    URIRef(GEOFEXT + "below"): GeometryRelations.below,
+    URIRef(GEOFEXT + "below3D"): GeometryRelations.below3D,
+    URIRef(GEOFEXT + "behind"): GeometryRelations.behind,
     URIRef(GEOFEXT + "boundingDiagonal"): boundingDiagonal,
     URIRef(GEOFEXT + "compactnessRatio"): GeometryAccessors.compactnessRatio,
     URIRef(GEOFEXT + "clipByRect"): clipByRect,
-    URIRef(GEOFEXT + "closestPoint"): closestPoint,
+    URIRef(GEOFEXT + "closestPoint"): GeometryMeasurements.closestPoint,
     URIRef(GEOFEXT + "constrainedDelaunay"): GeometryTransformations.constrainedDelaunay,
     URIRef(GEOFEXT + "delaunayTriangles"): GeometryTransformations.delaunayTriangles,
-    URIRef(GEOFEXT + "difference3D"): difference3D,
+    URIRef(GEOFEXT + "difference3D"): GeometryProcessing.difference3D,
     URIRef(GEOFEXT + "endPoint"): GeometryAccessors.endPoint,
-    URIRef(GEOFEXT + "equalsExact"): RelationFunctions.equalsExact,
+    URIRef(GEOFEXT + "equalsExact"): GeometryRelations.equalsExact,
     URIRef(GEOFEXT + "exteriorRing"): GeometryAccessors.exteriorRing,
-    URIRef(GEOFEXT + "farthestCoordinate"): farthestCoordinate,
+    URIRef(GEOFEXT + "farthestCoordinate"): GeometryMeasurements.farthestCoordinate,
     URIRef(GEOFEXT + "force2D"): GeometryModifiers.force2D,
     URIRef(GEOFEXT + "force3D"): GeometryModifiers.extrude,
     URIRef(GEOFEXT + "forceCW"): GeometryModifiers.forceCW,
     URIRef(GEOFEXT + "forceCCW"): GeometryModifiers.forceCCW,
     URIRef(GEOFEXT + "frechetDistance"): GeometryMeasurements.frechetDistance,
-    URIRef(GEOFEXT + "fullyWithinDistance"): RelationFunctions.fullyWithinDistance,
+    URIRef(GEOFEXT + "fullyWithinDistance"): GeometryRelations.fullyWithinDistance,
     URIRef(GEOFEXT + "flipXY"): GeometryModifiers.flipXY,
     URIRef(GEOFEXT + "geometricMedian"): GeometryAccessors.geometricMedian,
     URIRef(GEOFEXT + "hausdorffDistance"): GeometryMeasurements.hausdorffDistance,
-    URIRef(GEOFEXT + "inFrontOf"): RelationFunctions.inFrontOf,
+    URIRef(GEOFEXT + "inFrontOf"): GeometryRelations.inFrontOf,
     URIRef(GEOFEXT + "interpolatePoint"): interpolatePoint,
-    URIRef(GEOFEXT + "intersection3D"): intersection3D,
-    URIRef(GEOFEXT + "intersects3D"): RelationFunctions.intersects3D,
+    URIRef(GEOFEXT + "intersection3D"): GeometryProcessing.intersection3D,
+    URIRef(GEOFEXT + "intersects3D"): GeometryRelations.intersects3D,
     URIRef(GEOFEXT + "isCCW"): GeometryAccessors.isCCW,
     URIRef(GEOFEXT + "isCollection"): GeometryAccessors.isCollection,
     URIRef(GEOFEXT + "isClosed"): GeometryAccessors.isClosed,
@@ -2794,50 +2854,52 @@ geosparql13 = {
     URIRef(GEOFEXT + "isTriangle"): GeometryAccessors.isTriangle,
     URIRef(GEOFEXT + "isValid"): GeometryAccessors.isValid,
     URIRef(GEOFEXT + "isValidTrajectory"): GeometryAccessors.isValidTrajectory,
-    URIRef(GEOFEXT + "leftOf"): RelationFunctions.leftOf,
-    URIRef(GEOFEXT + "leftOf3D"): RelationFunctions.leftOf3D,
-    URIRef(GEOFEXT + "lineMerge"): lineMerge,
-    URIRef(GEOFEXT + "longestLine"): longestLine,
+    URIRef(GEOFEXT + "leftOf"): GeometryRelations.leftOf,
+    URIRef(GEOFEXT + "leftOf3D"): GeometryRelations.leftOf3D,
+    URIRef(GEOFEXT + "lineMerge"): GeometryProcessing.lineMerge,
+    URIRef(GEOFEXT + "longestLine"): GeometryMeasurements.longestLine,
     URIRef(GEOFEXT + "makeValid"): GeometryModifiers.makeValid,
     URIRef(GEOFEXT + "maxDistance"): GeometryMeasurements.maxDistance,
     URIRef(GEOFEXT + "maximumInscribedCircle"): maximumInscribedCircle,
     URIRef(GEOFEXT + "maxM"): GeometryAccessors.maxM,
     URIRef(GEOFEXT + "M"): GeometryAccessors.m,
-    URIRef(GEOFEXT + "metricWithinDistance"): RelationFunctions.metricWithinDistance,
+    URIRef(GEOFEXT + "metricWithinDistance"): GeometryRelations.metricWithinDistance,
     URIRef(GEOFEXT + "minM"): GeometryAccessors.minM,
-    URIRef(GEOFEXT + "minimumBoundingRadius"): minimumBoundingRadius,
-    URIRef(GEOFEXT + "minimumClearance"): minimumClearance,
+    URIRef(GEOFEXT + "minimumBoundingRadius"): GeometryMeasurements.minimumBoundingRadius,
+    URIRef(GEOFEXT + "minimumClearance"): GeometryMeasurements. minimumClearance,
     URIRef(GEOFEXT + "minimumClearanceLine"): minimumClearanceLine,
     URIRef(GEOFEXT + "numGeometries"): GeometryAccessors.numGeometries,
     URIRef(GEOFEXT + "numPatches"): GeometryAccessors.numPatches,
     URIRef(GEOFEXT + "numInteriorRing"): GeometryAccessors.numInteriorRing,
     URIRef(GEOFEXT + "numPoints"): GeometryAccessors.numPoints,
-    URIRef(GEOFEXT + "offsetCurve"): offsetCurve,
+    URIRef(GEOFEXT + "offsetCurve"): GeometryProcessing.offsetCurve,
     URIRef(GEOFEXT + "patchN"): GeometryAccessors.patchN,
-    URIRef(GEOFEXT + "pointInsideCircle"): RelationFunctions.pointInsideCircle,
+    URIRef(GEOFEXT + "pointInsideCircle"): GeometryRelations.pointInsideCircle,
     URIRef(GEOFEXT + "pointN"): GeometryAccessors.pointN,
-    URIRef(GEOFEXT + "pointOnSurface"): pointOnSurface,
+    URIRef(GEOFEXT + "pointOnSurface"): GeometryMeasurements.pointOnSurface,
     URIRef(GEOFEXT + "reducePrecision"): GeometryModifiers.reducePrecision,
     URIRef(GEOFEXT + "removePoint"): GeometryModifiers.removePoint,
     URIRef(GEOFEXT + "removeRepeatedPoints"): GeometryModifiers.removeRepeatedPoints,
     URIRef(GEOFEXT + "reverse"): GeometryModifiers.reverse,
-    URIRef(GEOFEXT + "rightOf"): RelationFunctions.rightOf,
-    URIRef(GEOFEXT + "rightOf3D"): RelationFunctions.rightOf3D,
+    URIRef(GEOFEXT + "rightOf"): GeometryRelations.rightOf,
+    URIRef(GEOFEXT + "rightOf3D"): GeometryRelations.rightOf3D,
     URIRef(GEOFEXT + "rotate"): GeometryTransformations.rotate,
     URIRef(GEOFEXT + "scale"): GeometryTransformations.scale,
     URIRef(GEOFEXT + "selfIntersections"): selfIntersections,
     URIRef(GEOFEXT + "setPoint"): GeometryModifiers.setPoint,
-    URIRef(GEOFEXT + "sharedPaths"): sharedPaths,
-    URIRef(GEOFEXT + "shortestLine"): shortestLine,
-    URIRef(GEOFEXT + "simplify"): GeometryModifiers.simplify,
+    URIRef(GEOFEXT + "sharedPaths"): GeometryProcessing.sharedPaths,
+    URIRef(GEOFEXT + "shortestLine"): GeometryMeasurements.shortestLine,
+    URIRef(GEOFEXT + "simplify"): GeometryProcessing.simplify,
     URIRef(GEOFEXT + "skew"): GeometryTransformations.skew,
-    URIRef(GEOFEXT + "smooth"): GeometryModifiers.smooth,
+    URIRef(GEOFEXT + "smooth"): GeometryProcessing.smooth,
+    URIRef(GEOFEXT + "snap"): GeometryProcessing.snap,
+    URIRef(GEOFEXT + "split"): GeometryProcessing.split,
     URIRef(GEOFEXT + "startPoint"): GeometryAccessors.startPoint,
     URIRef(GEOFEXT + "transformCRS84"): GeometryTransformations.transformCRS84,
     URIRef(GEOFEXT + "translate"): GeometryTransformations.translate,
     URIRef(GEOFEXT + "voronoiLines"): GeometryTransformations.voronoiLines,
     URIRef(GEOFEXT + "voronoiPolygons"): GeometryTransformations.voronoiPolygons,
-    URIRef(GEOFEXT + "withinDistance"): RelationFunctions.withinDistance,
+    URIRef(GEOFEXT + "withinDistance"): GeometryRelations.withinDistance,
     URIRef(GEOFEXT + "X"): GeometryAccessors.x,
     URIRef(GEOFEXT + "Y"): GeometryAccessors.y,
     URIRef(GEOFEXT + "Z"): GeometryAccessors.z,
