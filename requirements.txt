@@ -3,6 +3,7 @@ rhealpix-sf
 shapely
 fastkml
 pygml
+gpxpy
 pint
 pyproj
 lxml
