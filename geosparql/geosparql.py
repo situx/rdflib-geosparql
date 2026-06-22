@@ -859,6 +859,45 @@ class Handling3D:
 
 class GeometryAccessors:
 
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>: Calculates the boundary of a geometry literal.
+    #  @param a The geometry literal
+    #  @returns The geometry as a geometry literal in the CRS and literal format of the input geometry
+    @staticmethod
+    def boundary(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>: Calculates the centroid of a geometry literal.
+    #  @param a The geometry literal
+    #  @returns The centroid as a geometry literal in the CRS of the input geometry
+    @staticmethod
+    def centroid(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        if Handling3D.is3D(thegeom):
+            return LiteralUtils.processGeomToLiteral(Handling3D.centroid3D(thegeom), a.datatype, thegeomsrs)
+        return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
+
+    @staticmethod
+    def compactnessRatio(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        p = thegeom.length
+        a = thegeom.area
+        return Literal(str(1 / (p / (2 * math.pi * math.sqrt(a / math.pi)))), datatype=XSD.double)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>: Calculates the concave hull of a geometry literal.
+    #  @param a The geometry literal
+    #  @returns The concave hull as a geometry literal in the format and CRS of the input geometry
+    def concaveHull(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
+
+    ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>: Calculates the convex hull of a geometry literal.
+    #  @param a The geometry literal
+    #  @returns The convex hull as a geometry literal in the CRS of the input geometry
+    def convexHull(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
+
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/cooordinateDimension">geof:coordinateDimension</a>: Calculates the coordinate dimension of a geometry literal.
     #  @param a The geometry literal
     #  @returns The coordinate dimension as a <a target="_blank" href="http://www.w3.org/2001/XMLSchema#integer">xsd:integer</a> <a target="_blank" href="http://www.w3.org/TR/rdf-concepts/#section-Graph-Literal">Literal</a>
@@ -891,6 +930,12 @@ class GeometryAccessors:
     def getSRID(a: Literal) -> Literal:
         thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
         return Literal(thegeomsrs, datatype=XSD.anyURI)
+
+    @staticmethod
+    def geometricMedian(a: Literal) -> Literal:
+        thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+        # print("MEDIAN: "+str(Handling3D.geometricMedian(thegeom),))
+        return LiteralUtils.processGeomToLiteral(Handling3D.geometricMedian(thegeom), a.datatype, thegeomsrs)
 
     ## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/geometryN">geof:geometryN</a>: Returns the nth geometry of a GeometryCollection if it exists
     #  @param a The geometry literal
@@ -2281,12 +2326,7 @@ def range_overlap(start1, end1, start2, end2):
 
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/boundary">geof:boundary</a>: Calculates the boundary of a geometry literal.
-#  @param a The geometry literal
-#  @returns The geometry as a geometry literal in the CRS and literal format of the input geometry
-def boundary(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(shapely.boundary(thegeom), a.datatype, thegeomsrs)
+
 
 ## Retrieves the diagonal of the bounding box between the minimum coordinate and the maximum coordinate
 #  @param a The input geometry literal
@@ -2319,15 +2359,7 @@ def buffer(a: Literal, radius: Literal, unit: Literal="") -> Literal:
         return LiteralUtils.processGeomToLiteral(shapely.buffer(thegeom, float(radius)), a.datatype, thegeomsrs)
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/centroid">geof:centroid</a>: Calculates the centroid of a geometry literal.
-#  @param a The geometry literal
-#  @returns The centroid as a geometry literal in the CRS of the input geometry
-def centroid(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    print(thegeom)
-    if Handling3D.is3D(thegeom):
-        return LiteralUtils.processGeomToLiteral(Handling3D.centroid3D(thegeom),a.datatype, thegeomsrs)
-    return LiteralUtils.processGeomToLiteral(thegeom.centroid, a.datatype, thegeomsrs)
+
 
 
 def clipByRect(a: Literal, b:Literal) -> Literal:
@@ -2342,10 +2374,7 @@ def clipByRect(a: Literal, b:Literal) -> Literal:
 #  @param b The second geometry literal
 #  @returns The closest point on the first geometry to the second geometry as a geometry literal of the same type and CRS as the first input geometry
 def closestPoint(a: Literal, b: Literal) -> Literal:
-    print(a)
-    print(b)
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    print(geoms)
     is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
     g1list = shapely.get_coordinates(geoms[0], include_z=is3D).tolist()
     g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
@@ -2358,36 +2387,14 @@ def closestPoint(a: Literal, b: Literal) -> Literal:
             if dist<mindistance:
                 mindistance=dist
                 closest=cp
-    print("CLOSEST: "+str(closest))
     if closest is not None:
-        res=LiteralUtils.processGeomToLiteral(closest,a.datatype,"")
-        print("THE LITERAL: "+str(res))
         return LiteralUtils.processGeomToLiteral(closest,a.datatype,"")
 
 
 
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/concaveHull">geof:concaveHull</a>: Calculates the concave hull of a geometry literal.
-#  @param a The geometry literal
-#  @returns The concave hull as a geometry literal in the format and CRS of the input geometry
-def concaveHull(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(shapely.concave_hull(thegeom), a.datatype, thegeomsrs)
 
 
 
-
-## Implements <a target="_blank" href="http://www.opengis.net/def/function/geosparql/convexHull">geof:convexHull</a>: Calculates the convex hull of a geometry literal.
-#  @param a The geometry literal
-#  @returns The convex hull as a geometry literal in the CRS of the input geometry
-def convexHull(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    return LiteralUtils.processGeomToLiteral(thegeom.convex_hull, a.datatype, thegeomsrs)
-
-def compactnessRatio(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    p = thegeom.length
-    a = thegeom.area
-    return Literal(str(1 / (p / (2 * math.pi * math.sqrt(a / math.pi)))), datatype=XSD.double)
 
 
 
@@ -2434,7 +2441,6 @@ def envelope(a: Literal) -> Literal:
 #  @returns The farthest coordinate a a geometry lof the same type and CRS as the first input geometry
 def farthestCoordinate(a: Literal, b: Literal) -> Literal:
     geoms = list(zip(*LiteralUtils.processLiteralsToGeom([a, b], normalize=True)))[0]
-    print(geoms)
     if geoms[0] is not None and geoms[0].geom_type!="Point":
         raise ValueError("The first parameter of the function geof:farthestCoordinate should represent a point geometry")
     is3D=Handling3D.is3D(geoms[0]) and Handling3D.is3D(geoms[1])
@@ -2442,8 +2448,6 @@ def farthestCoordinate(a: Literal, b: Literal) -> Literal:
     g2list = shapely.get_coordinates(geoms[1], include_z=is3D).tolist()
     maxdistance=float("-inf")
     farthest=None
-    print(g1list)
-    print(g2list)
     for p1 in g1list:
         p1p=shapely.geometry.Point(p1)
         for p2 in g2list:
@@ -2452,16 +2456,11 @@ def farthestCoordinate(a: Literal, b: Literal) -> Literal:
             if dist>maxdistance:
                 maxdistance=dist
                 farthest = cp
-    print("FARTHEST:", farthest)
     if farthest is not None:
         return LiteralUtils.processGeomToLiteral(farthest,a.datatype,"")
 
 
 
-def geometricMedian(a: Literal) -> Literal:
-    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
-    #print("MEDIAN: "+str(Handling3D.geometricMedian(thegeom),))
-    return LiteralUtils.processGeomToLiteral(Handling3D.geometricMedian(thegeom), a.datatype, thegeomsrs)
 
 
 
@@ -2494,6 +2493,9 @@ def intersection3D(a: Literal, b: Literal) -> Literal:
         return Literal(str(geoms[0].intersection(geoms[1])), datatype=XSD.string)
 
 
+def lineMerge(a:Literal) -> Literal:
+    thegeom, thegeomsrs = LiteralUtils.processLiteralTypeToGeom(a)
+    return LiteralUtils.processGeomToLiteral(shapely.line_merge(thegeom), a.datatype, thegeomsrs)
 
 ## Retrieves the longest line between two geometries defined by the two points with maximum distance
 #  @param a The first geometry literal.
@@ -2666,9 +2668,9 @@ def union3D(a: Literal, b: Literal) -> Literal:
 
 
 geosparql10 = {
-    URIRef(GEOF + "boundary"): boundary,
+    URIRef(GEOF + "boundary"): GeometryAccessors.boundary,
     URIRef(GEOF + "buffer"): buffer,
-    URIRef(GEOF + "convexHull"): convexHull,
+    URIRef(GEOF + "convexHull"): GeometryAccessors.convexHull,
     URIRef(GEOF + "difference"): difference,
     URIRef(GEOF + "distance"): GeometryMeasurements.distance,
     URIRef(GEOF + "ehContains"): RelationFunctions.contains,
@@ -2713,8 +2715,8 @@ geosparql11 = {
     URIRef(GEOF + "asWKB"): SerializationFunctions.asWKB,
     URIRef(GEOF + "asWKT"): SerializationFunctions.asWKT,
     URIRef(GEOF + "boundingCircle"): boundingCircle,
-    URIRef(GEOF + "centroid"): centroid,
-    URIRef(GEOF + "concaveHull"): concaveHull,
+    URIRef(GEOF + "centroid"): GeometryAccessors.centroid,
+    URIRef(GEOF + "concaveHull"): GeometryAccessors.concaveHull,
     URIRef(GEOF + "coordinateDimension"): GeometryAccessors.coordinateDimension,
     URIRef(GEOF + "geometryN"): GeometryAccessors.geometryN,
     URIRef(GEOF + "is3D"): GeometryAccessors.is3D,
@@ -2761,7 +2763,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "below3D"): RelationFunctions.below3D,
     URIRef(GEOFEXT + "behind"): RelationFunctions.behind,
     URIRef(GEOFEXT + "boundingDiagonal"): boundingDiagonal,
-    URIRef(GEOFEXT + "compactnessRatio"): compactnessRatio,
+    URIRef(GEOFEXT + "compactnessRatio"): GeometryAccessors.compactnessRatio,
     URIRef(GEOFEXT + "clipByRect"): clipByRect,
     URIRef(GEOFEXT + "closestPoint"): closestPoint,
     URIRef(GEOFEXT + "constrainedDelaunay"): GeometryTransformations.constrainedDelaunay,
@@ -2778,7 +2780,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "frechetDistance"): GeometryMeasurements.frechetDistance,
     URIRef(GEOFEXT + "fullyWithinDistance"): RelationFunctions.fullyWithinDistance,
     URIRef(GEOFEXT + "flipXY"): GeometryModifiers.flipXY,
-    URIRef(GEOFEXT + "geometricMedian"): geometricMedian,
+    URIRef(GEOFEXT + "geometricMedian"): GeometryAccessors.geometricMedian,
     URIRef(GEOFEXT + "hausdorffDistance"): GeometryMeasurements.hausdorffDistance,
     URIRef(GEOFEXT + "inFrontOf"): RelationFunctions.inFrontOf,
     URIRef(GEOFEXT + "interpolatePoint"): interpolatePoint,
@@ -2794,6 +2796,7 @@ geosparql13 = {
     URIRef(GEOFEXT + "isValidTrajectory"): GeometryAccessors.isValidTrajectory,
     URIRef(GEOFEXT + "leftOf"): RelationFunctions.leftOf,
     URIRef(GEOFEXT + "leftOf3D"): RelationFunctions.leftOf3D,
+    URIRef(GEOFEXT + "lineMerge"): lineMerge,
     URIRef(GEOFEXT + "longestLine"): longestLine,
     URIRef(GEOFEXT + "makeValid"): GeometryModifiers.makeValid,
     URIRef(GEOFEXT + "maxDistance"): GeometryMeasurements.maxDistance,
@@ -2871,13 +2874,13 @@ PREFIX my: <http://example.org/ApplicationSchema#>
 PREFIX geo: <"""+str(GEO)+""">
 PREFIX geof: <"""+str(GEOFEXT)+""">
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-SELECT ?aLiteral ?dLiteral ?cPoint
+SELECT ?aLiteral ?dLiteral ?farthestCoord
 WHERE {
-  my:A geo:hasGeometry ?aGeom .
+  my:A geo:hasPointGeometry ?aGeom .
   ?aGeom geo:asWKT ?aLiteral .
   my:D geo:hasGeometry ?dGeom .
   ?dGeom geo:asWKT ?dLiteral .
-  BIND (geof:closestPoint(?aLiteral, ?dLiteral) as ?cPoint)
+  BIND (geof:farthestCoordinate(?aLiteral, ?dLiteral) as ?farthestCoord)
 }
 """
 )
