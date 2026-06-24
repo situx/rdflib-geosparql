@@ -23,6 +23,7 @@ jobs:
          sudo pip3 install -r requirements.txt
          cd docs
          doxygen Doxyfile
+         ls html/
          cd ..
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
