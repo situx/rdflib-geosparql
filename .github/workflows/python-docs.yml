@@ -4,7 +4,7 @@ on: [push]
 
 permissions:
   contents: read
-
+ 
 jobs:
 
   build:
@@ -35,7 +35,7 @@ jobs:
   test:
   
     runs-on: ubuntu-latest
-    needs: build
+
     steps:  
       - name: Run pytest
         uses: pavelzw/pytest-action@v2
