@@ -26,10 +26,11 @@ jobs:
          ls html/
          cd ..
     - name: Deploy 🚀
-      uses: JamesIves/github-pages-deploy-action@v4
+      uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
+         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          BRANCH: gh-pages
-         FOLDER: docs/html/
+         FOLDER: docs/
     - name: Run pytest
       uses: pavelzw/pytest-action@v2
       with:
