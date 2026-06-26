@@ -17,7 +17,9 @@ concurrency:
 jobs:
 
   build:
-
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
     steps:
@@ -34,12 +36,16 @@ jobs:
          doxygen Doxyfile
          ls html/
          cd ..
-    - name: Deploy 🚀
-      uses: JamesIves/github-pages-deploy-action@releases/v3
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-         BRANCH: gh-pages
-         FOLDER: docs/html/
+          # Upload entire repository
+          path: 'docs/html/'
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v5
   
   test:
   
